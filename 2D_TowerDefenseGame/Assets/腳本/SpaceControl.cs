@@ -32,13 +32,16 @@ public class SpaceControl : MonoBehaviour
     public string PlayerName;          //紀錄碰到的砲塔名稱
     public string PlayerTag;           //紀錄碰到的砲塔Tag
 
-    Vector2 Mouse_pos;                 //紀錄觸碰的座標
-    RaycastHit2D hit;
+    public static Vector2 Mouse_pos;    //紀錄觸碰的座標
+    public static RaycastHit2D hit;     //static將值給CameraControl腳本使用
 
     public static int PlayerNum = 2;    //角色數量，讓其他腳本使用
     public GameObject Player1;          //放置角色1的預置物
     public GameObject Player2;          //放置角色2的預置物
 
+    float begainTime = 0f;              //觸控螢幕開始的時間
+    float intervals;                    //觸控螢幕和放開的間隔
+    float DelayTime=0.2f;               //幾秒內放開才算點擊，超過就算移動
 
     // Start is called before the first frame update
     void Start()
@@ -54,7 +57,7 @@ public class SpaceControl : MonoBehaviour
             SpaceState[i] = 0;                               //記錄所有空格的狀態為0   
             LvState[i] = 0;
         }
-
+        
 
         //開場時先關閉選角視窗和進階視窗，和視窗底部
         ChoosePlayer.gameObject.SetActive(false);
@@ -76,22 +79,34 @@ public class SpaceControl : MonoBehaviour
         Vector2 Mouse_pos = Camera.main.ScreenToWorldPoint(Input.mousePosition); //紀錄滑鼠觸碰的2D座標比例
         RaycastHit2D hit = Physics2D.Raycast(Mouse_pos, Vector2.zero);           //2D使用的指令 
 
+        //新增觸控間隔，時間內才算點擊，超過就算移動
+        if (Input.GetMouseButtonDown(0))
+        {
+            begainTime = Time.realtimeSinceStartup;
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
+            intervals = Time.realtimeSinceStartup - begainTime;
+            print(intervals);
+        }
+        
+
         ////畫面狀態0且觸碰螢幕時 => 進入畫面狀態1(空格出現)////
-        if (Input.GetMouseButtonDown(0) && PictureState == 0)
+        if (Input.GetMouseButtonUp(0) && PictureState == 0 && intervals< DelayTime)
         {
             if (hit.collider == null) State_1();       //執行畫面狀態1
             else if (hit.collider != null) AdvancedWindow(hit.collider.name, hit.collider.tag);                   //若有建造砲塔且觸碰砲塔時        
         }
 
         ////畫面狀態1且觸碰螢幕時 => 觸碰空格進入畫面狀態2 or 無觸碰到空格進入畫面狀態0////
-        else if (Input.GetMouseButtonDown(0) && PictureState == 1)
+        else if (Input.GetMouseButtonUp(0) && PictureState == 1 && intervals < DelayTime)
         {
             if (hit.collider == null) State_0();                                      //執行畫面狀態0
             else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);  //執行畫面狀態2 
             else AdvancedWindow(hit.collider.name, hit.collider.tag);                 //若有建造砲塔且觸碰砲塔時}       
         }
         ////畫面狀態2且觸碰螢幕時 => 觸碰角色視窗建造角色，空格狀態變為2 or 觸控到其他空格，繼續執行畫面狀態2 or 無觸碰到空格進入畫面狀態0////
-        else if (Input.GetMouseButtonDown(0) && PictureState == 2)
+        else if (Input.GetMouseButtonUp(0) && PictureState == 2 && intervals < DelayTime)
         {
             if (hit.collider == null && ChoosePlayer.gameObject.activeSelf == true)
             {
@@ -99,7 +114,7 @@ public class SpaceControl : MonoBehaviour
                 Pos_Y = Mathf.Abs(SpacePoints[Choose_i].transform.position.y + 1f - Mouse_pos.y);
                 if (Pos_X >= Window_Length / 2f && Pos_Y >= Window_Width / 2f) State_0();  //超出範圍，執行畫面狀態0。否則不執行(可以按按鍵)
             }
-            else if (hit.collider == null &&  ChoosePlayerPlus.gameObject.activeSelf == true)
+            else if (hit.collider == null && ChoosePlayerPlus.gameObject.activeSelf == true)
             {
                 Pos_X = Mathf.Abs(GameObject.Find(PlayerName).transform.position.x - Mouse_pos.x);        //可點選範圍 = 進階視窗的長(X) - 觸控位子(X)
                 Pos_Y = Mathf.Abs(GameObject.Find(PlayerName).transform.position.y + 1f - Mouse_pos.y);
@@ -108,6 +123,8 @@ public class SpaceControl : MonoBehaviour
             else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);            //執行畫面狀態2                                            
             else AdvancedWindow(hit.collider.name, hit.collider.tag);                           //進階視窗   }
         }
+
+
     }
 
     ////觸控的狀態////
