@@ -29,7 +29,7 @@ public class EnemyControl : MonoBehaviour
     void Update()
     {
         ////控制怪的方向////
-        Vector3 EnemyDir = MovePoints.transform.position - this.gameObject.transform.position;//此向量(方向)為移動點的位子-此物件的位子
+        Vector3 EnemyDir = MovePoints.transform.position - this.gameObject.transform.position;//此向量(方向)=移動點的位子-此物件的位子
         this.gameObject.transform.position += EnemyDir.normalized * Speed*Time.deltaTime;//讓此物件往這個方向移動
         if (Vector3.Distance(this.gameObject.transform.position , MovePoints.transform.position) <=0.1f)//到移動點，就再移動到下一個移動點
         {
@@ -42,14 +42,13 @@ public class EnemyControl : MonoBehaviour
             MovePoints= PointSetting.points[Index];
         }
 
-        HpObj.transform.SetParent(GameObject.Find("視窗").transform); //沒加父物件就不會出現
+        HpObj.transform.SetParent(GameObject.Find("UI").transform); //沒加父物件就不會出現
         HpObj.transform.position = Camera.main.WorldToScreenPoint(this.gameObject.transform.position + new Vector3(0,0.2f,0) );//怪物血量一直跟著怪物
     }
 
     void CreatHpUI()
     {
         HpObj=Instantiate(GameObject.Find("怪物血量底部"));               //怪物出現就升成血量
-
     }
 
     //怪物碰撞控制

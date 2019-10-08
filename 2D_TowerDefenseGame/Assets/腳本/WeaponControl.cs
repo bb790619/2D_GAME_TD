@@ -47,10 +47,13 @@ public class WeaponControl : MonoBehaviour
         {
             PlayerDir = this.gameObject.transform.position;//紀錄砲塔的位子
             TargetDir = NearestEnemy.transform.position;//紀錄怪物的位子
-
+            //砲塔會改變方向
+            if (PlayerDir.x > TargetDir.x) GetComponent<SpriteRenderer>().flipX = false;
+            else if (PlayerDir.x < TargetDir.x) GetComponent<SpriteRenderer>().flipX = true;
             //子彈發射的速度
             if (fireCountdown <= 0f)
             {
+
                 Instantiate(Bullet, this.gameObject.transform.position, Quaternion.identity);
                 fireCountdown = 1f/fireRate;
             }
