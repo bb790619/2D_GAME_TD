@@ -36,9 +36,6 @@ public class SpaceControl : MonoBehaviour
     public GameObject Player4;          //放置角色3的預置物
     int Lv = 1;                        //角色等級
     float TXTCountDown = 0f;           //不能建造文字的倒數計數器
-    float CoolCount=0f;                //建造角色的冷卻時間的倒數計時器
-    float CoolTime = 3f;               //建造角色的冷卻時間
-    GameObject CDObj; 
 
     float begainTime = 0f;              //觸控螢幕開始的時間
     float intervals;                    //觸控螢幕和放開的間隔
@@ -114,12 +111,6 @@ public class SpaceControl : MonoBehaviour
         //控制TXT文字
         TXTCountDown -= Time.deltaTime;
         if (TXTCountDown <= 0f) DontBuildTxt.gameObject.SetActive(false);
-
-        CoolCount-= Time.deltaTime;
-        if (CoolCount <= 0f) Destroy(CDObj);
-
-        //CDObj.transform.GetChild(1).GetComponent<Image>().fillAmount = CoolCount / Time.deltaTime;
-
     }
 
     ////觸控的狀態////
@@ -195,13 +186,7 @@ public class SpaceControl : MonoBehaviour
         GameObject.Find("升級").GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(Pic); //更換圖片
     }
 
-    void CreatCDUI()
-    {
-        CoolCount = CoolTime;
-        CDObj = Instantiate(GameObject.Find("CD"));     //砲塔出現就升成CD
-        CDObj.transform.SetParent(GameObject.Find("UI").transform);         //沒加父物件就不會出現
-        CDObj.transform.position = Camera.main.WorldToScreenPoint(SpacePoints[Choose_i].transform.position );//怪物血量一直跟著怪物
-    }
+
 
     ////進階視窗的功能////
     public void ChangePlayer()
