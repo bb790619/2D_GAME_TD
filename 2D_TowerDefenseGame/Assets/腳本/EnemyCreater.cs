@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//產生怪物的腳本
+//產生怪物的腳本，放在"EnemyCreater"上
 public class EnemyCreater : MonoBehaviour
 {
     public GameObject EnemyPrefab;//放置敵人的預置物
@@ -15,7 +15,7 @@ public class EnemyCreater : MonoBehaviour
     float Waiter = 0.5f;        //出怪的間隔時間
     int EnemyWave = 0;         //目前是第幾波怪(0是開場，1是第一波，以此類推)，讓其他腳本來使用增加怪的強度
 
-    int EenmySerialNum;     //怪物的流水號
+    int EenmySerialNum;      //怪物的流水號
 
     // Start is called before the first frame update
     void Start()

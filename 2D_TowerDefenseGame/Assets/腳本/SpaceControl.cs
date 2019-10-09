@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-//建造角色，觸控的狀態
+//建造角色，觸控的狀態，放在"SapceControl"上
 //畫面狀態分為 => 0為無空格，1為空格出現，2為出現選角視窗或進階視窗
 //空格狀態分為 => 0無空格，1為空格出現，2為已建造角色
 public class SpaceControl : MonoBehaviour
@@ -32,7 +32,6 @@ public class SpaceControl : MonoBehaviour
     public GameObject Player2;          //放置角色2的預置物
     public GameObject Player3;          //放置角色3的預置物
     public GameObject Player4;          //放置角色3的預置物
-    int Lv = 1;                        //角色等級
     float TXTCountDown = 0f;           //不能建造文字的倒數計數器
 
     float begainTime = 0f;              //觸控螢幕開始的時間
@@ -53,7 +52,6 @@ public class SpaceControl : MonoBehaviour
             SpaceState[i] = 0;                               //記錄所有空格的狀態為0   
             LvState[i] = 0;
         }
-
 
         //開場時先關閉選角視窗和進階視窗，視窗底部，文字
         ChoosePlayer.gameObject.SetActive(false);
@@ -197,7 +195,6 @@ public class SpaceControl : MonoBehaviour
                 if (PlayerTag == "Player" + i)
                 {
                     LvState[Choose_j] += 1;       //升等
-
                     //加入延遲計數器，時間結束才能攻擊
                     GameObject.Find(PlayerName).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Player/角色" + i + "_LV" + LvState[Choose_j]);
                     GameObject.Find(PlayerName).AddComponent<DelayCount>().transform.position= GameObject.Find(PlayerName).transform.position;

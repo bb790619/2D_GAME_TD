@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-//控制砲塔
+//控制砲塔，放在"角色"上
 public class WeaponControl : MonoBehaviour
 {
     public GameObject Bullet;       //放置子彈的預置物

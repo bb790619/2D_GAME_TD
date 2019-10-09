@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-//控制怪物移動
+//控制怪物移動，放在"怪物"上
 public class EnemyControl : MonoBehaviour
 {
     ////怪物參數設定////
@@ -11,10 +11,10 @@ public class EnemyControl : MonoBehaviour
     float Hp ;
     float HpMax=5f; //怪物的目前血量和最大血量
 
-    GameObject HpObj;
-
     GameObject MovePoints;//讀取且放置移動點的陣列
     int Index = 0;//移動點的編號
+
+    GameObject HpObj;//怪物的血條
 
     // Start is called before the first frame update
     void Start()

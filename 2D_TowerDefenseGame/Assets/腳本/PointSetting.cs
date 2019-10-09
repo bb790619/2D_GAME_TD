@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//設定怪物的移動點
+//設定怪物的移動點，放在"移動點"上
 public class PointSetting : MonoBehaviour
 {
     public static GameObject[] points;//移動點的陣列
