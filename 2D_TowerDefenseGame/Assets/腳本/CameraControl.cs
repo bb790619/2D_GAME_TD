@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//控制攝影機移動，可用手指移動螢幕
 public class CameraControl : MonoBehaviour
 {
     Vector2 m_screenPos = new Vector2();
@@ -56,7 +57,7 @@ public class CameraControl : MonoBehaviour
             if (Input.touches[0].phase == TouchPhase.Ended && Input.touches[0].phase == TouchPhase.Canceled)
             {
                 Vector2 pos = Input.touches[0].position;
-                Speed = Speed * 10; //滑動螢幕速度
+                Speed = Speed * 100f; //滑動螢幕速度
 
                 //手指水平移動
                 if (Mathf.Abs(m_screenPos.x - pos.x) > Mathf.Abs(m_screenPos.y - pos.y))

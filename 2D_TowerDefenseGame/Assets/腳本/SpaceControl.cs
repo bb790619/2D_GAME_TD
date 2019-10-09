@@ -3,21 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-//建造角色
-//觸控的狀態
+//建造角色，觸控的狀態
 //畫面狀態分為 => 0為無空格，1為空格出現，2為出現選角視窗或進階視窗
 //空格狀態分為 => 0無空格，1為空格出現，2為已建造角色
-
 public class SpaceControl : MonoBehaviour
 {
-
     //可調整的參數
-    public static int PlayerNum = 4;    //角色數量，讓其他腳本使用
+    public static int PlayerNum = 4;   //角色數量，讓其他腳本使用
+    int LvMax = 3;                     //角色最大等級
 
     int PictureState = 0;             //畫面狀態
     GameObject[] SpacePoints;         //所有空格的陣列名稱
     int[] SpaceState;                 //空格狀態
-    int[] LvState;
+    int[] LvState;                    //砲塔等級
 
     public GameObject ChoosePlayer;    //選角視窗
     public GameObject ChoosePlayerPlus;//進階視窗(升級or販賣)
@@ -152,31 +150,34 @@ public class SpaceControl : MonoBehaviour
                 PictureState = 2;     //畫面狀態變為2，出現選角視窗     
                 ChoosePlayer.gameObject.SetActive(true);//開啟選角視窗且關閉進階視窗
                 ChoosePlayerPlus.gameObject.SetActive(false);
-                ChoosePlayer.transform.position = GameObject.Find(SpacePoints[i].name).transform.position + Vector3.up * 1;//選角視窗位子會在空格上方
+                ChoosePlayer.transform.position = GameObject.Find(SpacePoints[i].name).transform.position + Vector3.up * 0.5f;//選角視窗位子會在空格上方
                 Choose_i = i;         //紀錄被點選空格的位子，給BuildPlayer1()使用
             }
         }
     }
 
     ////進階視窗，可升級或販賣////
-    public void AdvancedWindow(string Name, string tag) //進階視窗，限定點選範圍
+    public void AdvancedWindow(string Name, string tag) //進階視窗
     {
-        PictureState = 2;
-        PlayerName = Name;
-        PlayerTag = tag;
-        for (int i = 1; i < PlayerNum + 1; i++)  //判斷是"Player" + i
+        if (DelayCount.CoolCount <= 0)        //新增，冷卻時間內不能點此砲塔(點了也沒作用)
         {
-            for (int j = 0; j < SpacePoints.Length; j++)
+            PictureState = 2;
+            PlayerName = Name;  //紀錄名字給其他使用
+            PlayerTag = tag;
+            for (int i = 1; i < PlayerNum + 1; i++)  //判斷是"Player" + i
             {
-                if (tag == "Player" + i && Name == "砲塔" + j)
+                for (int j = 0; j < SpacePoints.Length; j++)
                 {
-                    Choose_j = j;                                     //點選砲塔的編號
-                    Lv = SpaceState[Choose_j];                      //升等，state:2=.Lv1，要顯示Lv2的圖片
-                    ChoosePlayerPlus.gameObject.SetActive(true);      //點選砲塔時就開起進階視窗，關閉選角視窗
-                    ChoosePlayer.gameObject.SetActive(false);
-                    ChoosePlayerPlus.transform.position = GameObject.Find(Name).transform.position + Vector3.up * 1;//進階視窗位子會在砲塔上方  
-                    ChangePic("Player/角色" + i + "_LV" + Lv);           //進階視窗的圖片更換(UI的Image)
-                    if (Lv >= PlayerNum) ChangePic("不能建造");
+                    if (tag == "Player" + i && Name == "砲塔" + j)
+                    {
+                        Choose_j = j;                                     //點選砲塔的編號
+                        ChoosePlayerPlus.gameObject.SetActive(true);      //點選砲塔時就開起進階視窗，關閉選角視窗
+                        ChoosePlayer.gameObject.SetActive(false);
+                        ChoosePlayerPlus.transform.position = GameObject.Find(Name).transform.position + Vector3.up * 0.5f;//進階視窗位子會在砲塔上方  
+                        float LvNext = LvState[Choose_j] + 1;
+                        ChangePic("Player/角色" + i + "_LV" + LvNext);     //進階視窗的圖片更換(UI的Image)，原本Lv1，要顯示Lv2的圖片
+                        if (LvNext > LvMax) ChangePic("不能建造");
+                    }
                 }
             }
         }
@@ -185,21 +186,21 @@ public class SpaceControl : MonoBehaviour
     {
         GameObject.Find("升級").GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(Pic); //更換圖片
     }
-
-
-
-    ////進階視窗的功能////
-    public void ChangePlayer()
+    //進階視窗的功能，升級//
+    public void ChangePlayer() 
     {
-        if (Lv < PlayerNum) //建造角色
+        if (LvState[Choose_j] < LvMax) 
         {
             State_0();
             for (int i = 1; i < PlayerNum + 1; i++)  //判斷是"Player" + i
             {
                 if (PlayerTag == "Player" + i)
                 {
-                    GameObject.Find(PlayerName).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Player/角色" + i + "_LV" + Lv);
-                    SpaceState[Choose_j] += 1;       //升等，state:2=.Lv1，state:3=.Lv2，以此類推
+                    LvState[Choose_j] += 1;       //升等
+
+                    //加入延遲計數器，時間結束才能攻擊
+                    GameObject.Find(PlayerName).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Player/角色" + i + "_LV" + LvState[Choose_j]);
+                    GameObject.Find(PlayerName).AddComponent<DelayCount>().transform.position= GameObject.Find(PlayerName).transform.position;
                 }
             }
         }
@@ -208,11 +209,11 @@ public class SpaceControl : MonoBehaviour
             TXTCountDown = 1.1f;                      //播放時間
             DontBuildTxt.gameObject.SetActive(false); //因為有做動畫，所以必須關閉再開啟，就會再撥放 
             DontBuildTxt.gameObject.SetActive(true);
-            GameObject.Find("不能建造TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position + Vector3.up * 2);
+            GameObject.Find("不能建造TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position + Vector3.up * 1);
         }
-
     }
-    public void SellPlayer()  //販賣角色
+    //進階視窗的功能，販賣
+    public void SellPlayer() 
     {
         State_0();
         SpaceState[Choose_j] = 0;
@@ -224,6 +225,7 @@ public class SpaceControl : MonoBehaviour
     {
         State_0();//選完角色之後，空格消失
         SpaceState[Choose_i] = 2;  //空格狀態為2  
+        LvState[Choose_i] = 1;     //砲塔等級為1
         Instantiate(Player1, SpacePoints[Choose_i].transform.position, Quaternion.identity).name = "砲塔" + Choose_i;//產生的砲塔，命名為砲塔i
         GameObject.Find("砲塔" + Choose_i).transform.localScale = new Vector2(2f, 2f);                             //改變大小
     }
@@ -231,6 +233,7 @@ public class SpaceControl : MonoBehaviour
     {
         State_0();//選完角色之後，空格消失
         SpaceState[Choose_i] = 2;  //空格狀態為2
+        LvState[Choose_i] = 1;     //砲塔等級為1
         Instantiate(Player2, SpacePoints[Choose_i].transform.position, Quaternion.identity).name = "砲塔" + Choose_i;//產生的砲塔，命名為砲塔i
         GameObject.Find("砲塔" + Choose_i).transform.localScale = new Vector2(2f, 2f);                             //改變大小
     }
@@ -238,6 +241,7 @@ public class SpaceControl : MonoBehaviour
     {
         State_0();//選完角色之後，空格消失
         SpaceState[Choose_i] = 2;  //空格狀態為2
+        LvState[Choose_i] = 1;     //砲塔等級為1
         Instantiate(Player3, SpacePoints[Choose_i].transform.position, Quaternion.identity).name = "砲塔" + Choose_i;//產生的砲塔，命名為砲塔i
         GameObject.Find("砲塔" + Choose_i).transform.localScale = new Vector2(2f, 2f);                             //改變大小
     }
@@ -245,6 +249,7 @@ public class SpaceControl : MonoBehaviour
     {
         State_0();//選完角色之後，空格消失
         SpaceState[Choose_i] = 2;  //空格狀態為2
+        LvState[Choose_i] = 1;     //砲塔等級為1
         Instantiate(Player4, SpacePoints[Choose_i].transform.position, Quaternion.identity).name = "砲塔" + Choose_i;//產生的砲塔，命名為砲塔i
         GameObject.Find("砲塔" + Choose_i).transform.localScale = new Vector2(2f, 2f);                             //改變大小
     }

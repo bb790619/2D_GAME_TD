@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//控制子彈
 public class BulletControl : MonoBehaviour
 {
     float Speed = 5f;//子彈速度
