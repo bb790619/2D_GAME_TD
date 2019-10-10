@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor; //路徑要加入這個
 
 //控制砲塔，放在"角色"上
 public class WeaponControl : MonoBehaviour
@@ -15,7 +16,13 @@ public class WeaponControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Bullet = Resources.Load<GameObject>("Prefab/子彈");//自動加入Prefab
+        //做法1，從Resources/Prefab/子彈，自動加入子彈的Prefab(要把要加入的Prefab放入Resources資料夾)
+        //Bullet = Resources.Load<GameObject>("Prefab/子彈");   
+
+        //做法2，放置任何位子都行，先找出Prefab的路徑，自動加入子彈的Prefab
+        string path = "Assets/Prefab/子彈.prefab";
+        Bullet = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+    
     }
 
     // Update is called once per frame
