@@ -10,12 +10,11 @@ public class EnemyCreater : MonoBehaviour
     //開場階段60秒，每波為30秒，每波出怪20隻(其餘為等待時間)
     float NowTime ;        //遊戲時間
     float TimeDelay = 0f;      //遊戲開場等待階段
-    float EnemyWaveTime = 10f;  //每一波怪的時間
-    int EnemyNum = 10;          //每波出怪數量
-    float Waiter = 0.5f;        //出怪的間隔時間
+    float EnemyWaveTime = 30f; //每一波怪的時間
+    int EnemyNum = 10;         //每波出怪數量
+    float Waiter = 0.5f;       //出怪的間隔時間
     int EnemyWave = 0;         //目前是第幾波怪(0是開場，1是第一波，以此類推)，讓其他腳本來使用增加怪的強度
-
-    int EenmySerialNum;      //怪物的流水號
+    int EenmySerialNum;        //怪物的流水號
 
     // Start is called before the first frame update
     void Start()

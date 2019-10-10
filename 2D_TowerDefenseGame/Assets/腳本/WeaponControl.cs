@@ -1,12 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 //控制砲塔，放在"角色"上
 public class WeaponControl : MonoBehaviour
 {
-    public GameObject Bullet;       //放置子彈的預置物
+    GameObject Bullet;       //放置子彈的預置物
     float Range = 4f;               //砲塔攻擊範圍
     public static Vector3 PlayerDir;//紀錄砲塔的位子
     public static Vector3 TargetDir;//記錄怪物的位子
@@ -16,14 +15,14 @@ public class WeaponControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        this.gameObject.AddComponent<DelayCount>(); //加入延遲計數器的腳本
+        Bullet = Resources.Load<GameObject>("Prefab/子彈");//自動加入Prefab
     }
 
     // Update is called once per frame
     void Update()
     {
         //3秒開始執行，每一秒執行一次"SearchEnemy"
-        InvokeRepeating("SearchEnemy", DelayCount.CoolTime, 0.5f);
+        InvokeRepeating("SearchEnemy", SpaceControl.CoolTime, 0.5f);
     }
 
 
@@ -34,37 +33,33 @@ public class WeaponControl : MonoBehaviour
         float MinDist = Mathf.Infinity;//砲塔和怪物的距離，預設為無限
         GameObject NearestEnemy = null;//先預設找到的敵人為"空"
 
-        if (DelayCount.CoolCount <= 0) //新增，冷卻時間結束才能攻擊
+        //如果砲塔和怪物的距離 小於  無限值 => 出現在畫面中
+        //就記錄怪物的座標位子
+        for (int i = 0; i < Enemies.Length; i++)
         {
-            //如果砲塔和怪物的距離 小於  無限值 => 出現在畫面中
-            //就記錄怪物的座標位子
-            for (int i = 0; i < Enemies.Length; i++)
+            if (Vector3.Distance(transform.position, Enemies[i].transform.position) < MinDist)//
             {
-                if (Vector3.Distance(transform.position, Enemies[i].transform.position) < MinDist)//
-                {
-                    MinDist = Vector3.Distance(transform.position, Enemies[i].transform.position);
-                    NearestEnemy = Enemies[i];
-                }
+                MinDist = Vector3.Distance(transform.position, Enemies[i].transform.position);
+                NearestEnemy = Enemies[i];
             }
-            //如果怪物出現，且進入攻擊範圍內，就發射子彈
-            if (NearestEnemy != null && MinDist <= Range)
+        }
+        //如果怪物出現，且進入攻擊範圍內，就發射子彈
+        if (NearestEnemy != null && MinDist <= Range)
+        {
+            PlayerDir = this.gameObject.transform.position;//紀錄砲塔的位子
+            TargetDir = NearestEnemy.transform.position;//紀錄怪物的位子
+
+            //砲塔會改變方向
+            if (PlayerDir.x > TargetDir.x) GetComponent<SpriteRenderer>().flipX = false;
+            else if (PlayerDir.x < TargetDir.x) GetComponent<SpriteRenderer>().flipX = true;
+
+            //子彈發射的速度
+            if (fireCountdown <= 0f)
             {
-                PlayerDir = this.gameObject.transform.position;//紀錄砲塔的位子
-                TargetDir = NearestEnemy.transform.position;//紀錄怪物的位子
-
-                //砲塔會改變方向
-                if (PlayerDir.x > TargetDir.x) GetComponent<SpriteRenderer>().flipX = false;
-                else if (PlayerDir.x < TargetDir.x) GetComponent<SpriteRenderer>().flipX = true;
-
-                //子彈發射的速度
-                if (fireCountdown <= 0f)
-                {
-                    Instantiate(Bullet, this.gameObject.transform.position, Quaternion.identity);
-                    fireCountdown = 1f / fireRate;
-                }
-                fireCountdown -= Time.deltaTime;
+                Instantiate(Bullet, this.gameObject.transform.position, Quaternion.identity);
+                fireCountdown = 1f / fireRate;
             }
-
+            fireCountdown -= Time.deltaTime;
         }
     }
 

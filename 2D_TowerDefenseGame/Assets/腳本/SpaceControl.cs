@@ -11,17 +11,21 @@ public class SpaceControl : MonoBehaviour
     //可調整的參數
     public static int PlayerNum = 4;   //角色數量，讓其他腳本使用
     int LvMax = 3;                     //角色最大等級
+    public static float CoolTime = 3f; //建造砲塔的冷卻時間
 
     int PictureState = 0;             //畫面狀態
     GameObject[] SpacePoints;         //所有空格的陣列名稱
     int[] SpaceState;                 //空格狀態
     int[] LvState;                    //砲塔等級
+    int[] PlayerCount;                //建造時的冷卻狀態，0為無，1為正在建造
 
     public GameObject ChoosePlayer;    //選角視窗
     public GameObject ChoosePlayerPlus;//進階視窗(升級or販賣)
+    public GameObject CDObj;           //放置"CD底部"
     public Text DontBuildTxt;         //顯示不能建造的TXT
-    int Choose_i = -1;                 //紀錄碰到的空格編號，-1代表沒有儲存
-    int Choose_j = -1;                 //紀錄碰到的砲塔編號，-1代表沒有儲存
+    public Text DontLvUpTxt;          //顯示不能升級的TXT
+    public static int Choose_i = -1;  //紀錄碰到的空格編號，-1代表沒有儲存
+    public static int Choose_j = -1;  //紀錄碰到的砲塔編號，-1代表沒有儲存
     public string PlayerName;          //紀錄碰到的砲塔名稱
     public string PlayerTag;           //紀錄碰到的砲塔Tag
 
@@ -36,7 +40,7 @@ public class SpaceControl : MonoBehaviour
 
     float begainTime = 0f;              //觸控螢幕開始的時間
     float intervals;                    //觸控螢幕和放開的間隔
-    float DelayTime = 0.2f;               //幾秒內放開才算點擊，超過就算移動
+    float DelayTime = 0.4f;             //幾秒內放開才算點擊，超過就算移動
 
     // Start is called before the first frame update
     void Start()
@@ -44,19 +48,22 @@ public class SpaceControl : MonoBehaviour
         //開場時，先設定空格位置
         SpacePoints = new GameObject[transform.childCount];  //空格位子為此物體的子物件
         SpaceState = new int[SpacePoints.Length];   //空格狀態的數量=空格數量
-        LvState = new int[SpacePoints.Length];
+        LvState = new int[SpacePoints.Length];      //砲塔等級
+        PlayerCount = new int[SpacePoints.Length];
         for (int i = 0; i < SpacePoints.Length; i++)
         {
             SpacePoints[i] = transform.GetChild(i).gameObject;  //紀錄所有空格
             SpacePoints[i].SetActive(false);                    //讓所有空格先關閉
             SpaceState[i] = 0;                               //記錄所有空格的狀態為0   
             LvState[i] = 0;
+            PlayerCount[i] = 0;
         }
 
         //開場時先關閉選角視窗和進階視窗，視窗底部，文字
         ChoosePlayer.gameObject.SetActive(false);
         ChoosePlayerPlus.gameObject.SetActive(false);
         DontBuildTxt.gameObject.SetActive(false);
+        DontLvUpTxt.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -80,7 +87,7 @@ public class SpaceControl : MonoBehaviour
         if (Input.GetMouseButtonUp(0) && PictureState == 0 && intervals < DelayTime)
         {
             if (hit.collider == null) State_1();       //執行畫面狀態1
-            else if (hit.collider != null) AdvancedWindow(hit.collider.name, hit.collider.tag);                   //若有建造砲塔且觸碰砲塔時        
+            else if (hit.collider != null) AdvancedWindow(hit.collider.name, hit.collider.tag);                   //若有建造砲塔且觸碰砲塔時    
         }
 
         ////畫面狀態1且觸碰螢幕時 => 觸碰空格進入畫面狀態2 or 無觸碰到空格進入畫面狀態0////
@@ -100,13 +107,41 @@ public class SpaceControl : MonoBehaviour
             else if (hit.collider.name == "角色4按鍵") BuildPlayer4();
             else if (hit.collider.name == "升級") ChangePlayer();
             else if (hit.collider.name == "販賣") SellPlayer();
-            else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);     //執行畫面狀態2                                            
-            else AdvancedWindow(hit.collider.name, hit.collider.tag);                     //進階視窗   
+            else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);     //執行畫面狀態2  
+            else AdvancedWindow(hit.collider.name, hit.collider.tag);                    //進階視窗   
         }
 
         //控制TXT文字
         TXTCountDown -= Time.deltaTime;
-        if (TXTCountDown <= 0f) DontBuildTxt.gameObject.SetActive(false);
+        if (TXTCountDown <= 0f)
+        { 
+            DontBuildTxt.gameObject.SetActive(false);
+            DontLvUpTxt.gameObject.SetActive(false);
+        }
+
+        //砲塔使用的倒數計數器，時間到就消失        
+        for (int i = 0; i < PlayerCount.Length; i++) //讓所有CD不會互相衝突
+        {
+            if (GameObject.Find("CD" + i) != null)//如果出現CD
+            {
+                GameObject.Find("CD" + i).transform.SetParent(GameObject.Find("UI").transform);                                //沒加父物件就不會出現，而且此物件(CD底部)也不會出現
+                GameObject.Find("CD" + i).transform.position = Camera.main.WorldToScreenPoint(GameObject.Find("砲塔" + i).transform.position);
+                if (PlayerCount[i] == 1)   //建造時的冷卻狀態，0為無，1為正在建造
+                {
+                    GameObject.Find("CD" + i).transform.GetChild(0).GetComponent<Image>().fillAmount -= Time.deltaTime / CoolTime; //此物件(CD底部)的子物件(CD)，隨著時間讓圖片改變 
+                    if (GameObject.Find("CD" + i).transform.GetChild(0).GetComponent<Image>().fillAmount / CoolTime <= 0f)
+                    {
+                        PlayerCount[i] = 0;
+                        Destroy(GameObject.Find("CD" + i));
+                    }
+                }
+            }
+        }
+
+
+
+
+
     }
 
     ////觸控的狀態////
@@ -125,7 +160,8 @@ public class SpaceControl : MonoBehaviour
         }
         ChoosePlayer.gameObject.SetActive(false);//選角視窗消失
         ChoosePlayerPlus.gameObject.SetActive(false);//進階視窗消失
-        DontBuildTxt.gameObject.SetActive(false);
+        DontBuildTxt.gameObject.SetActive(false);    //TXT文字消失
+        DontLvUpTxt.gameObject.SetActive(false);
     }
     void State_1()//畫面狀態1(空格出現)
     {
@@ -157,25 +193,22 @@ public class SpaceControl : MonoBehaviour
     ////進階視窗，可升級或販賣////
     public void AdvancedWindow(string Name, string tag) //進階視窗
     {
-        if (DelayCount.CoolCount <= 0)        //新增，冷卻時間內不能點此砲塔(點了也沒作用)
+        PictureState = 2;
+        PlayerName = Name;  //紀錄名字給其他使用
+        PlayerTag = tag;
+        for (int i = 1; i < PlayerNum + 1; i++)  //判斷是"Player" + i
         {
-            PictureState = 2;
-            PlayerName = Name;  //紀錄名字給其他使用
-            PlayerTag = tag;
-            for (int i = 1; i < PlayerNum + 1; i++)  //判斷是"Player" + i
+            for (int j = 0; j < SpacePoints.Length; j++)
             {
-                for (int j = 0; j < SpacePoints.Length; j++)
+                if (tag == "Player" + i && Name == "砲塔" + j)
                 {
-                    if (tag == "Player" + i && Name == "砲塔" + j)
-                    {
-                        Choose_j = j;                                     //點選砲塔的編號
-                        ChoosePlayerPlus.gameObject.SetActive(true);      //點選砲塔時就開起進階視窗，關閉選角視窗
-                        ChoosePlayer.gameObject.SetActive(false);
-                        ChoosePlayerPlus.transform.position = GameObject.Find(Name).transform.position + Vector3.up * 0.5f;//進階視窗位子會在砲塔上方  
-                        float LvNext = LvState[Choose_j] + 1;
-                        ChangePic("Player/角色" + i + "_LV" + LvNext);     //進階視窗的圖片更換(UI的Image)，原本Lv1，要顯示Lv2的圖片
-                        if (LvNext > LvMax) ChangePic("不能建造");
-                    }
+                    Choose_j = j;                                     //點選砲塔的編號
+                    ChoosePlayerPlus.gameObject.SetActive(true);      //點選砲塔時就開起進階視窗，關閉選角視窗
+                    ChoosePlayer.gameObject.SetActive(false);
+                    ChoosePlayerPlus.transform.position = GameObject.Find(Name).transform.position + Vector3.up * 0.5f;//進階視窗位子會在砲塔上方  
+                    float LvNext = LvState[Choose_j] + 1;               //原本Lv1，要升級Lv2
+                    ChangePic("Player/角色" + i + "_LV" + LvNext);     //進階視窗的圖片更換(UI的Image)，原本Lv1，要顯示Lv2的圖片
+                    if (LvNext > LvMax) ChangePic("不能建造");         //超過最高等級，就會顯示不能建造的圖片
                 }
             }
         }
@@ -185,32 +218,43 @@ public class SpaceControl : MonoBehaviour
         GameObject.Find("升級").GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(Pic); //更換圖片
     }
     //進階視窗的功能，升級//
-    public void ChangePlayer() 
+    public void ChangePlayer()
     {
-        if (LvState[Choose_j] < LvMax) 
+        if (GameObject.Find("CD" + Choose_j) == null)//CD消失前，按了不會有反應
         {
-            State_0();
-            for (int i = 1; i < PlayerNum + 1; i++)  //判斷是"Player" + i
+            if (LvState[Choose_j] < LvMax)
             {
-                if (PlayerTag == "Player" + i)
+                Destroy(GameObject.Find(PlayerName).GetComponent<WeaponControl>()); //因為WeaponControl啟用時，會間隔時間才攻擊，先刪除腳本，再加入腳本(WeaponControl也會自動加入子彈Prefab)
+                GameObject.Find(PlayerName).AddComponent<WeaponControl>();          
+                State_0();
+                for (int i = 1; i < PlayerNum + 1; i++)  //判斷是"Player" + i
                 {
-                    LvState[Choose_j] += 1;       //升等
-                    //加入延遲計數器，時間結束才能攻擊
-                    GameObject.Find(PlayerName).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Player/角色" + i + "_LV" + LvState[Choose_j]);
-                    GameObject.Find(PlayerName).AddComponent<DelayCount>().transform.position= GameObject.Find(PlayerName).transform.position;
+                    if (PlayerTag == "Player" + i)
+                    {
+                        LvState[Choose_j] += 1;       //升等
+                        GameObject.Find(PlayerName).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Player/角色" + i + "_LV" + LvState[Choose_j]);
+                        CreatCDUI(Choose_j);
+                    }
                 }
             }
+            else  //如果超過等級就顯示不能建造
+            {
+                TXTCountDown = 1.1f;                      //播放時間
+                DontBuildTxt.gameObject.SetActive(false); //因為有做動畫，所以必須關閉再開啟，就會再撥放 
+                DontBuildTxt.gameObject.SetActive(true);
+                GameObject.Find("不能建造TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position + Vector3.up * 1);
+            }
         }
-        else  //如果超過等級就顯示不能建造
+        else //如果冷卻中就顯示不能升級
         {
             TXTCountDown = 1.1f;                      //播放時間
-            DontBuildTxt.gameObject.SetActive(false); //因為有做動畫，所以必須關閉再開啟，就會再撥放 
-            DontBuildTxt.gameObject.SetActive(true);
-            GameObject.Find("不能建造TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position + Vector3.up * 1);
+            DontLvUpTxt.gameObject.SetActive(false); //因為有做動畫，所以必須關閉再開啟，就會再撥放 
+            DontLvUpTxt.gameObject.SetActive(true);
+            GameObject.Find("不能升級TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position + Vector3.up * 1);
         }
     }
     //進階視窗的功能，販賣
-    public void SellPlayer() 
+    public void SellPlayer()
     {
         State_0();
         SpaceState[Choose_j] = 0;
@@ -221,10 +265,11 @@ public class SpaceControl : MonoBehaviour
     public void BuildPlayer1()    //畫面狀態2時，觸碰角色視窗的按鈕1建造角色1
     {
         State_0();//選完角色之後，空格消失
-        SpaceState[Choose_i] = 2;  //空格狀態為2  
+        SpaceState[Choose_i] = 2;  //空格狀態為2
         LvState[Choose_i] = 1;     //砲塔等級為1
         Instantiate(Player1, SpacePoints[Choose_i].transform.position, Quaternion.identity).name = "砲塔" + Choose_i;//產生的砲塔，命名為砲塔i
         GameObject.Find("砲塔" + Choose_i).transform.localScale = new Vector2(2f, 2f);                             //改變大小
+        CreatCDUI(Choose_i);      //建造砲塔的冷卻時間的UI
     }
     public void BuildPlayer2()     //畫面狀態2時，觸碰角色視窗的按鈕2建造角色2
     {
@@ -233,6 +278,7 @@ public class SpaceControl : MonoBehaviour
         LvState[Choose_i] = 1;     //砲塔等級為1
         Instantiate(Player2, SpacePoints[Choose_i].transform.position, Quaternion.identity).name = "砲塔" + Choose_i;//產生的砲塔，命名為砲塔i
         GameObject.Find("砲塔" + Choose_i).transform.localScale = new Vector2(2f, 2f);                             //改變大小
+        CreatCDUI(Choose_i);      //建造砲塔的冷卻時間的UI
     }
     public void BuildPlayer3()     //畫面狀態2時，觸碰角色視窗的按鈕2建造角色3
     {
@@ -240,7 +286,8 @@ public class SpaceControl : MonoBehaviour
         SpaceState[Choose_i] = 2;  //空格狀態為2
         LvState[Choose_i] = 1;     //砲塔等級為1
         Instantiate(Player3, SpacePoints[Choose_i].transform.position, Quaternion.identity).name = "砲塔" + Choose_i;//產生的砲塔，命名為砲塔i
-        GameObject.Find("砲塔" + Choose_i).transform.localScale = new Vector2(2f, 2f);                             //改變大小
+        GameObject.Find("砲塔" + Choose_i).transform.localScale = new Vector2(2f, 2f);                              //改變大小
+        CreatCDUI(Choose_i);      //建造砲塔的冷卻時間的UI
     }
     public void BuildPlayer4()     //畫面狀態2時，觸碰角色視窗的按鈕2建造角色4
     {
@@ -249,7 +296,17 @@ public class SpaceControl : MonoBehaviour
         LvState[Choose_i] = 1;     //砲塔等級為1
         Instantiate(Player4, SpacePoints[Choose_i].transform.position, Quaternion.identity).name = "砲塔" + Choose_i;//產生的砲塔，命名為砲塔i
         GameObject.Find("砲塔" + Choose_i).transform.localScale = new Vector2(2f, 2f);                             //改變大小
+        CreatCDUI(Choose_i);      //建造砲塔的冷卻時間的UI
     }
 
+    public void CreatCDUI(int n)
+    {
+        Instantiate(CDObj).name = "CD" + n;  //CD命名
+        PlayerCount[n] = 1;                  //建造時的冷卻狀態，0為無，1為正在建造
+    }
+    public void DesCDUI()
+    {
+
+    }
 
 }
