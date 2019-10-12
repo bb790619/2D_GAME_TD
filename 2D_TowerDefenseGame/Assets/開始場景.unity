@@ -1309,6 +1309,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NextName: "\u904A\u6232\u5834\u666F"
   Setting: {fileID: 391853117}
+  XX: {fileID: 0}
 --- !u!4 &1578869125
 Transform:
   m_ObjectHideFlags: 0

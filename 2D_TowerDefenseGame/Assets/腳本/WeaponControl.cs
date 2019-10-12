@@ -6,13 +6,14 @@ using UnityEditor; //路徑要加入這個
 //控制砲塔，放在"角色"上
 public class WeaponControl : MonoBehaviour
 {
-    GameObject Bullet;       //放置子彈的預置物
-    float Range = 4f;               //砲塔攻擊範圍
-    public static Vector3 PlayerDir;//紀錄砲塔的位子
-    public static Vector3 TargetDir;//記錄怪物的位子
+    GameObject Bullet;                 //放置子彈的預置物
+    float Range = 4f;                  //砲塔攻擊範圍
+    public static Vector3 PlayerDir;   //紀錄砲塔的位子
+    public static Vector3 TargetDir;   //記錄怪物的位子
 
-    float fireCountdown = 2f;      //子彈發射頻率的計數器
-    float fireRate = 0.1f;           //控制子彈發射的頻率
+    float fireCountdown = 2f;         //子彈發射頻率的計數器
+    float fireRate = 0.1f;            //控制子彈發射的頻率
+
     // Start is called before the first frame update
     void Start()
     {
@@ -21,8 +22,7 @@ public class WeaponControl : MonoBehaviour
 
         //做法2，放置任何位子都行，先找出Prefab的路徑，自動加入子彈的Prefab
         string path = "Assets/Prefab/子彈.prefab";
-        Bullet = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-    
+        Bullet = AssetDatabase.LoadAssetAtPath<GameObject>(path);     
     }
 
     // Update is called once per frame
@@ -33,7 +33,7 @@ public class WeaponControl : MonoBehaviour
     }
 
 
-    ////尋找敵人////
+    ////尋找敵人及攻擊////
     void SearchEnemy()
     {
         GameObject[] Enemies = GameObject.FindGameObjectsWithTag("Enemy");//找到敵人
@@ -63,14 +63,19 @@ public class WeaponControl : MonoBehaviour
             //子彈發射的速度
             if (fireCountdown <= 0f)
             {
-                Instantiate(Bullet, this.gameObject.transform.position, Quaternion.identity);
+                for (int j = 0; j < SpaceControl.SpacePoints.Length; j++) //加這2段才能固定子彈的名稱
+                {
+                    if (this.gameObject.name == "砲塔" + j)  
+                    {
+                        Instantiate(Bullet, this.gameObject.transform.position, Quaternion.identity).name = "子彈" + SpaceControl.PlayerKind[j]; //子彈命名，子彈1=角色1的子彈
+                        BulletControl.Lv=SpaceControl.LvState[j];
+                    }
+                }
                 fireCountdown = 1f / fireRate;
             }
             fireCountdown -= Time.deltaTime;
         }
-    }
-
-
+    }   
 
     ////繪製攻擊範圍線////
     private void OnDrawGizmosSelected()

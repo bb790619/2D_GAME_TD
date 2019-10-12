@@ -7,14 +7,13 @@ using UnityEngine.UI;
 public class EnemyControl : MonoBehaviour
 {
     ////怪物參數設定////
-    float Speed = 1f;//怪物移動速度
+    float Speed = 1f;        //怪物移動速度
     float Hp ;
-    float HpMax=5f; //怪物的目前血量和最大血量
-
-    GameObject MovePoints;//讀取且放置移動點的陣列
-    int Index = 0;//移動點的編號
-
-    GameObject HpObj;//怪物的血條
+    float HpMax=100f;          //怪物的目前血量和最大血量
+    ////////////////
+    GameObject MovePoints;   //讀取且放置移動點的陣列
+    int Index = 0;           //移動點的編號
+    GameObject HpObj;        //怪物的血條
 
     // Start is called before the first frame update
     void Start()
@@ -37,6 +36,7 @@ public class EnemyControl : MonoBehaviour
             {
                 Destroy(this.gameObject);
                 Destroy(HpObj);
+                UIControl.PlayerHp -= 1;
             }
             Index++;
             MovePoints= PointSetting.points[Index];
@@ -56,11 +56,27 @@ public class EnemyControl : MonoBehaviour
     {
         if (collision.gameObject.tag == "Bullet")//碰到子彈時
         {
-            Hp -= 1;
-            HpObj.transform.GetChild(0).GetComponent<Image>().fillAmount=Hp/HpMax; 
-
-
-            Destroy(collision.gameObject);
+            //扣血
+            Hp -= BulletControl.Damage;
+            HpObj.transform.GetChild(0).GetComponent<Image>().fillAmount = Hp / HpMax;
+            //額外效果
+            if (BulletControl.effect == "火球") { print("被火球打"); }
+            else if (BulletControl.effect == "巨石") { print("被巨石打"); }
+            else if (BulletControl.effect == "緩速")
+            {
+                Speed = 0.7f;  //速度減慢30%
+                this.gameObject.GetComponent<SpriteRenderer>().color = new Color32(0, 120, 255, 255);//被打到變藍色
+                Invoke("Recovery",2f);
+            }
+            else if (BulletControl.effect == "毒")
+            {
+                Hp -= 0.1f*HpMax;
+                this.gameObject.GetComponent<SpriteRenderer>().color = new Color32(145, 205, 51, 255);//被打到變綠色
+                Invoke("Recovery", 2f);
+            }
+            
+                //打到怪物子彈就消失，怪的血歸0也消失
+                Destroy(collision.gameObject);
             if (Hp<=0)
             { 
                 Destroy(this.gameObject);
@@ -68,4 +84,11 @@ public class EnemyControl : MonoBehaviour
             }
         }
     }
+
+    public void Recovery()
+    {
+        Speed = 1f;  //速度恢復
+        this.gameObject.GetComponent<SpriteRenderer>().color = new Color32(255, 255,255, 255);//顏色恢復(變白色)
+    }
+
 }

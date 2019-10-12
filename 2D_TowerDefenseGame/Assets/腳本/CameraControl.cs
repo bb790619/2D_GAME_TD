@@ -34,20 +34,14 @@ public class CameraControl : MonoBehaviour
 
         //1個手指觸碰螢幕
         if (Input.touchCount == 1)
-        {
-
-            //開始觸碰
-            if (Input.touches[0].phase == TouchPhase.Began)
+        {           
+            if (Input.touches[0].phase == TouchPhase.Began)//開始觸碰
             {
-
                 //紀錄觸碰位置
                 m_screenPos = Input.touches[0].position;
-
-                //手指移動
-            }
+            }//手指移動
             else if (Input.touches[0].phase == TouchPhase.Moved)
             {
-
                 //移動攝影機
                 Camera.main.transform.position += new Vector3(-Input.touches[0].deltaPosition.x * Time.deltaTime * Speed, -Input.touches[0].deltaPosition.y * Time.deltaTime * Speed, 0);
             }

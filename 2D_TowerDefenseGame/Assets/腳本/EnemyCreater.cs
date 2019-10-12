@@ -5,10 +5,10 @@ using UnityEngine;
 //產生怪物的腳本，放在"EnemyCreater"上
 public class EnemyCreater : MonoBehaviour
 {
-    public GameObject EnemyPrefab;//放置敵人的預置物
+    public GameObject EnemyPrefab;//放置"敵人"的Prefab
 
     //開場階段60秒，每波為30秒，每波出怪20隻(其餘為等待時間)
-    float NowTime ;        //遊戲時間
+    float NowTime ;            //遊戲時間
     float TimeDelay = 0f;      //遊戲開場等待階段
     float EnemyWaveTime = 30f; //每一波怪的時間
     int EnemyNum = 10;         //每波出怪數量
