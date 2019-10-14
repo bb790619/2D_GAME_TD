@@ -55,7 +55,8 @@ public class EnemyCreater : MonoBehaviour
         //更換怪物圖片
         for (int i = 1; i < EnemyWave + 1; i++)
         {
-            if (EnemyWave == i)   GameObject.Find("怪物" + EnemyWave + "_" + EenmySerialNum).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Monster/" + i);
+            if (EnemyWave == i) GameObject.Find("怪物" + EnemyWave + "_" + EenmySerialNum).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Monster/"+i);
+            //GameObject.Find("怪物" + EnemyWave + "_" + EenmySerialNum).GetComponent<SpriteRenderer>().sprite = Resources.LoadAll<Sprite>("Monster/怪物")[i-1]; //讀取切割的圖片(LoadAll)86
         }
 
     }
