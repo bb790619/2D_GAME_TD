@@ -8,18 +8,17 @@ public class EnemyCreater : MonoBehaviour
     public GameObject EnemyPrefab;//放置"敵人"的Prefab
 
     //開場階段15秒，每波為30秒，每波出怪20隻(其餘為等待時間)
-    float NowTime;            //遊戲時間
     public static float TimeDelay = 3f;      //遊戲開場等待階段，讓<UIControl>來使用
     public static float EnemyWaveTime = 5f; //每一波怪的時間，讓<UIControl>來使用
     int EnemyNum = 3;                       //每波出怪數量
     float Waiter = 0.5f;                     //出怪的間隔時間
     public static int EnemyWave = 0;         //目前是第幾波怪(0是開場，1是第一波，以此類推)，讓<UIControl>來使用
+    public static int EnemyEnd = 10;         //出現幾波怪就結束遊戲
     int EenmySerialNum;                      //怪物的流水號
 
     // Start is called before the first frame update
     void Start()
     {
-        NowTime = 0f;
     }
 
     // Update is called once per frame
@@ -27,13 +26,16 @@ public class EnemyCreater : MonoBehaviour
     {
         if (GameObject.Find("難度視窗") == null) //難度視窗消失才能執行
         {
-            //開場階段倒數，之後每段時間就執行下個指令(一段時間會出一次怪)
-            if (TimeDelay <= 0f)
+            if (EnemyWave < EnemyEnd)//限制出怪波數
             {
-                StartCoroutine(EnemyLevel());//延遲的特殊指令(1/3)
-                TimeDelay = EnemyWaveTime;
+                //開場階段倒數，之後每段時間就執行下個指令(一段時間會出一次怪)
+                if (TimeDelay <= 0f)
+                {
+                    StartCoroutine(EnemyLevel());//延遲的特殊指令(1/3)
+                    TimeDelay = EnemyWaveTime;
+                }
+                TimeDelay -= Time.deltaTime;
             }
-            TimeDelay -= Time.deltaTime;
         }
     }
 

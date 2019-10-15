@@ -64,12 +64,14 @@ public class EnemyControl : MonoBehaviour
             else if (BulletControl.effect == "巨石") { print("被巨石打"); }
             else if (BulletControl.effect == "緩速")
             {
+                print("緩速");
                 Speed = 0.7f;  //速度減慢30%
                 this.gameObject.GetComponent<SpriteRenderer>().color = new Color32(0, 120, 255, 255);//被打到變藍色
                 Invoke("Recovery",2f);
             }
             else if (BulletControl.effect == "毒")
             {
+                print("毒");
                 Hp -= 0.1f*HpMax;
                 this.gameObject.GetComponent<SpriteRenderer>().color = new Color32(145, 205, 51, 255);//被打到變綠色
                 Invoke("Recovery", 2f);

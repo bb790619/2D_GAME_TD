@@ -47,6 +47,10 @@ public class UIControl : MonoBehaviour
             NowTime = EnemyCreater.TimeDelay; //下波倒數時間
             Wave = EnemyCreater.EnemyWave+1;
             GameObject.Find("時間TXT").GetComponent<Text>().text = "第"+ Wave + "波怪倒數" + NowTime.ToString("F0") + "秒";  //顯示下一關開始的時間
+            if (Wave > EnemyCreater.EnemyEnd) //關卡就不會顯示
+            {
+                GameObject.Find("時間TXT").GetComponent<Text>().text = "最後一波怪!!!";
+            }
             GameObject.Find("金錢TXT").GetComponent<Text>().text = PlayerMoney.ToString();  //顯示金錢
             GameObject.Find("生命TXT").GetComponent<Text>().text = PlayerHp.ToString();  //顯示玩家生命
         }
@@ -55,6 +59,11 @@ public class UIControl : MonoBehaviour
         {
             Time.timeScale = 0;
             Invoke("GoodGame", 1f);//如果輸了，延遲1秒出現失敗視窗
+        }
+        //勝利條件，撐過所有波數，血量大於0，而且怪全都消失了會出現勝利視窗
+        if (Wave >= EnemyCreater.EnemyEnd && PlayerHp > 0 && GameObject.FindWithTag("Enemy")==null)
+        {
+            Invoke("Victory", 5f);//如果贏了，延遲10秒出現勝利視窗
         }
     }
 
@@ -80,7 +89,7 @@ public class UIControl : MonoBehaviour
     ////勝利視窗////
     public void Victory()//遊戲勝利
     {
-        GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 0);//畫面恢復
+        GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
         Time.timeScale = 0;
         VictoryWindow.transform.gameObject.SetActive(true);
         GGWindow.transform.gameObject.SetActive(false);
@@ -89,7 +98,7 @@ public class UIControl : MonoBehaviour
     ////失敗視窗////
     public void GoodGame()//遊戲失敗
     {
-        GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 0);//畫面恢復
+        GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
         Time.timeScale = 0;
         VictoryWindow.transform.gameObject.SetActive(false);
         GGWindow.transform.gameObject.SetActive(true);
