@@ -69,54 +69,60 @@ public class SpaceControl : MonoBehaviour
         DontLvUpTxt.gameObject.SetActive(false);
 
 
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        //初始的畫面狀態為0，無空位
-        Vector2 Mouse_pos = Camera.main.ScreenToWorldPoint(Input.mousePosition); //紀錄滑鼠觸碰的2D座標比例
-        RaycastHit2D hit = Physics2D.Raycast(Mouse_pos, Vector2.zero);           //2D使用的指令 
 
-        ////新增觸控間隔，時間內才算點擊，超過就算移動////
-        if (Input.GetMouseButtonDown(0))
+        //新增，Tag為視窗(UI的視窗)消失才能執行(這樣點選UI的按鍵，空格也不會出現或消失)。擺在最前面就，只會觸發RaycastHit2D hit，不會觸發(Input.GetMouseButtonUp)。
+        if (GameObject.FindWithTag("Window") == null)
         {
-            begainTime = Time.realtimeSinceStartup;
-        }
-        else if (Input.GetMouseButtonUp(0))
-        {
-            intervals = Time.realtimeSinceStartup - begainTime;
-        }
+            //初始的畫面狀態為0，無空位
+            Vector2 Mouse_pos = Camera.main.ScreenToWorldPoint(Input.mousePosition); //紀錄滑鼠觸碰的2D座標比例
+            RaycastHit2D hit = Physics2D.Raycast(Mouse_pos, Vector2.zero);           //2D使用的指令 
 
-        ////畫面狀態0且觸碰螢幕時 => 進入畫面狀態1(空格出現)////
-        if (Input.GetMouseButtonUp(0) && PictureState == 0 && intervals < DelayTime)
-        {
-            if (hit.collider == null) State_1();       //執行畫面狀態1
-            else if (hit.collider.tag == "Button") { }
-            else if (hit.collider != null) AdvancedWindow(hit.collider.name, hit.collider.tag);                   //若有建造砲塔且觸碰砲塔時    
-        }
+            ////新增觸控間隔，時間內才算點擊，超過就算移動////
+            if (Input.GetMouseButtonDown(0))
+            {
+                begainTime = Time.realtimeSinceStartup;
+            }
+            else if (Input.GetMouseButtonUp(0))
+            {
+                intervals = Time.realtimeSinceStartup - begainTime;
+            }
 
-        ////畫面狀態1且觸碰螢幕時 => 觸碰空格進入畫面狀態2 or 無觸碰到空格進入畫面狀態0////
-        else if (Input.GetMouseButtonUp(0) && PictureState == 1 && intervals < DelayTime)
-        {
-            if (hit.collider == null) State_0();                                      //執行畫面狀態0
-            else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);  //執行畫面狀態2 
-            else AdvancedWindow(hit.collider.name, hit.collider.tag);                 //若有建造砲塔且觸碰砲塔時}       
-        }
-        ////畫面狀態2且觸碰螢幕時 => 觸碰角色視窗建造角色，空格狀態變為2 or 觸控到其他空格，繼續執行畫面狀態2 or 無觸碰到空格進入畫面狀態0////
-        else if (Input.GetMouseButtonUp(0) && PictureState == 2 && intervals < DelayTime)
-        {
-            if (hit.collider == null) State_0();
-            else if (hit.collider.name == "角色1按鍵") BuildPlayer(Player1, hit.collider.name);  //建造角色
-            else if (hit.collider.name == "角色2按鍵") BuildPlayer(Player2, hit.collider.name);
-            else if (hit.collider.name == "角色3按鍵") BuildPlayer(Player3, hit.collider.name);
-            else if (hit.collider.name == "角色4按鍵") BuildPlayer(Player4, hit.collider.name);
-            else if (hit.collider.name == "升級") ChangePlayer();
-            else if (hit.collider.name == "販賣") SellPlayer();
-            else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);     //執行畫面狀態2  
-            else AdvancedWindow(hit.collider.name, hit.collider.tag);                    //進階視窗   
-        }
 
+            ////畫面狀態0且觸碰螢幕時 => 進入畫面狀態1(空格出現)////
+            if (Input.GetMouseButtonUp(0) && PictureState == 0 && intervals < DelayTime && Time.timeScale == 1)//新增暫停按鍵，暫停時會出現視窗，且不能觸碰螢幕。遊戲開始時才能觸碰螢幕
+            {
+                if (hit.collider == null) State_1();       //執行畫面狀態1
+                else if (hit.collider.tag == "Button") { }
+                else if (hit.collider != null) AdvancedWindow(hit.collider.name, hit.collider.tag);                   //若有建造砲塔且觸碰砲塔時    
+            }
+
+            ////畫面狀態1且觸碰螢幕時 => 觸碰空格進入畫面狀態2 or 無觸碰到空格進入畫面狀態0////
+            else if (Input.GetMouseButtonUp(0) && PictureState == 1 && intervals < DelayTime && Time.timeScale == 1)
+            {
+                if (hit.collider == null) State_0();                                      //執行畫面狀態0
+                else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);  //執行畫面狀態2 
+                else AdvancedWindow(hit.collider.name, hit.collider.tag);                 //若有建造砲塔且觸碰砲塔時}       
+            }
+            ////畫面狀態2且觸碰螢幕時 => 觸碰角色視窗建造角色，空格狀態變為2 or 觸控到其他空格，繼續執行畫面狀態2 or 無觸碰到空格進入畫面狀態0////
+            else if (Input.GetMouseButtonUp(0) && PictureState == 2 && intervals < DelayTime && Time.timeScale == 1)
+            {
+                if (hit.collider == null) State_0();
+                else if (hit.collider.name == "角色1按鍵") BuildPlayer(Player1, hit.collider.name);  //建造角色
+                else if (hit.collider.name == "角色2按鍵") BuildPlayer(Player2, hit.collider.name);
+                else if (hit.collider.name == "角色3按鍵") BuildPlayer(Player3, hit.collider.name);
+                else if (hit.collider.name == "角色4按鍵") BuildPlayer(Player4, hit.collider.name);
+                else if (hit.collider.name == "升級") ChangePlayer();
+                else if (hit.collider.name == "販賣") SellPlayer();
+                else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);     //執行畫面狀態2  
+                else AdvancedWindow(hit.collider.name, hit.collider.tag);                    //進階視窗   
+            }
+        }
         //控制TXT文字
         TXTCountDown -= Time.deltaTime;
         if (TXTCountDown <= 0f)

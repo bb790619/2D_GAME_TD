@@ -8,8 +8,8 @@ using UnityEngine.UI;
 public class StartScene : MonoBehaviour
 {
     public string NextName;
+
     public Image Setting;
-    public GameObject XX;
     // Start is called before the first frame update
     void Start()
     {
@@ -24,16 +24,16 @@ public class StartScene : MonoBehaviour
 
     public void NextScene() //開始場景的"開始"
     {
-        SceneManager.LoadScene(NextName);//到"遊戲場景"
-    }
-    public void Option()//開始場景的"選項"
-    {
-        if (Setting.transform.gameObject.activeSelf == true) Setting.transform.gameObject.SetActive(false);
-        else if (Setting.transform.gameObject.activeSelf == false) Setting.transform.gameObject.SetActive(true);
+        Invoke("RealNextScene", 1f);
     }
     public void Quit()//開始場景的"離開"
     {
         Application.Quit();
+    }
+
+    public void RealNextScene()
+    {
+        SceneManager.LoadScene(NextName);//到"遊戲場景"
     }
 
 }

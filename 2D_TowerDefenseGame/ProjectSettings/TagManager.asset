@@ -13,6 +13,10 @@ TagManager:
   - Player3
   - Player4
   - Button
+  - LargeTile
+  - LevelChanger
+  - Laser
+  - Window
   layers:
   - Default
   - TransparentFX
