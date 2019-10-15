@@ -6,8 +6,8 @@ using UnityEngine;
 public class CameraControl : MonoBehaviour
 {
     Vector2 m_screenPos = new Vector2();
-    float Camera_Xmax = 5f; //攝影機向左右移動的最大範圍
-    float Camera_Ymax = 3.3f; //攝影機向上下移動的最大範圍
+    float Camera_Xmax = 2.5f; //攝影機向左右移動的最大範圍，Size:8.5f
+    float Camera_Ymax = 1.8f; //攝影機向上下移動的最大範圍
 
     // Start is called before the first frame update
     void Start()
