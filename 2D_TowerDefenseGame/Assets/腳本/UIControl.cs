@@ -10,7 +10,13 @@ public class UIControl : MonoBehaviour
     ////參數設定//
     public static int PlayerHp = 30;      //玩家血量
     public static int PlayerMoney = 150;  //玩家金錢
+    //建造和升級的金額，LV1，LV2，LV3。(和視窗顯示的是獨立分開的)
+    public static int[] Player1_Price = { 30,50,100   };
+    public static int[] Player2_Price = { 30, 50, 100 };
+    public static int[] Player3_Price = { 50, 75, 120 };
+    public static int[] Player4_Price = { 50, 75, 120 };
     ////////////////
+    public static float Mode;             //選擇難度後，血量的比例，給<EnemyControl>使用
     float NowTime = 0f;                   //下波怪出現的時間
     float Wave= 0f;                       //出怪的波數 
     public Image VictoryWindow;           //勝利視窗("勝利視窗")
@@ -52,7 +58,7 @@ public class UIControl : MonoBehaviour
                 GameObject.Find("時間TXT").GetComponent<Text>().text = "最後一波怪!!!";
             }
             GameObject.Find("金錢TXT").GetComponent<Text>().text = PlayerMoney.ToString();  //顯示金錢
-            GameObject.Find("生命TXT").GetComponent<Text>().text = PlayerHp.ToString();  //顯示玩家生命
+            GameObject.Find("生命TXT").GetComponent<Text>().text = PlayerHp.ToString();     //顯示玩家生命
         }
         //失敗條件
         if (PlayerHp <= 0)
@@ -115,21 +121,26 @@ public class UIControl : MonoBehaviour
     }
 
     ////難度視窗////
-    public void EasyMode()//簡單模式，怪物血量90%
+    public void EasyMode()//簡單模式，金錢200，怪物血量80%
     {
         ModeWindow.transform.gameObject.SetActive(false);//關閉視窗，開始遊戲
         StartGame();
-
+        PlayerMoney = 200;
+        Mode = 0.9f;
     }
-    public void NormalMode()//正常模式，怪物血量100%
+    public void NormalMode()//正常模式，金錢150，怪物血量100%
     {
         ModeWindow.transform.gameObject.SetActive(false);
         StartGame();
+        PlayerMoney = 150;
+        Mode = 1f;
     }
-    public void HardMode()//困難模式，怪物血量110%
+    public void HardMode()//困難模式，金錢100，怪物血量120%
     {
         ModeWindow.transform.gameObject.SetActive(false);
         StartGame();
+        PlayerMoney = 100;
+        Mode = 1.1f;
     }
 
 

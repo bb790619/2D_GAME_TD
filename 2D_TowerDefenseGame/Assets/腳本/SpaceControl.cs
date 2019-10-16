@@ -155,7 +155,7 @@ public class SpaceControl : MonoBehaviour
     ////觸控的狀態////
     //畫面狀態分為 => 0為無空格，1為空格出現，2為出現選角視窗
     //空格狀態分為 => 0無空格，1為空格出現，2為已建造角色
-    void State_0()//畫面狀態0(空格消失)
+    public void State_0()//畫面狀態0(空格消失)
     {
         PictureState = 0;     //畫面狀態變為0，空格狀態此時為1就變為0                             
         for (int i = 0; i < SpacePoints.Length; i++)//當畫面狀態從1變為0時(空格消失)，空格狀態若為1則變為0(空格消失)
@@ -171,7 +171,7 @@ public class SpaceControl : MonoBehaviour
         DontBuildTxt.gameObject.SetActive(false);    //TXT文字消失
         DontLvUpTxt.gameObject.SetActive(false);
     }
-    void State_1()//畫面狀態1(空格出現)
+    public void State_1()//畫面狀態1(空格出現)
     {
         PictureState = 1;     //畫面狀態變為1                              
         for (int i = 0; i < SpacePoints.Length; i++)//當畫面狀態從0變為1時(空格出現)，空格狀態若為0則變為1(空格出現)
@@ -183,7 +183,7 @@ public class SpaceControl : MonoBehaviour
             }
         }
     }
-    void State_2(string Name)//畫面狀態2(出現選角視窗)
+    public void State_2(string Name)//畫面狀態2(出現選角視窗)
     {
         for (int i = 0; i < SpacePoints.Length; i++)
         {
@@ -231,15 +231,16 @@ public class SpaceControl : MonoBehaviour
                     ChoosePlayer.gameObject.SetActive(false);
                     ChoosePlayerPlus.transform.position = GameObject.Find(Name).transform.position + Vector3.up * 0.5f;//進階視窗位子會在砲塔上方  
                     float LvNext = LvState[Choose_j] + 1;               //原本Lv1，要升級Lv2
-                    ChangePic("Player/角色" + i + "_LV" + LvNext);     //進階視窗的圖片更換(UI的Image)，原本Lv1，要顯示Lv2的圖片
-                    if (LvNext > LvMax) ChangePic("不能建造");         //超過最高等級，就會顯示不能建造的圖片
+                    ChangePic("升級","Player/角色" + i + "_LV" + LvNext);     //進階視窗的圖片更換(UI的Image)，原本Lv1，要顯示Lv2的圖片
+                    ChangePic("升級金錢", "Price/角色" + i + "_LV" + LvNext); //金錢
+                    if (LvNext > LvMax) ChangePic("升級", "不能建造");         //超過最高等級，就會顯示不能建造的圖片
                 }
             }
         }
     }
-    public void ChangePic(string Pic) //更換視窗的圖片
+    public void ChangePic(string Name,string Pic) //更換視窗的圖片
     {
-        GameObject.Find("升級").GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(Pic); //更換圖片
+        GameObject.Find(Name).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(Pic); //更換圖片
     }
     //進階視窗的功能，升級//
     public void ChangePlayer()
