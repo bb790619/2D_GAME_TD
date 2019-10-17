@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //控制攝影機移動，可用手指移動螢幕，放在"Main Camera"上
+//現在無使用
 public class CameraControl : MonoBehaviour
 {
     Vector2 m_screenPos = new Vector2();

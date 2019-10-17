@@ -7,10 +7,10 @@ using UnityEngine.UI;
 public class EnemyControl : MonoBehaviour
 {
     ////怪物參數設定////
-    float Speed = 1f;                 //怪物移動速度
-    public float Hp;
-    public float HpMax;  //怪物的目前血量和最大血量，讓<UIControl>使用，依照難度和波數改變怪的血量
-    public int Price;
+    float Speed = 1f;    //怪物移動速度
+    public float Hp;     //怪物目前血量
+    public float HpMax;  //怪物最大血量，且會依照難度和波數改變怪的血量
+    public int Price;    //怪物死亡會增加多少金錢
     ////////////////
     GameObject MovePoints;   //讀取且放置移動點的陣列
     int Index = 0;           //移動點的編號
