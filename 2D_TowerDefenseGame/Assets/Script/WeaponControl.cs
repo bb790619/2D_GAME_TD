@@ -18,11 +18,14 @@ public class WeaponControl : MonoBehaviour
     void Start()
     {
         //做法1，從Resources/Prefab/子彈，自動加入子彈的Prefab(要把要加入的Prefab放入Resources資料夾)
-        //Bullet = Resources.Load<GameObject>("Prefab/子彈");   
-
+        Bullet = Resources.Load<GameObject>("子彈");   
+        
+        /*
         //做法2，放置任何位子都行，先找出Prefab的路徑，自動加入子彈的Prefab
+        //這個做法不知為何不能寫進APK
         string path = "Assets/Prefab/子彈.prefab";
-        Bullet = AssetDatabase.LoadAssetAtPath<GameObject>(path);     
+        Bullet = AssetDatabase.LoadAssetAtPath<GameObject>(path);  
+        */  
     }
 
     // Update is called once per frame

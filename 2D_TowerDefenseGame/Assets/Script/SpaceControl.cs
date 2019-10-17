@@ -39,11 +39,11 @@ public class SpaceControl : MonoBehaviour
     public GameObject Player3;          //放置角色3的預置物
     public GameObject Player4;          //放置角色3的預置物
     float TXTCountDown = 0f;           //不能建造文字的倒數計數器
-
+    /*觸控間隔，時間內才算點擊，超過就算移動。無使用
     float begainTime = 0f;              //觸控螢幕開始的時間
     float intervals;                    //觸控螢幕和放開的間隔
     float DelayTime = 0.5f;             //幾秒內放開才算點擊，超過就算移動
-
+    */
     // Start is called before the first frame update
     void Start()
     {

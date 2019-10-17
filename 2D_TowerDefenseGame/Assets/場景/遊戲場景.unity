@@ -6107,7 +6107,6 @@ GameObject:
   - component: {fileID: 343865818}
   - component: {fileID: 343865822}
   - component: {fileID: 343865823}
-  - component: {fileID: 343865824}
   m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
@@ -6229,18 +6228,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   FadeIn: {fileID: 487515798}
   FadeOUT: {fileID: 1052012552}
---- !u!114 &343865824
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 343865817}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e90bc8b25fe7784698d2571b96d5cb9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &347500273
 GameObject:
   m_ObjectHideFlags: 0
@@ -18962,7 +18949,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61dddfdc5e0e44ca298d8f46f7f5a915, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectedFlowchart: {fileID: 0}
 --- !u!4 &1260912673
 Transform:
   m_ObjectHideFlags: 1
