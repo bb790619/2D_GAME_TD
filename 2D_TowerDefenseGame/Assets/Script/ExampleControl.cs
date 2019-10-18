@@ -7,9 +7,10 @@ using UnityEngine.SceneManagement;
 //說明場景使用
 public class ExampleControl : MonoBehaviour
 {
-    public Image ExampleWindow;           //重新說明視窗
+    public Image ExampleWindow;          //重新說明視窗
     public Image SkipWindow;             //跳過視窗
-    public Image TXTWindow;               //對話視窗
+    public Image TXTWindow;              //對話視窗
+    public GameObject BlackBG;           //變暗背景
     float NowTime=0f;                    //時間，幾秒後出現以下的對話
 
     string[] TXT = { "歡迎來到TD!!!",
@@ -45,32 +46,43 @@ public class ExampleControl : MonoBehaviour
         NowTime += Time.deltaTime;
 
         if (NowTime >= 2f) TXTWindow.transform.gameObject.SetActive(true);
-
+        if (NowTime >= 3f) BlackBG.transform.gameObject.SetActive(false);
+        
         //開始對話
         ChangTXT(4f, "對話文字1", TXT[0]);
         ChangTXT(6f, "對話文字1", TXT[1]); ChangTXT(8f, "對話文字2", TXT[2]);
         ChangTXT(10f, "對話文字1", TXT[3]); ChangTXT(10f, "對話文字2", null);
-        ChangTXT(13f, "對話文字1", TXT[4]); ChangTXT(13f, "對話文字2", null); if (NowTime >= 13f) Cricle_1.transform.gameObject.SetActive(true); if (NowTime >= 16f) Cricle_1.transform.gameObject.SetActive(false);
-        ChangTXT(16f, "對話文字1", TXT[5]); ChangTXT(16f, "對話文字2", null); if (NowTime >= 16f) Cricle_2.transform.gameObject.SetActive(true); if (NowTime >= 19f) Cricle_2.transform.gameObject.SetActive(false);
-        ChangTXT(19f, "對話文字1", TXT[6]); ChangTXT(19f, "對話文字2", null); ChangTXT(21f, "對話文字2", TXT[7]); if (NowTime >= 19f) Cricle_3.transform.gameObject.SetActive(true); if (NowTime >= 23f) Cricle_3.transform.gameObject.SetActive(false);
+        ChangTXT(13f, "對話文字1", TXT[4]); ChangTXT(13f, "對話文字2", null);
+        if (NowTime >= 13f) Cricle_1.transform.gameObject.SetActive(true); if (NowTime >= 16f) Cricle_1.transform.gameObject.SetActive(false);
+
+        ChangTXT(16f, "對話文字1", TXT[5]); ChangTXT(16f, "對話文字2", null);
+        if (NowTime >= 16f) Cricle_2.transform.gameObject.SetActive(true); if (NowTime >= 19f) Cricle_2.transform.gameObject.SetActive(false);
+
+        ChangTXT(19f, "對話文字1", TXT[6]); ChangTXT(19f, "對話文字2", null); ChangTXT(21f, "對話文字2", TXT[7]);
+        if (NowTime >= 19f) Cricle_3.transform.gameObject.SetActive(true); if (NowTime >= 23f) Cricle_3.transform.gameObject.SetActive(false);
+
         ChangTXT(23f, "對話文字1", TXT[8]); ChangTXT(23f, "對話文字2", null); ChangTXT(25f, "對話文字2", TXT[9]);
-        ChangTXT(28f, "對話文字1", TXT[10]); ChangTXT(28f, "對話文字2", null); ChangTXT(30f, "對話文字2", TXT[11]); if (NowTime >= 28f) Space.transform.gameObject.SetActive(true); if (NowTime >= 33f) Space.transform.gameObject.SetActive(false);
+        ChangTXT(28f, "對話文字1", TXT[10]); ChangTXT(28f, "對話文字2", null); ChangTXT(30f, "對話文字2", TXT[11]);
+        if (NowTime >= 28f) Space.transform.gameObject.SetActive(true); if (NowTime >= 33f) Space.transform.gameObject.SetActive(false);
+
         ChangTXT(33f, "對話文字1", TXT[12]); ChangTXT(33f, "對話文字2", null);
         ChangTXT(35f, "對話文字1", TXT[13]); ChangTXT(35f, "對話文字2", null); ChangTXT(37f, "對話文字2", TXT[14]);
-        ChangTXT(39f, "對話文字1", TXT[15]); ChangTXT(39f, "對話文字2", null); if (NowTime >= 39f) Cricle_4.transform.gameObject.SetActive(true); if (NowTime >= 43f) Cricle_4.transform.gameObject.SetActive(false);
-        ChangTXT(43f, "對話文字1", TXT[16]); ChangTXT(43f, "對話文字2", null);
+        ChangTXT(39f, "對話文字1", TXT[15]); ChangTXT(39f, "對話文字2", null);
+        if (NowTime >= 39f) Cricle_4.transform.gameObject.SetActive(true); if (NowTime >= 43f) Cricle_4.transform.gameObject.SetActive(false);
 
-        if (NowTime >= 46f)
+        ChangTXT(43f, "對話文字1", TXT[16]); ChangTXT(43f, "對話文字2", null); 
+        
+        if (NowTime >= 46f && ExampleWindow.gameObject.activeSelf == false)
         {
             Time.timeScale = 0;
-            ExampleWindow.transform.gameObject.SetActive(true);
+            BlackBG.transform.gameObject.SetActive(true);
+            ExampleWindow.transform.gameObject.SetActive(true); 
         } 
     }
 
     public void ChangTXT(float Time , string TEXT_0 , string TEXT_1) //讓文字隨著時間撥放
     {
-        if (NowTime >= Time)  GameObject.Find(TEXT_0).GetComponent<Text>().text = TEXT_1;
-            
+        if (NowTime >= Time)  GameObject.Find(TEXT_0).GetComponent<Text>().text = TEXT_1;            
     }
 
 
@@ -90,6 +102,7 @@ public class ExampleControl : MonoBehaviour
     {
         SceneManager.LoadScene("說明場景");
     }
+
     public void ExampleSkip() //"重新說明視窗"，跳過說明
     {
         Time.timeScale = 1;

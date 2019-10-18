@@ -70,7 +70,6 @@ public class SpaceControl : MonoBehaviour
         DontLvUpTxt.gameObject.SetActive(false);
         NoMoney.gameObject.SetActive(false);
 
-
     }
 
     // Update is called once per frame
@@ -251,7 +250,7 @@ public class SpaceControl : MonoBehaviour
                     float LvNext = LvState[Choose_j] + 1;               //原本Lv1，要升級Lv2
                     ChangePic("升級", "Player/角色" + i + "_LV" + LvNext);     //進階視窗的圖片更換(UI的Image)，原本Lv1，要顯示Lv2的圖片
                     ChangePic("升級金錢", "Price/角色" + i + "_LV" + LvNext); //金錢
-                    if (LvNext > LvMax) ChangePic("升級", "不能建造");         //超過最高等級，就會顯示不能建造的圖片
+                    if (LvNext > LvMax) ChangePic("升級", "Price/不能建造");         //超過最高等級，就會顯示不能建造的圖片
                 }
             }
         }
@@ -271,7 +270,6 @@ public class SpaceControl : MonoBehaviour
               最大等級 * 角色種類 + 現有等級
             */
             int Seat = LvMax * (PlayerKind[Choose_j] - 1) + LvState[Choose_j];
-            print(Seat);
 
             if (LvState[Choose_j] < LvMax)//等級內才可以升級
             {

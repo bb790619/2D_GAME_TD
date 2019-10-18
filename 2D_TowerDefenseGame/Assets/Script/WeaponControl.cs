@@ -71,7 +71,7 @@ public class WeaponControl : MonoBehaviour
                     if (this.gameObject.name == "砲塔" + j)  
                     {
                         Instantiate(Bullet, this.gameObject.transform.position, Quaternion.identity).name = "子彈" + SpaceControl.PlayerKind[j]; //子彈命名，子彈1=角色1的子彈
-                        BulletControl.Lv=SpaceControl.LvState[j];
+                        BulletControl.Lv=SpaceControl.LvState[j]; //這個Lv X 的砲塔的子彈，給<BulletControl>使用
                     }
                 }
                 fireCountdown = 1f / fireRate;
