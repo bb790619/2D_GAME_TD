@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 public class UIControl : MonoBehaviour
 {
     ////參數設定//
-    public static int PlayerHp = 30;      //玩家血量
+    public static int PlayerHp =30;      //玩家血量
     public static int PlayerMoney;      //玩家金錢                                         
                                         //[0-2]=角色1_LV1-LV3，[3-5]=角色2_LV1-LV3，[6-8]=角色3_LV1-LV3，[9-11]=角色4_LV1-LV3，
     public static int[] Player_Price = { 30, 50, 100, 40, 75, 125, 35, 60, 115, 45, 80, 140 };//建造和升級的金額，LV1，LV2，LV3。(和視窗顯示的是獨立分開的)
@@ -21,8 +21,6 @@ public class UIControl : MonoBehaviour
     public Image GGWindow;                //失敗視窗("失敗視窗")
     public Image OptionWindow;            //暫停視窗("暫停視窗")
     public Image ModeWindow;              //難度視窗("難度視窗")
-
-    string NextName;                      //開頭的場景名稱
 
     // Start is called before the first frame update
     void Start()
@@ -59,16 +57,11 @@ public class UIControl : MonoBehaviour
             GameObject.Find("生命TXT").GetComponent<Text>().text = PlayerHp.ToString();     //顯示玩家生命
         }
         //失敗條件
-        if (PlayerHp <= 0)
-        {
-            Time.timeScale = 0;
-            Invoke("GoodGame", 1f);//如果輸了，延遲1秒出現失敗視窗
-        }
+        if (PlayerHp <= 0)  Invoke("GoodGame", 1f);//如果輸了，延遲1秒出現失敗視窗
+       
         //勝利條件，撐過所有波數，血量大於0，而且怪全都消失了會出現勝利視窗
         if (Wave >= EnemyCreater.EnemyEnd && PlayerHp > 0 && GameObject.FindWithTag("Enemy") == null)
-        {
-            Invoke("Victory", 5f);//如果贏了，延遲10秒出現勝利視窗
-        }
+            Invoke("Victory", 3f);//如果贏了，延遲3秒出現勝利視窗
     }
 
     public void Opening()//開場1秒後(剛好淡出結束)，讓時間暫停
@@ -80,7 +73,7 @@ public class UIControl : MonoBehaviour
     public void StartGame()//遊戲開始
     {
         GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 0);//畫面恢復
-        Time.timeScale = 1;
+        Time.timeScale = 1; 
         OptionWindow.transform.gameObject.SetActive(false);
     }
     public void PauseGame()//遊戲暫停
@@ -97,7 +90,6 @@ public class UIControl : MonoBehaviour
     public void Victory()//遊戲勝利
     {
         GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
-        Time.timeScale = 0;
         VictoryWindow.transform.gameObject.SetActive(true);
     }
 
@@ -111,14 +103,20 @@ public class UIControl : MonoBehaviour
     }
 
     ////勝利或失敗的按鍵////
-    public void Window_Yes(string NextName)//再來一場，回到開始場景(按鍵的Function要輸入"開始場景")
+    public void Window_Yes()//再來一場，延遲一秒後回到開始場景
     {
-        SceneManager.LoadScene(NextName);
+        Time.timeScale = 1;
+        Invoke("Window_YesNow",1f);
     }
     public void Window_NO()//離開遊戲，關閉遊戲
     {
-        Application.Quit();
+        Application.Quit(); ;
     }
+    public void Window_YesNow()//回到開始場景
+    {
+        SceneManager.LoadScene("開始場景");
+    }
+
 
     ////難度視窗////
     public void EasyMode()//簡單模式，金錢200，怪物血量90%

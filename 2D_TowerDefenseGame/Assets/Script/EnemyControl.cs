@@ -40,14 +40,15 @@ public class EnemyControl : MonoBehaviour
         this.gameObject.transform.position += EnemyDir.normalized * Speed * Time.deltaTime;//讓此物件往這個方向移動
         if (Vector3.Distance(this.gameObject.transform.position, MovePoints.transform.position) <= 0.1f)//到移動點，就再移動到下一個移動點
         {
-            if (Index >= PointSetting.points.Length - 1)//如果超過移動點的數量(碰到終點)，就消除
+            Index++;
+            if (Index >= PointSetting.points.Length )//如果超過移動點的數量(碰到終點)，就消除
             {
                 Destroy(this.gameObject);
                 Destroy(HpObj);
                 UIControl.PlayerHp -= 1;
             }
-            Index++;
-            MovePoints = PointSetting.points[Index];
+            else MovePoints = PointSetting.points[Index];
+            
         }
 
         //控制CD的UI
