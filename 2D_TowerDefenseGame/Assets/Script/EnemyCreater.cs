@@ -20,7 +20,9 @@ public class EnemyCreater : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //重新開始時，參數復歸
         EnemyWave = 0;
+        TimeDelay = 20f;
     }
 
     // Update is called once per frame
