@@ -76,7 +76,7 @@ public class BulletControl : MonoBehaviour
             if (Lv == 1) Damage3 = Random.Range(15, 20);
             else if (Lv == 2) Damage3 = Random.Range(35, 40);
             else if (Lv == 3) Damage3 = Random.Range(55, 60);
-          
+
             GetComponent<CircleCollider2D>().radius *= 3f;  //攻擊範圍增加                              
             this.gameObject.GetComponent<SpriteRenderer>().color = new Color32(0, 0, 255, 255);
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //設定怪物的移動點，放在"移動點"上
+//依照移動點的子物件的數量而自動增加長度
 public class PointSetting : MonoBehaviour
 {
     public static GameObject[] points;//移動點的陣列

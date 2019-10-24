@@ -94,8 +94,6 @@ public class SpaceControl : MonoBehaviour
             Vector2 Mouse_pos = Camera.main.ScreenToWorldPoint(Input.mousePosition); //紀錄滑鼠觸碰的2D座標比例
             RaycastHit2D hit = Physics2D.Raycast(Mouse_pos, Vector2.zero);           //2D使用的指令 
 
-
-
             ////畫面狀態0且觸碰螢幕時 => 進入畫面狀態1(空格出現)////
             if (Input.GetMouseButtonDown(0) && PictureState == 0 && Time.timeScale == 1)//新增暫停按鍵，暫停時會出現視窗，且不能觸碰螢幕。遊戲開始時才能觸碰螢幕
             {
@@ -166,6 +164,8 @@ public class SpaceControl : MonoBehaviour
         PictureState = 0;     //畫面狀態變為0，空格狀態此時為1就變為0                             
         for (int i = 0; i < SpacePoints.Length; i++)//當畫面狀態從1變為0時(空格消失)，空格狀態若為1則變為0(空格消失)
         {
+            ChangePic(SpacePoints[i].name, "空格"); //讓所有空格恢復空格圖案
+
             if (SpaceState[i] < 2)
             {
                 SpaceState[i] = 0;
@@ -201,7 +201,10 @@ public class SpaceControl : MonoBehaviour
                 ChoosePlayerPlus.gameObject.SetActive(false);
                 ChoosePlayer.transform.position = GameObject.Find(SpacePoints[i].name).transform.position + Vector3.up * 0.5f;//選角視窗位子會在空格上方
                 Choose_i = i;         //紀錄被點選空格的位子，給BuildPlayer1()使用
+
+                ChangePic(SpacePoints[i].name, "選取空格"); //被點選的格子會換成選取空格的圖案
             }
+            else ChangePic(SpacePoints[i].name, "空格");    //點選第二個空格時，讓第一個被選取的空格恢復空格圖案
         }
     }
 
@@ -210,7 +213,7 @@ public class SpaceControl : MonoBehaviour
     {
         for (int i = 1; i < PlayerNum + 1; i++)
             if (ButtonName == "角色" + i + "按鍵") PlayerKind[Choose_i] = i;  //觸碰的按鍵名字=角色種類，角色1、2...
-        int Seat = LvMax * (PlayerKind[Choose_i] - 1); //要讀取 UIControl.Player_Price[0]、[3]、[6]、[9]
+        int Seat = LvMax * (PlayerKind[Choose_i] - 1); //金錢，讀取 UIControl.Player_Price[0]、[3]、[6]、[9]
         if (UIControl.PlayerMoney >= UIControl.Player_Price[Seat]) //金錢夠才能建造
         {
             State_0();                  //選完角色之後，空格消失
@@ -231,7 +234,7 @@ public class SpaceControl : MonoBehaviour
 
     }
 
-    ////進階視窗，畫面狀態2時，可升級或販賣////
+    ////出現進階視窗，畫面狀態2時，可升級或販賣////
     public void AdvancedWindow(string Name, string tag) //進階視窗
     {
         PictureState = 2;
@@ -241,15 +244,16 @@ public class SpaceControl : MonoBehaviour
         {
             for (int j = 0; j < SpacePoints.Length; j++)
             {
+                ChangePic(SpacePoints[j].name, "空格");    //空格恢復空格圖案
                 if (tag == "Player" + i && Name == "砲塔" + j)
                 {
                     Choose_j = j;                                     //點選砲塔的編號
                     ChoosePlayerPlus.gameObject.SetActive(true);      //點選砲塔時就開起進階視窗，關閉選角視窗
                     ChoosePlayer.gameObject.SetActive(false);
                     ChoosePlayerPlus.transform.position = GameObject.Find(Name).transform.position + Vector3.up * 0.5f;//進階視窗位子會在砲塔上方  
-                    float LvNext = LvState[Choose_j] + 1;               //原本Lv1，要升級Lv2
+                    int LvNext = LvState[Choose_j] + 1;               //原本Lv1，要升級Lv2
                     ChangePic("升級", "Player/角色" + i + "_LV" + LvNext);     //進階視窗的圖片更換(UI的Image)，原本Lv1，要顯示Lv2的圖片
-                    ChangePic("升級金錢", "Price/角色" + i + "_LV" + LvNext); //金錢
+                    ChangePricePic("升級", i, LvNext);  //金錢
                     if (LvNext > LvMax) ChangePic("升級", "Price/不能建造");         //超過最高等級，就會顯示不能建造的圖片
                 }
             }
@@ -257,8 +261,50 @@ public class SpaceControl : MonoBehaviour
     }
     public void ChangePic(string Name, string Pic) //更換視窗的圖片
     {
-        GameObject.Find(Name).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(Pic); //更換圖片
+        if (GameObject.Find(Name) != null)
+            GameObject.Find(Name).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(Pic); //更換圖片
     }
+    public void ChangePricePic(string Name, int Player, int Lv) //更換金錢的圖片
+    {
+        /*  <UIControl>的Player_Price，各角色金錢
+            [0][1][2] 、[3][4][5]、[6][7][8]、[9][10][11]
+            角色1等級1或2或3...以此類推，但這裡只會改變等級2和3
+        */
+        int PriceTemp = 0; //金錢
+        for (int i = 2; i <= LvMax; i++) //升級就只有升2或3
+            if (Lv == i) PriceTemp = UIControl.Player_Price[LvMax * (Player - 1) + i - 1];
+
+        int PriceLength = (PriceTemp.ToString()).Length;                       //金錢的長度
+        int PriceCount = GameObject.Find(Name).transform.childCount;           //圖的長度
+
+        //先讓圖變空圖案
+        for (int i = 0; i < PriceCount; i++) GameObject.Find(Name).transform.GetChild(i).gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("");
+
+
+        //換金錢的圖
+        for (int i = 0; i < PriceLength; i++)
+        {
+            if (GameObject.Find(Name) != null && PriceLength == PriceCount )         //金錢和圖的長度一樣，就直接換 
+            {
+                GameObject.Find(Name).transform.GetChild(i).gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Price/Price_" + (PriceTemp.ToString())[i]);
+            }
+            else if (GameObject.Find(Name) != null && PriceLength != PriceCount)   //金錢和圖的長度不一樣
+            {
+                /*計算圖的長度-金錢的長度，看缺多少就少算一些數字。
+                    圖[0][1][2]
+                  金錢   [0][1]
+                  所以圖的[0]為空，[1]為金錢的0，[2]為金錢的1
+                */
+                int Unnes = PriceCount - PriceLength;
+                GameObject.Find(Name).transform.GetChild(i + Unnes).gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Price/Price_" + (PriceTemp.ToString())[i]);
+            }
+            
+        }
+        //如果超過最高等級，就讓他變為空
+        for (int i = 0; i < PriceCount; i++)  if (Lv > LvMax) GameObject.Find(Name).transform.GetChild(i).gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("");
+
+    }
+
     //進階視窗的功能，升級//
     public void ChangePlayer()
     {
