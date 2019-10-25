@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class SpaceControl : MonoBehaviour
 {
     ////參數設定////
-    public static int PlayerNum = 4;   //角色數量，讓其他腳本使用
+    public static int PlayerNum = 6;   //角色數量，讓其他腳本使用
     public static int LvMax = 3;       //角色最大等級
     public static float CoolTime = 3f; //建造砲塔的冷卻時間
     ////////////////
@@ -20,17 +20,20 @@ public class SpaceControl : MonoBehaviour
     int[] PlayerCount;                //建造時的冷卻狀態，0為無，1為正在建造
     public static int[] PlayerKind;   //砲塔建造種類，角色1、角色2...
 
-    public GameObject ChoosePlayer;    //選角視窗
-    public GameObject ChoosePlayerPlus;//進階視窗(升級or販賣)
+    public GameObject ChoosePlayer;         //選角視窗
+    public GameObject ChoosePlayerText;     //選角視窗的文字
+    public GameObject ChoosePlayerPlus;    //進階視窗(升級or販賣)
+    public GameObject ChoosePlayerPlusText;//進階視窗的文字
     public GameObject CDObj;           //放置"CD底部"
     public Text NoMoney;               //放置沒錢的TXT
     public Text DontBuildTxt;          //顯示不能建造的TXT
     public Text DontLvUpTxt;           //顯示不能升級的TXT
     public static int Choose_i = -1;   //紀錄碰到的空格編號，-1代表沒有儲存
     public static int Choose_j = -1;   //紀錄碰到的砲塔編號，-1代表沒有儲存
-    public string PlayerName;          //紀錄碰到的砲塔名稱
-    public string PlayerTag;           //紀錄碰到的砲塔Tag
+    string PlayerName;                 //紀錄碰到的砲塔名稱
+    string PlayerTag;                  //紀錄碰到的砲塔Tag
 
+    int PriceTemp = 0;                //計算要建造的金錢
     Vector2 Mouse_pos;                //紀錄觸碰的座標
     RaycastHit2D hit;
 
@@ -63,7 +66,9 @@ public class SpaceControl : MonoBehaviour
 
         //開場時先關閉選角視窗和進階視窗，視窗底部，文字
         ChoosePlayer.gameObject.SetActive(false);
+        ChoosePlayerText.gameObject.SetActive(false);
         ChoosePlayerPlus.gameObject.SetActive(false);
+        ChoosePlayerPlusText.gameObject.SetActive(false);
         DontBuildTxt.gameObject.SetActive(false);
         DontLvUpTxt.gameObject.SetActive(false);
         NoMoney.gameObject.SetActive(false);
@@ -120,8 +125,8 @@ public class SpaceControl : MonoBehaviour
                 else if (hit.collider.name == "角色4按鍵") BuildPlayer(Player4, hit.collider.name);
                 else if (hit.collider.name == "角色5按鍵") BuildPlayer(Player5, hit.collider.name);
                 else if (hit.collider.name == "角色6按鍵") BuildPlayer(Player6, hit.collider.name);
-                else if (hit.collider.name == "升級") ChangePlayer();
-                else if (hit.collider.name == "販賣") SellPlayer();
+                else if (hit.collider.name == "升級按鍵") ChangePlayer();
+                else if (hit.collider.name == "販賣按鍵") SellPlayer();
                 else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);     //執行畫面狀態2  
                 else AdvancedWindow(hit.collider.name, hit.collider.tag);                    //進階視窗   
             }
@@ -141,7 +146,7 @@ public class SpaceControl : MonoBehaviour
             if (GameObject.Find("CD" + i) != null)//如果出現CD
             {
                 GameObject.Find("CD" + i).transform.SetParent(GameObject.Find("UI").transform);                                //沒加父物件就不會出現，而且此物件(CD底部)也不會出現
-                GameObject.Find("CD" + i).transform.position = Camera.main.WorldToScreenPoint(GameObject.Find("砲塔" + i).transform.position +Vector3.up*-1);
+                GameObject.Find("CD" + i).transform.position = Camera.main.WorldToScreenPoint(GameObject.Find("砲塔" + i).transform.position + Vector3.up * -1);
                 if (PlayerCount[i] == 1)   //建造時的冷卻狀態，0為無，1為正在建造
                 {
                     GameObject.Find("CD" + i).transform.GetChild(0).GetComponent<Image>().fillAmount -= Time.deltaTime / CoolTime; //此物件(CD底部)的子物件(CD)，隨著時間讓圖片改變 
@@ -149,6 +154,7 @@ public class SpaceControl : MonoBehaviour
                     {
                         PlayerCount[i] = 0;
                         Destroy(GameObject.Find("CD" + i));
+                        GameObject.Find("砲塔" + i).GetComponent<Animator>().enabled = true; //CD結束，才會撥放動畫
                     }
                 }
             }
@@ -175,7 +181,9 @@ public class SpaceControl : MonoBehaviour
             }
         }
         ChoosePlayer.gameObject.SetActive(false);//選角視窗消失
+        ChoosePlayerText.gameObject.SetActive(false);
         ChoosePlayerPlus.gameObject.SetActive(false);//進階視窗消失
+        ChoosePlayerPlusText.gameObject.SetActive(false);
         DontBuildTxt.gameObject.SetActive(false);    //TXT文字消失
         DontLvUpTxt.gameObject.SetActive(false);
         NoMoney.gameObject.SetActive(false);
@@ -207,14 +215,27 @@ public class SpaceControl : MonoBehaviour
             {
                 PictureState = 2;     //畫面狀態變為2，出現選角視窗     
                 ChoosePlayer.gameObject.SetActive(true);//開啟選角視窗且關閉進階視窗
+                ChoosePlayerText.gameObject.SetActive(true);
                 ChoosePlayerPlus.gameObject.SetActive(false);
-                ChoosePlayer.transform.position = GameObject.Find(SpacePoints[i].name).transform.position ;//選角視窗位子會在空格中間
+                ChoosePlayerPlusText.gameObject.SetActive(false);
+                ChoosePlayer.transform.position = GameObject.Find(SpacePoints[i].name).transform.position;//選角視窗位子會在空格中間
+                ChoosePlayerText.transform.position = Camera.main.WorldToScreenPoint(ChoosePlayer.transform.position);
                 Choose_i = i;         //紀錄被點選空格的位子，給BuildPlayer1()使用
 
                 ChangePic(SpacePoints[i].name, "選取空格"); //被點選的格子會換成選取空格的圖案
+                ChangePrice(ChoosePlayerText);//金錢
             }
             else ChangePic(SpacePoints[i].name, "空格");    //點選第二個空格時，讓第一個被選取的空格恢復空格圖案
         }
+
+        for (int i = 0; i < PlayerNum; i++)//錢不夠，視窗就會變暗
+        {
+            if (UIControl.PlayerMoney < UIControl.Player_Price[LvMax * (i)])
+                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);
+            else
+                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);//進階視窗的圖案顏色恢復
+        }
+        
     }
 
     ////選角視窗的功能，畫面狀態2時，觸碰角色視窗的按鈕建造角色////
@@ -243,7 +264,7 @@ public class SpaceControl : MonoBehaviour
             TXTCountDown = 1.1f;                 //播放時間
             NoMoney.gameObject.SetActive(false); //因為有做動畫，所以必須關閉再開啟，就會再撥放 
             NoMoney.gameObject.SetActive(true);
-            GameObject.Find("沒錢TXT").transform.position = Camera.main.WorldToScreenPoint(ChoosePlayer.transform.position + Vector3.up * 1);
+            GameObject.Find("沒錢TXT").transform.position = Camera.main.WorldToScreenPoint(ChoosePlayer.transform.position);
         }
 
     }
@@ -267,13 +288,20 @@ public class SpaceControl : MonoBehaviour
                 if (tag == "Player" + i && Name == "砲塔" + j)
                 {
                     Choose_j = j;                                     //點選砲塔的編號
-                    ChoosePlayerPlus.gameObject.SetActive(true);      //點選砲塔時就開起進階視窗，關閉選角視窗
-                    ChoosePlayer.gameObject.SetActive(false);
-                    ChoosePlayerPlus.transform.position = GameObject.Find(Name).transform.position ;//進階視窗位子會在砲塔中間  
-                    int LvNext = LvState[Choose_j] + 1;               //原本Lv1，要升級Lv2
-                    ChangePic("升級", "Player/頭像/角色-0" + i );     //進階視窗的圖片更換(UI的Image)，原本Lv1，要顯示Lv2的圖片
-                    //ChangePricePic("升級", i, LvNext);  //金錢
-                    if (LvNext > LvMax) ChangePic("升級", "Price/不能建造");         //超過最高等級，就會顯示不能建造的圖片
+                    ChoosePlayer.gameObject.SetActive(false);//點選砲塔時就關閉選角視窗，開啟進階視窗
+                    ChoosePlayerText.gameObject.SetActive(false);
+                    ChoosePlayerPlus.gameObject.SetActive(true);
+                    ChoosePlayerPlusText.gameObject.SetActive(true);
+                    ChoosePlayerPlus.transform.position = GameObject.Find(Name).transform.position;//進階視窗位子會在砲塔中間  
+                    ChoosePlayerPlusText.transform.position = Camera.main.WorldToScreenPoint(ChoosePlayerPlus.transform.position);
+                    int LvNext = LvState[Choose_j] + 1;                  //原本Lv1，要升級Lv2
+                    ChangePic("升級圖案", "Player/頭像/角色-0" + i);     //進階視窗的圖片更換(UI的Image)，換角色
+                    ChangePricePlus(ChoosePlayerPlusText, i, LvNext);    //金錢
+                    if (LvNext > LvMax || UIControl.PlayerMoney < PriceTemp)//超過最高等級，或者錢不夠，視窗就會變暗
+                        GameObject.Find("升級圖案").GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);
+                    else
+                        GameObject.Find("升級圖案").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);//進階視窗的圖案顏色恢復
+
                 }
             }
         }
@@ -289,47 +317,48 @@ public class SpaceControl : MonoBehaviour
             GameObject.Find(Name).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(Pic); //更換圖片
     }
 
-    public void ChangePricePic(string Name, int Player, int Lv)
+    /// <summary>
+    /// 選角視窗各角色金錢(選角視窗)
+    /// </summary>
+    /// <param name="Name"></param>
+    /// <param name="Player"></param>
+    /// <param name="Lv"></param>
+    public void ChangePrice(GameObject Name)
+    {
+        /*  <UIControl>的Player_Price，各角色金錢
+           [0][1][2] 、[3][4][5]、[6][7][8]、[9][10][11]
+           角色1等級1或2或3...以此類推，            */
+        for (int i = 0; i < PlayerNum; i++) //更換金錢
+            Name.transform.GetChild(i).GetChild(0).GetComponent<Text>().text = UIControl.Player_Price[LvMax * (i)].ToString();
+    }
+    /// <summary>
+    /// 進階視窗的各角色金額(進階視窗，角色種類，要升級的等級)
+    /// </summary>
+    /// <param name="Name"></param>
+    public void ChangePricePlus(GameObject Name, int Player, int Lv)
     {
         /*  <UIControl>的Player_Price，各角色金錢
             [0][1][2] 、[3][4][5]、[6][7][8]、[9][10][11]
-            角色1等級1或2或3...以此類推，但這裡只會改變等級2和3
+            角色1等級1或2或3...以此類推，
         */
-        int PriceTemp = 0; //金錢
-        for (int i = 2; i <= LvMax; i++) //升級就只有升2或3
-            if (Lv == i) PriceTemp = UIControl.Player_Price[LvMax * (Player - 1) + i - 1];
-
-        int PriceLength = (PriceTemp.ToString()).Length;                       //金錢的長度
-        int PriceCount = GameObject.Find(Name).transform.childCount;           //圖的長度
-
-        //先讓圖變空圖案
-        for (int i = 0; i < PriceCount; i++) GameObject.Find(Name).transform.GetChild(i).gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("");
-
-
-        //換金錢的圖
-        for (int i = 0; i < PriceLength; i++)
+        for (int i = 2; i <= LvMax; i++)   //各角色等級的金錢 
         {
-            if (GameObject.Find(Name) != null && PriceLength == PriceCount)         //金錢和圖的長度一樣，就直接換 
+            if (Lv == i)
             {
-                GameObject.Find(Name).transform.GetChild(i).gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Price/Price_" + (PriceTemp.ToString())[i]);
+                PriceTemp = UIControl.Player_Price[LvMax * (Player - 1) + Lv - 1];
+                Name.transform.GetChild(0).GetComponent<Text>().text =  (Lv - 1) + "/" + LvMax;   //顯示目前等級
+                Name.transform.GetChild(0).GetChild(0).GetComponent<Text>().text = PriceTemp.ToString();   //更換金錢
             }
-            else if (GameObject.Find(Name) != null && PriceLength != PriceCount)   //金錢和圖的長度不一樣
+            else if (Lv > i)
             {
-                /*計算圖的長度-金錢的長度，看缺多少就少算一些數字。
-                    圖[0][1][2]
-                  金錢   [0][1]
-                  所以圖的[0]為空，[1]為金錢的0，[2]為金錢的1
-                */
-                int Unnes = PriceCount - PriceLength;
-                GameObject.Find(Name).transform.GetChild(i + Unnes).gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Price/Price_" + (PriceTemp.ToString())[i]);
+                Name.transform.GetChild(0).GetComponent<Text>().text =  (Lv-1) + "/" + LvMax;   //顯示目前等級
+                Name.transform.GetChild(0).GetChild(0).GetComponent<Text>().text = "MAX";
             }
+
 
         }
-        //如果超過最高等級，就讓他變為空
-        for (int i = 0; i < PriceCount; i++) if (Lv > LvMax) GameObject.Find(Name).transform.GetChild(i).gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("");
 
     }
-
 
     /// <summary>
     /// 進階視窗的功能，升級
@@ -351,17 +380,11 @@ public class SpaceControl : MonoBehaviour
                 {
                     Destroy(GameObject.Find(PlayerName).GetComponent<WeaponControl>()); //因為WeaponControl啟用時，會間隔時間才攻擊，先刪除腳本，再加入腳本(WeaponControl也會自動加入子彈Prefab)
                     GameObject.Find(PlayerName).AddComponent<WeaponControl>();
+                    GameObject.Find(PlayerName).GetComponent<Animator>().enabled = false; //動畫暫停
                     State_0();
-                    for (int i = 1; i < PlayerNum + 1; i++)  //判斷是"Player" + i
-                    {
-                        if (PlayerTag == "Player" + i)
-                        {
-                            LvState[Choose_j] += 1;       //升等
-                            GameObject.Find(PlayerName).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Player/角色" + i + "_LV" + LvState[Choose_j]);
-                            UIControl.PlayerMoney -= UIControl.Player_Price[Seat];//升級砲塔後扣錢
-                            CreatCDUI(Choose_j);
-                        }
-                    }
+                    LvState[Choose_j] += 1;       //升等
+                    UIControl.PlayerMoney -= UIControl.Player_Price[Seat];//升級砲塔後扣錢
+                    CreatCDUI(Choose_j);
                 }
                 else//錢不夠就不能升級
                 {
@@ -376,7 +399,7 @@ public class SpaceControl : MonoBehaviour
                 TXTCountDown = 1.1f;                      //播放時間
                 DontBuildTxt.gameObject.SetActive(false); //因為有做動畫，所以必須關閉再開啟，就會再撥放 
                 DontBuildTxt.gameObject.SetActive(true);
-                GameObject.Find("不能建造TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position + Vector3.up * 1);
+                GameObject.Find("不能建造TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position );
             }
         }
         else //如果冷卻中就顯示不能升級
@@ -384,7 +407,7 @@ public class SpaceControl : MonoBehaviour
             TXTCountDown = 1.1f;                     //播放時間
             DontLvUpTxt.gameObject.SetActive(false); //因為有做動畫，所以必須關閉再開啟，就會再撥放 
             DontLvUpTxt.gameObject.SetActive(true);
-            GameObject.Find("不能升級TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position + Vector3.up * 1);
+            GameObject.Find("不能升級TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position );
         }
 
     }

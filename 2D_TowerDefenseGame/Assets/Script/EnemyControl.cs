@@ -18,7 +18,7 @@ public class EnemyControl : MonoBehaviour
     GameObject MovePoints;   //讀取且放置移動點的陣列
     int Index = 0;           //移動點的編號
 
-     GameObject HpObj;        //怪物的血條
+    GameObject HpObj;        //怪物的血條
     float[] TimeCount = new float[SpaceControl.PlayerNum];   //子彈的效果的倒數計時。[0]=>角色1，[1]=>角色2，[2]=>角色3，[3]=>角色4(目前只有[2][3]有使用)  
     float[] EffectConti = new float[SpaceControl.PlayerNum]; //子彈效果的持續時間
 
@@ -36,9 +36,10 @@ public class EnemyControl : MonoBehaviour
         //子彈效果的持續時間和倒數計時器
         for (int i = 0; i < SpaceControl.PlayerNum; i++)
         {
-            EffectConti[i] = 2;
-            TimeCount[i] = EffectConti[i]+1;  //因為要持續2秒，就隨便設定2以上的數字
+            EffectConti[i] = 2;               //持續2秒
+            TimeCount[i] = EffectConti[i] + 1;  //因為要持續2秒，就隨便設定2以上的數字
         }
+
 
     }
 
@@ -56,12 +57,14 @@ public class EnemyControl : MonoBehaviour
                 Destroy(this.gameObject);
                 Destroy(HpObj);
                 UIControl.PlayerHp -= 1;
+                UIControl.EndHit = true;
+                UIControl.EndTime = 0.5f;
             }
             else MovePoints = PointSetting.points[Index];
 
         }
 
-        //控制CD的UI
+        //控制CD的時間條
         HpObj.transform.SetParent(GameObject.Find("UI").transform);                //沒加父物件就不會出現
         HpObj.transform.position = Camera.main.WorldToScreenPoint(this.gameObject.transform.position + new Vector3(0, 0.2f, 0));//怪物血量一直跟著怪物
         HpObj.transform.GetChild(0).GetComponent<Image>().fillAmount = Hp / HpMax; //減少血條
@@ -70,14 +73,15 @@ public class EnemyControl : MonoBehaviour
         //如果被子彈3打到，TimeCount[2]=2，2秒後就恢復，數字變為3(2秒+1，這樣就不會觸發)，這樣子彈3和子彈4就獨立分開計算
         for (int j = 0; j < SpaceControl.PlayerNum; j++)
         {
-            if (TimeCount[j] <= 2 & TimeCount[j] > 0)
+            if (TimeCount[j] <= EffectConti[j] & TimeCount[j] > 0)
             {
                 TimeCount[j] -= Time.deltaTime;
             }
             else if (TimeCount[j] <= 0)
             {
-                if (j == 2) Recovery();
-                else if (j == 3) print("中毒解除");
+                if (j == 0) print("中毒解除");
+                else if (j == 3) Recovery();
+                else if (j == 4) Recovery();
                 TimeCount[j] = EffectConti[j] + 1;
             }
         }
@@ -88,31 +92,47 @@ public class EnemyControl : MonoBehaviour
         HpObj = Instantiate(GameObject.Find("怪物血量底部"));
     }
 
-    //怪物碰撞控制
+   
+    /// <summary>
+    /// 怪物被子彈打到的效果
+    /// </summary>
+    /// <param name="collision"></param>
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.name == "子彈1") BulletToEemy(BulletControl.Damage1, collision.gameObject);//被子彈打到的傷害，打到怪物後該消除的子彈
+        //中毒
+        if (collision.gameObject.name == "子彈1")
+        {
+            TimeCount[0] = EffectConti[0];
+            ContinDamage();    //執行每秒扣血
+            print("中毒");
+            BulletToEemy(BulletControl.Damage1, collision.gameObject);//被子彈打到的傷害，打到怪物後該消除的子彈
+        }
+        //火球
         else if (collision.gameObject.name == "子彈2") BulletToEemy(BulletControl.Damage2, collision.gameObject);//被子彈打到的傷害，打到怪物後該消除的子彈
-        else if (collision.gameObject.name == "子彈3")//碰到子彈時
+        //遠程
+        else if (collision.gameObject.name == "子彈3") BulletToEemy(BulletControl.Damage3, collision.gameObject);//被子彈打到的傷害，打到怪物後該消除的子彈
+        //緩速
+        else if (collision.gameObject.name == "子彈4")
         {
             //被打到的效果
             if (BulletControl.Lv == 1) Speed = 0.9f;      //LV1速度減少10%，，LV2速度減少20%，，LV3速度減少30%。持續2秒
             else if (BulletControl.Lv == 2) Speed = 0.8f;
-            else if (BulletControl.Lv == 3) Speed = 0.7f;
-            TimeCount[2] = EffectConti[3];     //緩速2秒，2秒後就恢復速度和顏色
+            else if (BulletControl.Lv == 3) Speed = 0.6f;
+            TimeCount[3] = EffectConti[3];     //緩速2秒，2秒後就恢復速度和顏色
             this.gameObject.GetComponent<SpriteRenderer>().color = new Color32(0, 120, 255, 255);//怪物被打到變藍色
             print("緩速");
-            BulletToEemy(BulletControl.Damage3, collision.gameObject);  //被子彈打到的傷害，打到怪物後該消除的子彈
-
+            BulletToEemy(BulletControl.Damage4, collision.gameObject);  //被子彈打到的傷害，打到怪物後該消除的子彈
         }
-        else if (collision.gameObject.name == "子彈4")//碰到子彈時
+        //暈擊
+        else if (collision.gameObject.name == "子彈5")
         {
-            TimeCount[3] = EffectConti[3];
-            ContinDamage();    //執行每秒扣血
-            //this.gameObject.GetComponent<SpriteRenderer>().color = new Color32(0, 120, 0, 255);   //怪物被打到變綠色
-            BulletToEemy(BulletControl.Damage4, collision.gameObject);//被子彈打到的傷害，打到怪物後該消除的子彈
-            print("中毒");
+            if (BulletControl.Lv == 1) Speed = 0f;
+            TimeCount[4] = EffectConti[4];
+            BulletToEemy(BulletControl.Damage5, collision.gameObject);//被子彈打到的傷害，打到怪物後該消除的子彈
         }
+        //爆擊
+        else if (collision.gameObject.name == "子彈6") BulletToEemy(BulletControl.Damage6, collision.gameObject);//被子彈打到的傷害，打到怪物後該消除的子彈
+
     }
 
     //怪物被打到會扣血，子彈會消失，怪物血歸0就消失，血條也消失

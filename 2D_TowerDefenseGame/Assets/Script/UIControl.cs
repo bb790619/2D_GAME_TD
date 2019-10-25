@@ -9,10 +9,16 @@ using UnityEngine.SceneManagement;
 public class UIControl : MonoBehaviour
 {
     ////參數設定//
-    public static int PlayerHp =30;      //玩家血量
-    public static int PlayerMoney;      //玩家金錢                                         
-                                        //[0-2]=角色1_LV1-LV3，[3-5]=角色2_LV1-LV3，[6-8]=角色3_LV1-LV3，[9-11]=角色4_LV1-LV3，
-    public static int[] Player_Price = { 30, 50, 100, 40, 75, 125, 35, 60, 115, 45, 80, 140 };//建造和升級的金額，LV1，LV2，LV3。(和視窗顯示的是獨立分開的)
+    public static int PlayerHp = 30;    //玩家血量
+    public static int PlayerMoney;      //玩家金錢                                        
+    //[0-2]=角色1_LV1-LV3，[3-5]=角色2_LV1-LV3，[6-8]=角色3_LV1-LV3，[9-11]=角色4_LV1-LV3，以此類推
+    //修改這邊的金額，<SpaceControl>會自動修改
+    public static int[] Player_Price = { 45, 85, 140,
+                                         35, 65, 120,
+                                         35, 65, 120,
+                                         30, 50, 100,
+                                         25, 40,  80,
+                                         40, 80, 130  };
 
     public static float Mode;             //選擇難度後，血量的比例，給<EnemyControl>使用
     float NowTime = 0f;                   //下波怪出現的時間
@@ -21,6 +27,10 @@ public class UIControl : MonoBehaviour
     public Image GGWindow;                //失敗視窗("失敗視窗")
     public Image OptionWindow;            //暫停視窗("暫停視窗")
     public Image ModeWindow;              //難度視窗("難度視窗")
+
+    public Animator EndAni;                //守門人
+    public static bool EndHit = false;      //是否有被扣血
+    public static float EndTime = 2f;          //倒數計時
 
     // Start is called before the first frame update
     void Start()
@@ -38,6 +48,7 @@ public class UIControl : MonoBehaviour
         Invoke("Opening", 1f);
 
         NowTime = EnemyCreater.TimeDelay;
+
     }
 
     // Update is called once per frame
@@ -57,11 +68,30 @@ public class UIControl : MonoBehaviour
             GameObject.Find("生命TXT").GetComponent<Text>().text = PlayerHp.ToString();     //顯示玩家生命
         }
         //失敗條件
-        if (PlayerHp <= 0)  Invoke("GoodGame", 1f);//如果輸了，延遲1秒出現失敗視窗
-       
+        if (PlayerHp <= 0)
+        {
+            Invoke("GoodGame", 5f);       //如果輸了，延遲1秒出現失敗視窗
+            EndAni.SetInteger("狀態", 2);
+        }
+            
+
         //勝利條件，撐過所有波數，血量大於0，而且怪全都消失了會出現勝利視窗
         if (Wave >= EnemyCreater.EnemyEnd && PlayerHp > 0 && GameObject.FindWithTag("Enemy") == null)
             Invoke("Victory", 3f);//如果贏了，延遲3秒出現勝利視窗
+
+        //控制守門人，玩家扣血會執行動畫  
+        if (EndTime <= 0.5 & EndTime > 0)
+        {
+            EndTime -= Time.deltaTime;
+            EndAni.SetInteger("狀態", 1);
+        }
+        else if (EndTime <= 0)
+        {
+            EndAni.SetInteger("狀態", 0);
+            EndHit = false;
+            EndTime = 2;
+        }
+
     }
 
     public void Opening()//開場1秒後(剛好淡出結束)，讓時間暫停
@@ -73,7 +103,7 @@ public class UIControl : MonoBehaviour
     public void StartGame()//遊戲開始
     {
         GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 0);//畫面恢復
-        Time.timeScale = 1; 
+        Time.timeScale = 1;
         OptionWindow.transform.gameObject.SetActive(false);
     }
     public void PauseGame()//遊戲暫停
@@ -106,7 +136,7 @@ public class UIControl : MonoBehaviour
     public void Window_Yes()//再來一場，延遲一秒後回到開始場景
     {
         Time.timeScale = 1;
-        Invoke("Window_YesNow",1f);
+        Invoke("Window_YesNow", 1f);
     }
     public void Window_NO()//離開遊戲，關閉遊戲
     {

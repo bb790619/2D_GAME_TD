@@ -10,11 +10,11 @@ public class EnemyCreater : MonoBehaviour
     //開場階段15秒，每波為30秒，每波出怪20隻(其餘為等待時間)
     public static float TimeDelay ;      //遊戲開場等待階段，讓<UIControl>來使用
     public static float EnemyWaveTime = 30f; //每一波怪的時間，讓<UIControl>來使用
-    int EnemyNum = 1;                       //每波出怪數量
+    int EnemyNum = 3;                       //每波出怪數量
 
     float Waiter = 0.5f;                     //出怪的間隔時間
     public static int EnemyWave ;           //目前是第幾波怪(0是開場，1是第一波，以此類推)，讓<UIControl>來使用
-    public static int EnemyEnd = 2;         //出現幾波怪就結束遊戲
+    public static int EnemyEnd = 5;         //出現幾波怪就結束遊戲
     int EenmySerialNum;                      //怪物的流水號
 
     // Start is called before the first frame update
@@ -22,7 +22,7 @@ public class EnemyCreater : MonoBehaviour
     {
         //重新開始時，參數復歸
         EnemyWave = 0;
-        TimeDelay = 20f; //從這邊設定，開場階段時間
+        TimeDelay = 5f; //從這邊設定，開場階段時間
     }
 
     // Update is called once per frame

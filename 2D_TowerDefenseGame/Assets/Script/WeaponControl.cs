@@ -7,7 +7,8 @@ using UnityEditor; //路徑要加入這個
 public class WeaponControl : MonoBehaviour
 {
     GameObject Bullet;                 //放置子彈的預置物
-    float Range = 4f;                  //砲塔攻擊範圍
+    float[] Range = { 4f, 4f, 6f, 4f, 4f, 4f };  //砲塔攻擊範圍
+    int PlayerName;                    //紀錄砲塔的位子
     public static Vector3 PlayerDir;   //紀錄砲塔的位子
     public static Vector3 TargetDir;   //記錄怪物的位子
 
@@ -18,14 +19,15 @@ public class WeaponControl : MonoBehaviour
     void Start()
     {
         //做法1，從Resources/Prefab/子彈，自動加入子彈的Prefab(要把要加入的Prefab放入Resources資料夾)
-        Bullet = Resources.Load<GameObject>("子彈");   
-        
+        Bullet = Resources.Load<GameObject>("子彈");
         /*
         //做法2，放置任何位子都行，先找出Prefab的路徑，自動加入子彈的Prefab
         //這個做法不知為何不能寫進APK
         string path = "Assets/Prefab/子彈.prefab";
         Bullet = AssetDatabase.LoadAssetAtPath<GameObject>(path);  
-        */  
+        */
+
+        for (int i = 1; i < SpaceControl.PlayerNum + 1; i++)   if (this.tag == "Player" + i) PlayerName = i; //找出角色的種類，給予不同的攻擊範圍
     }
 
     // Update is called once per frame
@@ -54,7 +56,7 @@ public class WeaponControl : MonoBehaviour
             }
         }
         //如果怪物出現，且進入攻擊範圍內，就發射子彈
-        if (NearestEnemy != null && MinDist <= Range)
+        if (NearestEnemy != null && MinDist <= Range[PlayerName-1])
         {
             PlayerDir = this.gameObject.transform.position;//紀錄砲塔的位子
             TargetDir = NearestEnemy.transform.position;//紀錄怪物的位子
@@ -84,6 +86,6 @@ public class WeaponControl : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, Range);
+        Gizmos.DrawWireSphere(transform.position, Range[PlayerName-1]);
     }
 }
