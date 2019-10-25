@@ -18,7 +18,7 @@ public class EnemyControl : MonoBehaviour
     GameObject MovePoints;   //讀取且放置移動點的陣列
     int Index = 0;           //移動點的編號
 
-    GameObject HpObj;        //怪物的血條
+     GameObject HpObj;        //怪物的血條
     float[] TimeCount = new float[SpaceControl.PlayerNum];   //子彈的效果的倒數計時。[0]=>角色1，[1]=>角色2，[2]=>角色3，[3]=>角色4(目前只有[2][3]有使用)  
     float[] EffectConti = new float[SpaceControl.PlayerNum]; //子彈效果的持續時間
 

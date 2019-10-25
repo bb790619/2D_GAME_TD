@@ -17,6 +17,8 @@ TagManager:
   - LevelChanger
   - Laser
   - Window
+  - Player5
+  - Player6
   layers:
   - Default
   - TransparentFX
