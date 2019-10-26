@@ -41,6 +41,11 @@ public class SpaceControl : MonoBehaviour
     float TXTCountDown = 0f;           //"不能建造"文字的倒數計數器
     public GameObject StartPoint;
 
+    //給<BulletControl>使用
+    public static int[] Damage1, Damage2, Damage3, Damage4, Damage5, Damage6; //子彈種類的傷害數值
+    public static string[] Effect5, Effect6;    //技能的額外效果
+    int[] CRIPro_5, CRIPro_6;                  //技能發動機率，角色5和6的參數
+
     /*觸控間隔，時間內才算點擊，超過就算移動。無使用
     float begainTime = 0f;              //觸控螢幕開始的時間
     float intervals;                    //觸控螢幕和放開的間隔
@@ -170,6 +175,9 @@ public class SpaceControl : MonoBehaviour
             }
         }
     }
+
+
+
 
     ////觸控的狀態////
     //畫面狀態分為 => 0為無空格，1為空格出現，2為出現選角視窗
@@ -390,9 +398,10 @@ public class SpaceControl : MonoBehaviour
                 {
                     Destroy(GameObject.Find(PlayerName).GetComponent<WeaponControl>()); //因為WeaponControl啟用時，會間隔時間才攻擊，先刪除腳本，再加入腳本(WeaponControl也會自動加入子彈Prefab)
                     GameObject.Find(PlayerName).AddComponent<WeaponControl>();
-                    GameObject.Find(PlayerName).GetComponent<Animator>().enabled = false; //動畫暫停
+                    //GameObject.Find(PlayerName).GetComponent<Animator>().enabled = false; //動畫暫停
                     State_0();
                     LvState[Choose_j] += 1;       //升等
+                    GameObject.Find(PlayerName).transform.localScale += new Vector3(0.1f, 0.1f,0.1f);
                     UIControl.PlayerMoney -= UIControl.Player_Price[Seat];//升級砲塔後扣錢
                     CreatCDUI(Choose_j);
                 }

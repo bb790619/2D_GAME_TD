@@ -46,7 +46,7 @@ public class UIControl : MonoBehaviour
         //Invoke("Opening", 1f);        //遊戲場景會先淡出，開啟難度視窗，1秒後淡出消失，同時讓時間暫停
 
         NowTime = EnemyCreater.TimeDelay; //下波怪出現的時間
-        PlayerMoney = 150;                //玩家初始金錢
+        PlayerMoney = 200;                //玩家初始金錢
         Mode = 1f;                        //1倍(現在無使用)
     }
 

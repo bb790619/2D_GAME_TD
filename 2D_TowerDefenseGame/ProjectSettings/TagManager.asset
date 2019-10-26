@@ -14,6 +14,7 @@ TagManager:
   - Button
   - Player5
   - Player6
+  - Window
   layers:
   - Default
   - TransparentFX
