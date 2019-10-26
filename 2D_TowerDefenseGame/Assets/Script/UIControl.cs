@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 public class UIControl : MonoBehaviour
 {
     ////參數設定//
-    public static int PlayerHp = 30;    //玩家血量
+    public static int PlayerHp = 4;    //玩家血量
     public static int PlayerMoney;      //玩家金錢                                        
     //[0-2]=角色1_LV1-LV3，[3-5]=角色2_LV1-LV3，[6-8]=角色3_LV1-LV3，[9-11]=角色4_LV1-LV3，以此類推
     //修改這邊的金額，<SpaceControl>會自動修改
@@ -26,11 +26,11 @@ public class UIControl : MonoBehaviour
     public Image VictoryWindow;           //勝利視窗("勝利視窗")
     public Image GGWindow;                //失敗視窗("失敗視窗")
     public Image OptionWindow;            //暫停視窗("暫停視窗")
-    public Image ModeWindow;              //難度視窗("難度視窗")
+    //public Image ModeWindow;            //難度視窗("難度視窗")
 
     public Animator EndAni;                //守門人
     public static bool EndHit = false;      //是否有被扣血
-    public static float EndTime = 2f;          //倒數計時
+    public static float EndTime = 2f;       //倒數計時
 
     // Start is called before the first frame update
     void Start()
@@ -41,21 +41,22 @@ public class UIControl : MonoBehaviour
         OptionWindow.transform.gameObject.SetActive(false);
 
         Time.timeScale = 1;   //遊戲開始
-        GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
+        //GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
+        //ModeWindow.transform.gameObject.SetActive(true); //開啟難度視窗
+        //Invoke("Opening", 1f);        //遊戲場景會先淡出，開啟難度視窗，1秒後淡出消失，同時讓時間暫停
 
-        //遊戲場景會先淡出，開啟難度視窗，1秒後淡出消失，同時讓時間暫停
-        ModeWindow.transform.gameObject.SetActive(true); //開啟難度視窗
-        Invoke("Opening", 1f);
-
-        NowTime = EnemyCreater.TimeDelay;
-
+        NowTime = EnemyCreater.TimeDelay; //下波怪出現的時間
+        PlayerMoney = 150;                //玩家初始金錢
+        Mode = 1f;                        //1倍(現在無使用)
     }
 
     // Update is called once per frame
     void Update()
     {
-        //難度視窗消失才能執行
-        if (GameObject.Find("難度視窗") == null)
+        GameObject.Find("金錢TXT").GetComponent<Text>().text = PlayerMoney.ToString();  //顯示金錢
+        GameObject.Find("生命TXT").GetComponent<Text>().text = PlayerHp.ToString();     //顯示玩家生命
+                                                                                      //開場提示消失才能執行
+        if (GameObject.FindWithTag("Window") == null)
         {
             NowTime = EnemyCreater.TimeDelay; //下波倒數時間
             Wave = EnemyCreater.EnemyWave + 1;
@@ -64,35 +65,26 @@ public class UIControl : MonoBehaviour
             {
                 GameObject.Find("時間TXT").GetComponent<Text>().text = "最後一波怪!!!";
             }
-            GameObject.Find("金錢TXT").GetComponent<Text>().text = PlayerMoney.ToString();  //顯示金錢
-            GameObject.Find("生命TXT").GetComponent<Text>().text = PlayerHp.ToString();     //顯示玩家生命
         }
         //失敗條件
         if (PlayerHp <= 0)
         {
             Invoke("GoodGame", 5f);       //如果輸了，延遲1秒出現失敗視窗
-            EndAni.SetInteger("狀態", 2);
+            EndAni.SetBool("結束", true);  //執行玩家輸了的動畫
         }
-            
-
         //勝利條件，撐過所有波數，血量大於0，而且怪全都消失了會出現勝利視窗
         if (Wave >= EnemyCreater.EnemyEnd && PlayerHp > 0 && GameObject.FindWithTag("Enemy") == null)
             Invoke("Victory", 3f);//如果贏了，延遲3秒出現勝利視窗
 
-        //控制守門人，玩家扣血會執行動畫  
-        if (EndTime <= 0.5 & EndTime > 0)
-        {
-            EndTime -= Time.deltaTime;
-            EndAni.SetInteger("狀態", 1);
-        }
-        else if (EndTime <= 0)
-        {
-            EndAni.SetInteger("狀態", 0);
-            EndHit = false;
-            EndTime = 2;
-        }
-
     }
+    /// <summary>
+    /// 執行玩家扣血後的動畫
+    /// </summary>
+    public void EndControl()
+    {
+        EndAni.SetTrigger("攻擊");
+    }
+
 
     public void Opening()//開場1秒後(剛好淡出結束)，讓時間暫停
     {
@@ -147,7 +139,7 @@ public class UIControl : MonoBehaviour
         SceneManager.LoadScene("開始場景");
     }
 
-
+    /*
     ////難度視窗////
     public void EasyMode()//簡單模式，金錢200，怪物血量90%
     {
@@ -170,7 +162,7 @@ public class UIControl : MonoBehaviour
         PlayerMoney = 100;
         Mode = 1.1f;
     }
-
+    */
 
 
 }

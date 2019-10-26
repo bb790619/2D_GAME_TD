@@ -39,6 +39,7 @@ public class SpaceControl : MonoBehaviour
 
     public GameObject Player1, Player2, Player3, Player4, Player5, Player6;   //放置角色的預置物
     float TXTCountDown = 0f;           //"不能建造"文字的倒數計數器
+    public GameObject StartPoint;
 
     /*觸控間隔，時間內才算點擊，超過就算移動。無使用
     float begainTime = 0f;              //觸控螢幕開始的時間
@@ -90,47 +91,56 @@ public class SpaceControl : MonoBehaviour
         }
         */
 
-        if (GameObject.FindWithTag("Window") == null)//新增，視窗消失，觸碰其他地方才有反應
+        //初始的畫面狀態為0，無空位
+        Vector2 Mouse_pos = Camera.main.ScreenToWorldPoint(Input.mousePosition); //紀錄滑鼠觸碰的2D座標比例
+        RaycastHit2D hit = Physics2D.Raycast(Mouse_pos, Vector2.zero);           //2D使用的指令 
+
+        //點選開場提示，怪才會出現，但還是可以點選空格
+        if (GameObject.FindWithTag("Window") != null && Input.GetMouseButtonDown(0))
         {
-
-            //初始的畫面狀態為0，無空位
-            Vector2 Mouse_pos = Camera.main.ScreenToWorldPoint(Input.mousePosition); //紀錄滑鼠觸碰的2D座標比例
-            RaycastHit2D hit = Physics2D.Raycast(Mouse_pos, Vector2.zero);           //2D使用的指令 
-
-            ////畫面狀態0且觸碰螢幕時 => 進入畫面狀態1(空格出現)////
-            if (Input.GetMouseButtonDown(0) && PictureState == 0 && Time.timeScale == 1)//新增暫停按鍵，暫停時會出現視窗，且不能觸碰螢幕。遊戲開始時才能觸碰螢幕
+            if (hit.collider == null) { }
+            else if (hit.collider.tag == "Window")
             {
-                if (GameObject.FindWithTag("Window") == null)
-                {
-                    if (hit.collider == null) State_1();       //執行畫面狀態1
-                    else if (hit.collider.tag == "Button") { }
-                    else if (hit.collider != null) AdvancedWindow(hit.collider.name, hit.collider.tag);                   //若有建造砲塔且觸碰砲塔時    
-                }
-            }
-
-            ////畫面狀態1且觸碰螢幕時 => 觸碰空格進入畫面狀態2 or 無觸碰到空格進入畫面狀態0////
-            else if (Input.GetMouseButtonDown(0) && PictureState == 1 && Time.timeScale == 1)
-            {
-                if (hit.collider == null) State_0();                                      //執行畫面狀態0
-                else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);  //執行畫面狀態2 
-                else AdvancedWindow(hit.collider.name, hit.collider.tag);                 //若有建造砲塔且觸碰砲塔時}       
-            }
-            ////畫面狀態2且觸碰螢幕時 => 觸碰角色視窗建造角色，空格狀態變為2 or 觸控到其他空格，繼續執行畫面狀態2 or 無觸碰到空格進入畫面狀態0////
-            else if (Input.GetMouseButtonDown(0) && PictureState == 2 && Time.timeScale == 1)
-            {
-                if (hit.collider == null) State_0();
-                else if (hit.collider.name == "角色1按鍵") BuildPlayer(Player1, hit.collider.name);  //建造角色
-                else if (hit.collider.name == "角色2按鍵") BuildPlayer(Player2, hit.collider.name);
-                else if (hit.collider.name == "角色3按鍵") BuildPlayer(Player3, hit.collider.name);
-                else if (hit.collider.name == "角色4按鍵") BuildPlayer(Player4, hit.collider.name);
-                else if (hit.collider.name == "角色5按鍵") BuildPlayer(Player5, hit.collider.name);
-                else if (hit.collider.name == "角色6按鍵") BuildPlayer(Player6, hit.collider.name);
-                else if (hit.collider.name == "升級按鍵") ChangePlayer();
-                else if (hit.collider.name == "販賣按鍵") SellPlayer();
-                else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);     //執行畫面狀態2  
-                else AdvancedWindow(hit.collider.name, hit.collider.tag);                    //進階視窗   
+                Destroy(StartPoint);
             }
         }
+
+        ////畫面狀態0且觸碰螢幕時 => 進入畫面狀態1(空格出現)////
+        if (Input.GetMouseButtonDown(0) && PictureState == 0 && Time.timeScale == 1)//新增暫停按鍵，暫停時會出現視窗，且不能觸碰螢幕。遊戲開始時才能觸碰螢幕
+        {
+            if (hit.collider == null) State_1();       //執行畫面狀態1
+            else if (hit.collider.tag == "Button") { }
+            else if (hit.collider.tag == "Window") State_0();
+            else  AdvancedWindow(hit.collider.name, hit.collider.tag);                   //若有建造砲塔且觸碰砲塔時  
+            
+        }
+
+        ////畫面狀態1且觸碰螢幕時 => 觸碰空格進入畫面狀態2 or 無觸碰到空格進入畫面狀態0////
+        else if (Input.GetMouseButtonDown(0) && PictureState == 1 && Time.timeScale == 1)
+        {
+            if (hit.collider == null) State_0();                                      //執行畫面狀態0
+            else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);  //執行畫面狀態2
+            else if (hit.collider.tag == "Window") State_0();                         //新增，點選開場提示時，執行畫面狀態0
+            else AdvancedWindow(hit.collider.name, hit.collider.tag);                 //若有建造砲塔且觸碰砲塔時} 
+
+        }
+        ////畫面狀態2且觸碰螢幕時 => 觸碰角色視窗建造角色，空格狀態變為2 or 觸控到其他空格，繼續執行畫面狀態2 or 無觸碰到空格進入畫面狀態0////
+        else if (Input.GetMouseButtonDown(0) && PictureState == 2 && Time.timeScale == 1)
+        {
+            if (hit.collider == null) State_0();
+            else if (hit.collider.name == "角色1按鍵") BuildPlayer(Player1, hit.collider.name);  //建造角色
+            else if (hit.collider.name == "角色2按鍵") BuildPlayer(Player2, hit.collider.name);
+            else if (hit.collider.name == "角色3按鍵") BuildPlayer(Player3, hit.collider.name);
+            else if (hit.collider.name == "角色4按鍵") BuildPlayer(Player4, hit.collider.name);
+            else if (hit.collider.name == "角色5按鍵") BuildPlayer(Player5, hit.collider.name);
+            else if (hit.collider.name == "角色6按鍵") BuildPlayer(Player6, hit.collider.name);
+            else if (hit.collider.name == "升級按鍵") ChangePlayer();
+            else if (hit.collider.name == "販賣按鍵") SellPlayer();
+            else if (hit.collider.tag == "Window") State_0();                            //新增，點選開場提示時，執行畫面狀態0
+            else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);     //執行畫面狀態2  
+            else AdvancedWindow(hit.collider.name, hit.collider.tag);                    //進階視窗   
+        }
+
         //控制TXT文字
         TXTCountDown -= Time.deltaTime;
         if (TXTCountDown <= 0f)
@@ -235,7 +245,7 @@ public class SpaceControl : MonoBehaviour
             else
                 ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);//進階視窗的圖案顏色恢復
         }
-        
+
     }
 
     ////選角視窗的功能，畫面狀態2時，觸碰角色視窗的按鈕建造角色////
@@ -346,12 +356,12 @@ public class SpaceControl : MonoBehaviour
             if (Lv == i)
             {
                 PriceTemp = UIControl.Player_Price[LvMax * (Player - 1) + Lv - 1];
-                Name.transform.GetChild(0).GetComponent<Text>().text =  (Lv - 1) + "/" + LvMax;   //顯示目前等級
+                Name.transform.GetChild(0).GetComponent<Text>().text = (Lv - 1) + "/" + LvMax;   //顯示目前等級
                 Name.transform.GetChild(0).GetChild(0).GetComponent<Text>().text = PriceTemp.ToString();   //更換金錢
             }
             else if (Lv > i)
             {
-                Name.transform.GetChild(0).GetComponent<Text>().text =  (Lv-1) + "/" + LvMax;   //顯示目前等級
+                Name.transform.GetChild(0).GetComponent<Text>().text = (Lv - 1) + "/" + LvMax;   //顯示目前等級
                 Name.transform.GetChild(0).GetChild(0).GetComponent<Text>().text = "MAX";
             }
 
@@ -399,7 +409,7 @@ public class SpaceControl : MonoBehaviour
                 TXTCountDown = 1.1f;                      //播放時間
                 DontBuildTxt.gameObject.SetActive(false); //因為有做動畫，所以必須關閉再開啟，就會再撥放 
                 DontBuildTxt.gameObject.SetActive(true);
-                GameObject.Find("不能建造TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position );
+                GameObject.Find("不能建造TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position);
             }
         }
         else //如果冷卻中就顯示不能升級
@@ -407,7 +417,7 @@ public class SpaceControl : MonoBehaviour
             TXTCountDown = 1.1f;                     //播放時間
             DontLvUpTxt.gameObject.SetActive(false); //因為有做動畫，所以必須關閉再開啟，就會再撥放 
             DontLvUpTxt.gameObject.SetActive(true);
-            GameObject.Find("不能升級TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position );
+            GameObject.Find("不能升級TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position);
         }
 
     }

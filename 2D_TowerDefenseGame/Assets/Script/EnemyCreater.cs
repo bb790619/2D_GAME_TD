@@ -28,7 +28,7 @@ public class EnemyCreater : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GameObject.Find("難度視窗") == null) //難度視窗消失才能執行
+        if (GameObject.Find("開始提示底部")==null)//新增，視窗消失才執行
         {
             if (EnemyWave < EnemyEnd)//限制出怪波數
             {

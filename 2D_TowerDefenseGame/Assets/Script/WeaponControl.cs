@@ -6,20 +6,24 @@ using UnityEditor; //路徑要加入這個
 //控制砲塔，放在"角色"上
 public class WeaponControl : MonoBehaviour
 {
-    GameObject Bullet;                 //放置子彈的預置物
     float[] Range = { 4f, 4f, 6f, 4f, 4f, 4f };  //砲塔攻擊範圍
+    GameObject Bullet;                 //放置子彈的預置物
+    public Animator PlayerAni;                    //放置角色動畫
+
     int PlayerName;                    //紀錄砲塔的位子
     public static Vector3 PlayerDir;   //紀錄砲塔的位子
     public static Vector3 TargetDir;   //記錄怪物的位子
 
     float fireCountdown = 2f;         //子彈發射頻率的計數器
     float fireRate = 0.1f;            //控制子彈發射的頻率
+ 
 
     // Start is called before the first frame update
     void Start()
     {
         //做法1，從Resources/Prefab/子彈，自動加入子彈的Prefab(要把要加入的Prefab放入Resources資料夾)
         Bullet = Resources.Load<GameObject>("子彈");
+       
         /*
         //做法2，放置任何位子都行，先找出Prefab的路徑，自動加入子彈的Prefab
         //這個做法不知為何不能寫進APK
@@ -61,9 +65,7 @@ public class WeaponControl : MonoBehaviour
             PlayerDir = this.gameObject.transform.position;//紀錄砲塔的位子
             TargetDir = NearestEnemy.transform.position;//紀錄怪物的位子
 
-            //砲塔會改變方向
-            if (PlayerDir.x > TargetDir.x) GetComponent<SpriteRenderer>().flipX = false;
-            else if (PlayerDir.x < TargetDir.x) GetComponent<SpriteRenderer>().flipX = true;
+           
 
             //子彈發射的速度
             if (fireCountdown <= 0f)
@@ -72,8 +74,21 @@ public class WeaponControl : MonoBehaviour
                 {
                     if (this.gameObject.name == "砲塔" + j)  
                     {
-                        Instantiate(Bullet, this.gameObject.transform.position, Quaternion.identity).name = "子彈" + SpaceControl.PlayerKind[j]; //子彈命名，子彈1=角色1的子彈
+                        //砲塔、子彈、子彈位子會改變方向
+                        if (PlayerDir.x > TargetDir.x)
+                        {
+                            GetComponent<SpriteRenderer>().flipX = true; 
+                            Instantiate(Bullet, this.gameObject.transform.position + Vector3.left, Quaternion.identity).name = "子彈" + SpaceControl.PlayerKind[j]; //子彈命名，子彈1=角色1的子彈
+                            GameObject.Find("子彈" + SpaceControl.PlayerKind[j]).GetComponent<SpriteRenderer>().flipX = true;
+                        }
+                        else if (PlayerDir.x < TargetDir.x)
+                        {
+                            GetComponent<SpriteRenderer>().flipX = false;
+                            Instantiate(Bullet, this.gameObject.transform.position + Vector3.right, Quaternion.identity).name = "子彈" + SpaceControl.PlayerKind[j]; //子彈命名，子彈1=角色1的子彈
+                            GameObject.Find("子彈" + SpaceControl.PlayerKind[j]).GetComponent<SpriteRenderer>().flipX =false;
+                        }                     
                         BulletControl.Lv=SpaceControl.LvState[j]; //這個Lv X 的砲塔的子彈，給<BulletControl>使用
+                        PlayerAni.SetTrigger("攻擊");             //控制人物動畫-攻擊
                     }
                 }
                 fireCountdown = 1f / fireRate;

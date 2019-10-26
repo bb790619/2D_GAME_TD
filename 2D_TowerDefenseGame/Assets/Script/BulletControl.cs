@@ -46,6 +46,8 @@ public class BulletControl : MonoBehaviour
     /// </summary>
     public void PlayerValue()
     {
+        this.gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Player/子彈/" + this.gameObject.name);//換子彈
+
         //依照選定的角色，給<BulltCntrol>使用不同的攻擊參數
         //攻擊傷害(亂數)，攻擊半徑(單體或範圍)，攻擊效果(緩速...)
         //角色(子彈)種類=> 砲塔名稱:(砲塔)6，等級:1，種類:(角色)1
@@ -55,7 +57,6 @@ public class BulletControl : MonoBehaviour
             if (Lv == 1) Damage1 = Random.Range(18, 22);
             else if (Lv == 2) Damage1 = Random.Range(40, 45);
             else if (Lv == 3) Damage1 = Random.Range(65, 70);
-            this.gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Player/子彈/" + this.gameObject.name);//換子彈
         }
         //角色2，範圍攻擊，火球
         else if (this.gameObject.name == "子彈2")
@@ -65,7 +66,6 @@ public class BulletControl : MonoBehaviour
             else if (Lv == 2) Damage2 = Random.Range(55, 60);
             else if (Lv == 3) Damage2 = Random.Range(110, 120);
             GetComponent<CircleCollider2D>().radius *= 3f;  //攻擊範圍增加                          
-            this.gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Player/子彈/"+ this.gameObject.name);//換子彈
         }
         //角色3，單體攻擊(攻擊距離遠)，遠程
         else if (this.gameObject.name == "子彈3")
@@ -74,17 +74,16 @@ public class BulletControl : MonoBehaviour
             if (Lv == 1) Damage3 = Random.Range(18, 22);
             else if (Lv == 2) Damage3 = Random.Range(40, 45);
             else if (Lv == 3) Damage3 = Random.Range(65, 70);
-            this.gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Player/子彈/" + this.gameObject.name);//換子彈
+            transform.localScale = new Vector3(1f, 1f, 0);
         }
         //角色4，範圍攻擊，緩速
         else if (this.gameObject.name == "子彈4")
         {
             //LV1傷害1倍速度減少10%，，LV2傷害2倍速度減少20%，，LV3傷害3倍速度減少40%。持續2秒，身體變藍色
-            if (Lv == 1) Damage4= Random.Range(15, 20);
+            if (Lv == 1) Damage4 = Random.Range(15, 20);
             else if (Lv == 2) Damage4 = Random.Range(35, 40);
             else if (Lv == 3) Damage4 = Random.Range(55, 60);
             GetComponent<CircleCollider2D>().radius *= 3f;  //攻擊範圍增加                              
-            this.gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Player/子彈/" + this.gameObject.name);//換子彈
         }
         //角色5，單體攻擊(攻擊範圍不變)，暈擊
         else if (this.gameObject.name == "子彈5")
@@ -108,7 +107,6 @@ public class BulletControl : MonoBehaviour
                 Effect5 = "暈擊";
                 Damage5 = Random.Range(90, 100) + 200;
             }
-            this.gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Player/子彈/" + this.gameObject.name);//換子彈
         }
         //角色6，單體攻擊(攻擊範圍不變)，爆擊
         else if (this.gameObject.name == "子彈6")
@@ -132,9 +130,10 @@ public class BulletControl : MonoBehaviour
                 Effect6 = "爆擊";
                 Damage6 = Random.Range(90, 100) * 3 / 2;
             }
-            this.gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Player/子彈/" + this.gameObject.name);//換子彈
+
         }
 
+ 
     }
 
 
