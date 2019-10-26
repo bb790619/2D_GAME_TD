@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 public class UIControl : MonoBehaviour
 {
     ////參數設定//
-    public static int PlayerHp = 4;    //玩家血量
+    public static int PlayerHp = 20;    //玩家血量
     public static int PlayerMoney;      //玩家金錢                                        
     //[0-2]=角色1_LV1-LV3，[3-5]=角色2_LV1-LV3，[6-8]=角色3_LV1-LV3，[9-11]=角色4_LV1-LV3，以此類推
     //修改這邊的金額，<SpaceControl>會自動修改

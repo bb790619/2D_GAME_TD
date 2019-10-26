@@ -34,7 +34,7 @@ public class BombControl : MonoBehaviour
         {
             if (this.name == "爆炸1_"+i)//詛咒，扣血
             {
-                EffectText.GetComponent<Text>().text ="1";
+                EffectText.GetComponent<Text>().text = null;
             }
             if (this.name == "爆炸2_" + i)//範圍，爆炸
             {
