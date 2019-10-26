@@ -22,6 +22,7 @@ public class BulletControl : MonoBehaviour
         CRIPro_5 = Random.Range(1, 101); //當作爆擊率，1-100的亂數
         CRIPro_6 = Random.Range(1, 101);
         PlayerValue();  //依照被選的角色，給不同的攻擊參數
+        print(this.name+"的"+CRIPro_6);
     }
 
     // Update is called once per frame
@@ -89,19 +90,31 @@ public class BulletControl : MonoBehaviour
         else if (this.gameObject.name == "子彈5")
         {
             //LV1有15%暈2秒並50傷害，LV2有30%暈2秒並100傷害，LV3有50%暈2秒並200傷害 
-            if (Lv == 1 && CRIPro_5 > 15) Damage5 = Random.Range(16, 23);
+            if (Lv == 1 && CRIPro_5 > 15)
+            {
+                Effect5 = null;
+                Damage5 = Random.Range(16, 23);
+            }
             else if (Lv == 1 && CRIPro_5 <= 15)
             {
                 Effect5 = "暈擊";
                 Damage5 = Random.Range(20, 25) + 50;
             }
-            else if (Lv == 2 && CRIPro_5 > 30) Damage5 = Random.Range(25, 48);
+            else if (Lv == 2 && CRIPro_5 > 30)
+            {
+                Effect5 = null;
+                Damage5 = Random.Range(25, 48);
+            }
             else if (Lv == 2 && CRIPro_5 <= 30)
             {
                 Effect5 = "暈擊";
                 Damage5 = Random.Range(45, 50) + 100;
             }
-            else if (Lv == 3 && CRIPro_5 > 50) Damage5 = Random.Range(80, 90);
+            else if (Lv == 3 && CRIPro_5 > 50)
+            {
+                Effect5 = null;
+                Damage5 = Random.Range(80, 90);
+            } 
             else if (Lv == 3 && CRIPro_5 <= 50)
             {
                 Effect5 = "暈擊";
@@ -112,28 +125,69 @@ public class BulletControl : MonoBehaviour
         else if (this.gameObject.name == "子彈6")
         {
             //LV1爆擊率10%有1.5的傷害，LV2爆擊率20%有1.5的傷害，LV3爆擊率40%有1.5的傷害   
-            if (Lv == 1 && CRIPro_6 > 10) Damage6 = Random.Range(20, 25);
+            if (Lv == 1 && CRIPro_6 > 10)
+            {
+                Effect6 = null;
+                Damage6 = Random.Range(1, 25);
+            }
+
             else if (Lv == 1 && CRIPro_6 <= 10)
             {
                 Effect6 = "爆擊";
-                Damage6 = Random.Range(20, 25) * 3 / 2;
+                Damage6 = Random.Range(1, 25) * 3 / 2;
             }
-            else if (Lv == 2 && CRIPro_6 > 20) Damage6 = Random.Range(45, 50);
+            else if (Lv == 2 && CRIPro_6 > 20)
+            {
+                Effect6 = null;
+                Damage6 = Random.Range(45, 50);
+            }
             else if (Lv == 2 && CRIPro_6 <= 20)
             {
                 Effect6 = "爆擊";
                 Damage6 = Random.Range(45, 50) * 3 / 2;
             }
-            else if (Lv == 3 && CRIPro_6 > 40) Damage6 = Random.Range(90, 100);
+            else if (Lv == 3 && CRIPro_6 > 40)
+            {
+                Effect6 = null;
+                Damage6 = Random.Range(90, 100);
+            }
             else if (Lv == 3 && CRIPro_6 <= 40)
             {
                 Effect6 = "爆擊";
                 Damage6 = Random.Range(90, 100) * 3 / 2;
             }
 
+            print(Damage6);
         }
 
  
+    }
+
+    public void Proballity5(int min,int max,int CRI_Pro)
+    {
+        if (Lv == 1 && CRIPro_5 > 15)
+        {
+            Effect5 = null;
+            Damage5 = Random.Range(16, 23);
+        }
+        else if (Lv == 1 && CRIPro_5 <= 15)
+        {
+            Effect5 = "暈擊";
+            Damage5 = Random.Range(20, 25) + 50;
+        }
+        else if (Lv == 2 && CRIPro_5 > 30) Damage5 = Random.Range(25, 48);
+        else if (Lv == 2 && CRIPro_5 <= 30)
+        {
+            Effect5 = "暈擊";
+            Damage5 = Random.Range(45, 50) + 100;
+        }
+        else if (Lv == 3 && CRIPro_5 > 50) Damage5 = Random.Range(80, 90);
+        else if (Lv == 3 && CRIPro_5 <= 50)
+        {
+            Effect5 = "暈擊";
+            Damage5 = Random.Range(90, 100) + 200;
+        }
+
     }
 
 

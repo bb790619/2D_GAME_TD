@@ -9,7 +9,7 @@ public class EnemyCreater : MonoBehaviour
 
     //開場階段15秒，每波為30秒，每波出怪20隻(其餘為等待時間)
     public static float TimeDelay ;      //遊戲開場等待階段，讓<UIControl>來使用
-    public static float EnemyWaveTime = 30f; //每一波怪的時間，讓<UIControl>來使用
+    public static float EnemyWaveTime = 10f; //每一波怪的時間，讓<UIControl>來使用
     int EnemyNum = 3;                       //每波出怪數量
 
     float Waiter = 0.5f;                     //出怪的間隔時間
@@ -28,7 +28,7 @@ public class EnemyCreater : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GameObject.Find("開始提示底部")==null)//新增，視窗消失才執行
+        if (GameObject.Find("開始提示視窗")==null)//新增，視窗消失才執行
         {
             if (EnemyWave < EnemyEnd)//限制出怪波數
             {

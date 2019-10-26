@@ -21,7 +21,7 @@ public class EnemyControl : MonoBehaviour
     GameObject HpObj;        //怪物的血條
     float[] TimeCount = new float[SpaceControl.PlayerNum];   //子彈的效果的倒數計時。[0]=>角色1，[1]=>角色2，[2]=>角色3，[3]=>角色4(目前只有[2][3]有使用)  
     float[] EffectConti = new float[SpaceControl.PlayerNum]; //子彈效果的持續時間
-    public GameObject Bomb,Bomb1, Bomb2, Bomb3, Bomb4, Bomb5, Bomb6;
+    public GameObject Bomb; //子彈的特效
 
 
     // Start is called before the first frame update
@@ -41,17 +41,7 @@ public class EnemyControl : MonoBehaviour
             EffectConti[i] = 2;               //持續2秒
             TimeCount[i] = EffectConti[i] + 1;  //因為要持續2秒，就隨便設定2以上的數字
         }
-
-        //讀取子彈特效
-        #region
-        Bomb1 = Resources.Load<GameObject>("Player/爆炸/爆炸_子彈1");
-        Bomb2 = Resources.Load<GameObject>("Player/爆炸/爆炸_子彈2");
-        Bomb3 = Resources.Load<GameObject>("Player/爆炸/爆炸_子彈3");
-        Bomb4 = Resources.Load<GameObject>("Player/爆炸/爆炸_子彈4");
-        Bomb5 = Resources.Load<GameObject>("Player/爆炸/爆炸_子彈5");
-        Bomb6 = Resources.Load<GameObject>("Player/爆炸/爆炸_子彈6");
     }
-    #endregion
 
     // Update is called once per frame
     void Update()
@@ -115,7 +105,6 @@ public class EnemyControl : MonoBehaviour
     void OnTriggerEnter2D(Collider2D collision)
     {
         Bomb = Resources.Load<GameObject>("Player/爆炸/爆炸_"+collision.gameObject.name);//讀取子彈特效
-
         //中毒
         if (collision.gameObject.name == "子彈1")
         {
@@ -159,7 +148,7 @@ public class EnemyControl : MonoBehaviour
     public void BulletToEemy(int Damage, GameObject Colli)
     {
         Hp -= Damage;  //減少HP       
-
+        print(Damage);
         Instantiate(Bomb, Colli.transform.position,Quaternion.identity).name=Bomb.name; //升成攻擊特效，特效上有腳本會自己消除
         GameObject.Find(Bomb.name).GetComponent<Animator>().speed = 0.5f; //控制特效時間
 

@@ -16,14 +16,13 @@ public class WeaponControl : MonoBehaviour
 
     float fireCountdown = 2f;         //子彈發射頻率的計數器
     float fireRate = 0.1f;            //控制子彈發射的頻率
- 
 
     // Start is called before the first frame update
     void Start()
     {
         //做法1，從Resources/Prefab/子彈，自動加入子彈的Prefab(要把要加入的Prefab放入Resources資料夾)
         Bullet = Resources.Load<GameObject>("子彈");
-       
+
         /*
         //做法2，放置任何位子都行，先找出Prefab的路徑，自動加入子彈的Prefab
         //這個做法不知為何不能寫進APK
