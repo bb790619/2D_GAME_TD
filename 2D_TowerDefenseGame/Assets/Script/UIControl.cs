@@ -73,7 +73,7 @@ public class UIControl : MonoBehaviour
             EndAni.SetBool("結束", true);  //執行玩家輸了的動畫
         }
         //勝利條件，撐過所有波數，血量大於0，而且怪全都消失了會出現勝利視窗
-        if (Wave >= EnemyCreater.EnemyEnd && PlayerHp > 0 && GameObject.FindWithTag("Enemy") == null)
+        if (Wave > EnemyCreater.EnemyEnd && PlayerHp > 0 && GameObject.FindWithTag("Enemy") == null)
             Invoke("Victory", 3f);//如果贏了，延遲3秒出現勝利視窗
 
     }

@@ -82,7 +82,7 @@ public class EnemyControl : MonoBehaviour
             }
             else if (TimeCount[j] <= 0)
             {
-                if (j == 0) print("中毒解除");
+                if (j == 0) { }
                 else if (j == 3) Recovery();
                 else if (j == 4) Recovery();
                 TimeCount[j] = EffectConti[j] + 1;
@@ -161,7 +161,6 @@ public class EnemyControl : MonoBehaviour
     public void BulletToEemy(int Damage, GameObject Colli,int Num)
     {
         Hp -= Damage;  //減少HP       
-        print(Damage);
         Instantiate(Bomb, Colli.transform.position, Quaternion.identity).name = Bomb.name+"_"+Num; //升成攻擊特效，特效上有腳本會自己消除
         GameObject.Find(Bomb.name + "_" + Num).GetComponent<Animator>().speed = 0.5f; //控制特效時間
 

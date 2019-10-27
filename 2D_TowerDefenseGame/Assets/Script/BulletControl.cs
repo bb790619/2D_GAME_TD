@@ -169,7 +169,6 @@ public class BulletControl : MonoBehaviour
                     BulletDamageControl.Damage[i] = Random.Range(90, 100) * 3 / 2;
                 }
             }
-            print("等級" + Lv + "的子彈" + this.name + "的傷害為" + BulletDamageControl.Damage[i]);
         }
        
     }

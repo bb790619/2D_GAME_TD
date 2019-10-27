@@ -312,6 +312,7 @@ public class SpaceControl : MonoBehaviour
                     ChoosePlayerPlusText.gameObject.SetActive(true);
                     ChoosePlayerPlus.transform.position = GameObject.Find(Name).transform.position;//進階視窗位子會在砲塔中間  
                     ChoosePlayerPlusText.transform.position = Camera.main.WorldToScreenPoint(ChoosePlayerPlus.transform.position);
+
                     int LvNext = LvState[Choose_j] + 1;                  //原本Lv1，要升級Lv2
                     ChangePic("升級圖案", "Player/頭像/角色-0" + i);     //進階視窗的圖片更換(UI的Image)，換角色
                     ChangePricePlus(ChoosePlayerPlusText, i, LvNext);    //金錢
