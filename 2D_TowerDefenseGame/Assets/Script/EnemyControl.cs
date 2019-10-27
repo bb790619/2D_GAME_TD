@@ -179,7 +179,6 @@ public class EnemyControl : MonoBehaviour
     {
         Speed = 1f;
         this.gameObject.GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255); //顏色恢復(變白色)
-        print(Speed);
     }
 
     //每秒扣血，維持2秒

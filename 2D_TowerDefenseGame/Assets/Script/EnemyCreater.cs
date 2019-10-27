@@ -12,7 +12,7 @@ public class EnemyCreater : MonoBehaviour
     public static float EnemyWaveTime = 10f; //每一波怪的時間，讓<UIControl>來使用
     int EnemyNum = 3;                       //每波出怪數量
 
-    float Waiter = 0.5f;                     //出怪的間隔時間
+    float Waiter = 1f;                      //出怪的間隔時間
     public static int EnemyWave ;           //目前是第幾波怪(0是開場，1是第一波，以此類推)，讓<UIControl>來使用
     public static int EnemyEnd = 5;         //出現幾波怪就結束遊戲
     int EenmySerialNum;                      //怪物的流水號

@@ -10,14 +10,14 @@ public class WeaponControl : MonoBehaviour
     GameObject Bullet;                 //放置子彈的預置物
     public Animator PlayerAni;                    //放置角色動畫
 
-    int PlayerKind;                    //紀錄砲塔的種類(用在攻擊距離上)
-    int PlayerName;                     //紀錄砲塔的名稱(也等於砲塔位子)
-    public static Vector3 PlayerDir;   //紀錄砲塔的位子
-    public static Vector3 TargetDir;   //記錄怪物的位子
+    int PlayerKind;        //紀錄砲塔的種類(用在攻擊距離上)
+    int PlayerName;        //紀錄砲塔的名稱(也等於砲塔位子)
+    Vector3 PlayerDir;     //紀錄砲塔的位子
+    Vector3 TargetDir;     //記錄怪物的位子
 
-    GameObject Target;      //要攻擊的怪物目標
-    float[] fireCountdown;  //子彈發射頻率的計數器
-    float fireRate = 1f;    //控制子彈發射的頻率
+    GameObject Target;     //要攻擊的怪物目標
+    float[] fireCountdown; //子彈發射頻率的計數器
+    float fireRate = 1f;   //控制子彈發射的頻率
 
     // Start is called before the first frame update
     void Start()
@@ -50,7 +50,6 @@ public class WeaponControl : MonoBehaviour
 
         PlayerDir = this.gameObject.transform.position;//紀錄砲塔的位子
         TargetDir = Target.transform.position;         //紀錄怪物的位子
-
         //子彈發射的速度
         if (fireCountdown[PlayerName] <= 0f)
         {
@@ -91,21 +90,42 @@ public class WeaponControl : MonoBehaviour
         //砲塔、子彈、子彈位子會改變方向
         if (PlayerDir.x > TargetDir.x) //向左
         {
-            GetComponent<SpriteRenderer>().flipX = true;
-            //子彈命名，子彈1 + X = 角色1的子彈 + 流水號
-            Instantiate(Bullet, this.gameObject.transform.position + Vector3.left, Quaternion.identity).name = "子彈" + PlayerKind + "_" + BulletDamageControl.BulletSerialNum;
-            GameObject.Find("子彈" + PlayerKind + "_" + BulletDamageControl.BulletSerialNum).GetComponent<SpriteRenderer>().flipX = true;
+            GetComponent<SpriteRenderer>().flipX = true; //砲塔轉向
+
+            //子彈命名，子彈1 + X = 角色1的子彈 + 流水號 。 子彈位子為砲塔位子向左(右)+0.5f
+            Instantiate(Bullet, this.gameObject.transform.position + Vector3.left*0.5f , Quaternion.identity).name = "子彈" + PlayerKind + "_" + BulletDamageControl.BulletSerialNum;
+            
+            BulltRotation("子彈" + PlayerKind + "_" + BulletDamageControl.BulletSerialNum,true); //子彈(弓箭)轉向
+            //GameObject.Find("子彈" + PlayerKind + "_" + BulletDamageControl.BulletSerialNum).GetComponent<SpriteRenderer>().flipX = true;  //子彈轉向
+
         }
         else if (PlayerDir.x < TargetDir.x) //向右
         {
             GetComponent<SpriteRenderer>().flipX = false;
-            Instantiate(Bullet, this.gameObject.transform.position + Vector3.right, Quaternion.identity).name = "子彈" + PlayerKind + "_" + BulletDamageControl.BulletSerialNum;
-            GameObject.Find("子彈" + PlayerKind + "_" + BulletDamageControl.BulletSerialNum).GetComponent<SpriteRenderer>().flipX = false;
+            Instantiate(Bullet, this.gameObject.transform.position + Vector3.right*0.5f , Quaternion.identity).name = "子彈" + PlayerKind + "_" + BulletDamageControl.BulletSerialNum;
+            BulltRotation("子彈" + PlayerKind + "_" + BulletDamageControl.BulletSerialNum,false);
+            //GameObject.Find("子彈" + PlayerKind + "_" + BulletDamageControl.BulletSerialNum).GetComponent<SpriteRenderer>().flipX = false;
         }
 
         BulletControl.Lv = SpaceControl.LvState[PlayerName]; //這個Lv X 的砲塔的子彈，給<BulletControl>使用
         PlayerAni.SetTrigger("攻擊");                        //控制人物動畫-攻擊
-        BulletDamageControl.BulletSerialNum += 1;            //子彈流水號+1
+
+        BulletDamageControl.Target[BulletDamageControl.BulletSerialNum] = TargetDir; //新增，紀錄子彈的目標座標。給<BulletControl>使用
+        BulletDamageControl.BulletSerialNum += 1;                                     //子彈流水號+1
+    }
+
+    /// <summary>
+    /// 讓子彈(弓箭)轉向[子彈名稱，是否在怪右邊]
+    /// </summary>
+    /// <param name="Bullet"></param>
+    /// <param name="right"></param>
+    public void BulltRotation(string Bullet,bool right)
+    {
+        Vector3 dir = Target.transform.position - transform.position;
+        Quaternion lookRotation = Quaternion.LookRotation(dir);
+        Vector3 rotation = lookRotation.eulerAngles;
+        if (right==true) GameObject.Find(Bullet).transform.rotation = Quaternion.Euler(0f, 0f, 180f+rotation.x);    
+        else if(right == false) GameObject.Find(Bullet).transform.rotation = Quaternion.Euler(0f, 0f, -rotation.x);
     }
 
     /// <summary>

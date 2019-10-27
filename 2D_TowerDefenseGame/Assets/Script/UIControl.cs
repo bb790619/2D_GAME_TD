@@ -28,9 +28,7 @@ public class UIControl : MonoBehaviour
     public Image OptionWindow;            //暫停視窗("暫停視窗")
     //public Image ModeWindow;            //難度視窗("難度視窗")
 
-    public Animator EndAni;                //守門人
-    public static bool EndHit = false;      //是否有被扣血
-    public static float EndTime = 2f;       //倒數計時
+    public Animator EndAni;                //守門人的動畫
 
     // Start is called before the first frame update
     void Start()

@@ -98,7 +98,7 @@ MonoBehaviour:
   HpMax: 0
   Price: 0
   Hp: 0
-  Bomb2: {fileID: 1182517924976433189, guid: 7f2fca24e1cd3ed4f92099a66853cfcd, type: 3}
+  Bomb: {fileID: 0}
 --- !u!50 &-5407519657708258023
 Rigidbody2D:
   serializedVersion: 4

@@ -9,6 +9,7 @@ public class BulletDamageControl : MonoBehaviour
     public static int NumMax=50;                 //陣列儲存的最大數量，超過就重0開始
     public static int[] Damage;                  //子彈的傷害
     public static string[] Effect;               //額外效果名稱
+    public static Vector3[] Target;              //子彈的目標座標
 
     /*
        子彈傷害的計算方式，因為先前方法都會被覆蓋，所以分開計算
@@ -23,6 +24,7 @@ public class BulletDamageControl : MonoBehaviour
     {
         Damage = new int[NumMax];
         Effect = new string[NumMax];
+        Target = new Vector3[NumMax];
     }
 
     // Update is called once per frame
