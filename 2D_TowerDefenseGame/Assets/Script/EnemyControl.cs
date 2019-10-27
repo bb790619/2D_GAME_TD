@@ -21,7 +21,7 @@ public class EnemyControl : MonoBehaviour
     GameObject HpObj;        //怪物的血條
     float[] TimeCount = new float[SpaceControl.PlayerNum];   //子彈的效果的倒數計時。[0]=>角色1，[1]=>角色2，[2]=>角色3，[3]=>角色4(目前只有[2][3]有使用)  
     float[] EffectConti = new float[SpaceControl.PlayerNum]; //子彈效果的持續時間
-    public GameObject Bomb; //子彈的特效
+    GameObject Bomb;         //子彈的特效
 
 
     // Start is called before the first frame update
@@ -58,8 +58,6 @@ public class EnemyControl : MonoBehaviour
                 Destroy(HpObj);
                 UIControl.PlayerHp -= 1;
                 GameObject.Find("UI").GetComponent<UIControl>().EndControl(); //使用<UIControl>的EndControl，執行扣血動畫
-                // UIControl.EndHit = true;
-                // UIControl.EndTime = 0.5f;
             }
             else MovePoints = PointSetting.points[Index];
 
@@ -163,7 +161,6 @@ public class EnemyControl : MonoBehaviour
         Hp -= Damage;  //減少HP       
         Instantiate(Bomb, Colli.transform.position, Quaternion.identity).name = Bomb.name+"_"+Num; //升成攻擊特效，特效上有腳本會自己消除
         GameObject.Find(Bomb.name + "_" + Num).GetComponent<Animator>().speed = 0.5f; //控制特效時間
-
         Destroy(Colli);//打到怪物子彈就消失
         if (Hp <= 0)//怪物HP歸0，怪物消失，血條消失，玩家增加金錢，
         {
@@ -172,7 +169,6 @@ public class EnemyControl : MonoBehaviour
             Destroy(HpObj);
         }
     }
-
 
     //恢復速度和顏色
     public void Recovery()

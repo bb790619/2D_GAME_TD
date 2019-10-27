@@ -106,7 +106,7 @@ public class BulletControl : MonoBehaviour
                 if (Lv == 1) BulletDamageControl.Damage[i] = Random.Range(15, 20);
                 else if (Lv == 2) BulletDamageControl.Damage[i] = Random.Range(35, 40);
                 else if (Lv == 3) BulletDamageControl.Damage[i] = Random.Range(55, 60);
-                GetComponent<CircleCollider2D>().radius *= 3f;  //攻擊範圍增加                              
+                GetComponent<CircleCollider2D>().radius *= 4f;  //攻擊範圍增加                              
             }
             //角色5，單體攻擊(攻擊範圍不變)，暈擊
             else if (this.gameObject.name == "子彈5_" + i)
