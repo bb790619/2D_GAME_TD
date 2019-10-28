@@ -10,10 +10,10 @@ public class EnemyControl : MonoBehaviour
     float Speed = 1f;    //怪物移動速度
 
     //開場產生怪物時，這裡使用變數才會記錄目前波數，否則會一直改變
-   float HpMax;  //怪物最大血量，且會依照難度和波數改變怪的血量
-   int AddPrice; //怪物死亡會增加多少金錢
+    float HpMax;  //怪物最大血量，且會依照難度和波數改變怪的血量
+    int AddPrice; //怪物死亡會增加多少金錢
 
-   float Hp;     //怪物目前血量
+    float Hp;     //怪物目前血量
 
     GameObject MovePoints;   //讀取且放置移動點的陣列
     int Index = 0;           //移動點的編號
@@ -22,7 +22,7 @@ public class EnemyControl : MonoBehaviour
     float[] TimeCount = new float[SpaceControl.PlayerNum];   //子彈的效果的倒數計時。[0]=>角色1，[1]=>角色2，[2]=>角色3，[3]=>角色4(目前只有[2][3]有使用)  
     float[] EffectConti = new float[SpaceControl.PlayerNum]; //子彈效果的持續時間
     GameObject Bomb;         //子彈的特效
-
+    public AudioClip DeathMusic;  //怪物死亡的音效
 
     // Start is called before the first frame update
     void Start()
@@ -105,7 +105,7 @@ public class EnemyControl : MonoBehaviour
         //讀取子彈特效
         for (int i = 1; i < SpaceControl.PlayerNum + 1; i++) //子彈種類
         {
-            for (int j= 0; j < BulletDamageControl.NumMax + 1; j++) //流水號
+            for (int j = 0; j < BulletDamageControl.NumMax + 1; j++) //流水號
             {
                 if (collision.gameObject.name == "子彈" + i + "_" + j)
                     Bomb = Resources.Load<GameObject>("Player/爆炸/爆炸" + i);
@@ -113,14 +113,14 @@ public class EnemyControl : MonoBehaviour
 
         }
 
-         //中毒
+        //中毒
         for (int i = 0; i < BulletDamageControl.NumMax; i++)
         {
             if (collision.gameObject.name == "子彈1_" + i)
             {
                 TimeCount[0] = EffectConti[0];
                 ContinDamage();    //執行每秒扣血
-                BulletToEemy(BulletDamageControl.Damage[i], collision.gameObject,i);
+                BulletToEemy(BulletDamageControl.Damage[i], collision.gameObject, i);
             }
             //火球
             else if (collision.gameObject.name == "子彈2_" + i) BulletToEemy(BulletDamageControl.Damage[i], collision.gameObject, i);//被子彈打到的傷害，打到怪物後該消除的子彈，流水號
@@ -135,7 +135,7 @@ public class EnemyControl : MonoBehaviour
                 else if (BulletControl.Lv == 3) Speed = 0.6f;
                 TimeCount[3] = EffectConti[3];     //緩速2秒，2秒後就恢復速度和顏色
                 this.gameObject.GetComponent<SpriteRenderer>().color = new Color32(0, 120, 255, 255);//怪物被打到變藍色
-                BulletToEemy(BulletDamageControl.Damage[i], collision.gameObject, i);  
+                BulletToEemy(BulletDamageControl.Damage[i], collision.gameObject, i);
             }
             //暈擊
             else if (collision.gameObject.name == "子彈5_" + i)
@@ -157,15 +157,16 @@ public class EnemyControl : MonoBehaviour
     /// <param name="Damage"></param>
     /// <param name="Colli"></param>
     /// <param name="Num"></param>
-    public void BulletToEemy(int Damage, GameObject Colli,int Num)
+    public void BulletToEemy(int Damage, GameObject Colli, int Num)
     {
         Hp -= Damage;  //減少HP       
-        Instantiate(Bomb, Colli.transform.position, Quaternion.identity).name = Bomb.name+"_"+Num; //升成攻擊特效，特效上有腳本會自己消除
+        Instantiate(Bomb, Colli.transform.position, Quaternion.identity).name = Bomb.name + "_" + Num; //升成攻擊特效，特效上有腳本會自己消除
         GameObject.Find(Bomb.name + "_" + Num).GetComponent<Animator>().speed = 0.5f; //控制特效時間
         Destroy(Colli);//打到怪物子彈就消失
         if (Hp <= 0)//怪物HP歸0，怪物消失，血條消失，玩家增加金錢，
         {
             UIControl.PlayerMoney += AddPrice;
+            AudioSource.PlayClipAtPoint(DeathMusic,GameObject.Find("Main Camera").transform.position);//播放音效，用這個方法，怪物死亡音效也會撥完。聲音是以攝影機的位子收音，離太遠會很小聲。
             Destroy(this.gameObject);
             Destroy(HpObj);
         }
