@@ -5,17 +5,20 @@ using UnityEngine;
 //產生怪物的腳本，放在"EnemyCreater"上
 public class EnemyCreater : MonoBehaviour
 {
-    public GameObject EnemyPrefab;//放置"敵人"的Prefab
+    //放置"敵人"的Prefab，並輸入編號，那場遊戲就使用那個怪物
+    [Header("怪物的Prefab")] public GameObject[] EnemyPrefab;
+    [Header("使用哪個怪物的編號")] public int EnemyNumber;
 
     //開場階段15秒，每波為30秒，每波出怪20隻(其餘為等待時間)
     public static float TimeDelay ;      //遊戲開場等待階段，讓<UIControl>來使用
     public static float EnemyWaveTime = 10f; //每一波怪的時間，讓<UIControl>來使用
     int EnemyNum = 3;                       //每波出怪數量
 
-    float Waiter = 0.7f;                      //出怪的間隔時間
+
+    float Waiter = 1f;                    //出怪的間隔時間
     public static int EnemyWave ;           //目前是第幾波怪(0是開場，1是第一波，以此類推)，讓<UIControl>來使用
     public static int EnemyEnd = 5;         //出現幾波怪就結束遊戲
-    int EenmySerialNum;                      //怪物的流水號
+    int EenmySerialNum;                     //怪物的流水號
 
     // Start is called before the first frame update
     void Start()
@@ -60,14 +63,16 @@ public class EnemyCreater : MonoBehaviour
     void EnemyAppear()
     {
         //產生怪物，命名為怪物+波數+_流水號
-        Instantiate(EnemyPrefab, GameObject.Find("Start").transform.position, Quaternion.identity).name = "怪物" + EnemyWave + "_" + EenmySerialNum;
+        Instantiate(EnemyPrefab[EnemyNumber], GameObject.Find("Start").transform.position, Quaternion.identity).name = "怪物" + EnemyWave + "_" + EenmySerialNum;
+        
+        /*
         //更換怪物圖片
         for (int i = 1; i < EnemyWave + 1; i++)
         {
-            if (EnemyWave == i) GameObject.Find("怪物" + EnemyWave + "_" + EenmySerialNum).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Monster/" + i);
+            //if (EnemyWave == i) GameObject.Find("怪物" + EnemyWave + "_" + EenmySerialNum).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Monster/" + i);
             //GameObject.Find("怪物" + EnemyWave + "_" + EenmySerialNum).GetComponent<SpriteRenderer>().sprite = Resources.LoadAll<Sprite>("Monster/怪物")[i-1]; //讀取切割的圖片(LoadAll)
         }
-
+        */
     }
 
 

@@ -10,10 +10,10 @@ public class EnemyControl : MonoBehaviour
     float Speed = 1f;    //怪物移動速度
 
     //開場產生怪物時，這裡使用變數才會記錄目前波數，否則會一直改變
-    public float HpMax;  //怪物最大血量，且會依照難度和波數改變怪的血量
-    public int Price;    //怪物死亡會增加多少金錢
+   float HpMax;  //怪物最大血量，且會依照難度和波數改變怪的血量
+   int AddPrice; //怪物死亡會增加多少金錢
 
-    public float Hp;     //怪物目前血量
+   float Hp;     //怪物目前血量
 
     GameObject MovePoints;   //讀取且放置移動點的陣列
     int Index = 0;           //移動點的編號
@@ -29,7 +29,7 @@ public class EnemyControl : MonoBehaviour
     {
         ////怪物參數設定，這裡修改怪物血量和金錢////
         HpMax = EnemyCreater.EnemyWave * 30 * UIControl.Mode;   //怪物血量和波數以及難度有關      
-        Price = 5 + EnemyCreater.EnemyWave;                      //怪物死掉，玩家會增加金錢，增加的金錢和波數有關
+        AddPrice = 5 + EnemyCreater.EnemyWave;                      //怪物死掉，玩家會增加金錢，增加的金錢和波數有關
         //////////////////////////////
         Hp = HpMax;                               //開場時，怪物現有血量=最大值
         MovePoints = PointSetting.points[0];      //怪物移動的方向
@@ -80,9 +80,9 @@ public class EnemyControl : MonoBehaviour
             }
             else if (TimeCount[j] <= 0)
             {
-                if (j == 0) { }
-                else if (j == 3) Recovery();
-                else if (j == 4) Recovery();
+                if (j == 0) { }              //詛咒恢復
+                else if (j == 3) Recovery(); //緩速恢復
+                else if (j == 4) Recovery(); //暈擊恢復
                 TimeCount[j] = EffectConti[j] + 1;
             }
         }
@@ -140,7 +140,8 @@ public class EnemyControl : MonoBehaviour
             //暈擊
             else if (collision.gameObject.name == "子彈5_" + i)
             {
-                if (BulletControl.Lv == 1) Speed = 0f;
+                if (BulletDamageControl.Effect[i] != null) Speed = 0f;
+                else Speed = 1f;
                 TimeCount[4] = EffectConti[4];
                 BulletToEemy(BulletDamageControl.Damage[i], collision.gameObject, i);//被子彈打到的傷害，打到怪物後該消除的子彈
             }
@@ -164,7 +165,7 @@ public class EnemyControl : MonoBehaviour
         Destroy(Colli);//打到怪物子彈就消失
         if (Hp <= 0)//怪物HP歸0，怪物消失，血條消失，玩家增加金錢，
         {
-            UIControl.PlayerMoney += Price;
+            UIControl.PlayerMoney += AddPrice;
             Destroy(this.gameObject);
             Destroy(HpObj);
         }
