@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//產生怪物的腳本，放在"EnemyCreater"上
+//產生怪物的腳本，放在"EnemyCreater"上，可輸入不同編號產生不同的怪物
 public class EnemyCreater : MonoBehaviour
 {
     //放置"敵人"的Prefab，並輸入編號，那場遊戲就使用那個怪物
