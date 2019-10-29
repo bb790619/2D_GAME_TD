@@ -282,7 +282,7 @@ public class SpaceControl : MonoBehaviour
             TXTCountDown = 1.1f;                 //播放時間
             NoMoney.gameObject.SetActive(false); //因為有做動畫，所以必須關閉再開啟，就會再撥放 
             NoMoney.gameObject.SetActive(true);
-            GameObject.Find("沒錢TXT").transform.position = Camera.main.WorldToScreenPoint(ChoosePlayer.transform.position);
+            GameObject.Find("沒錢TXT").transform.position = Camera.main.WorldToScreenPoint(SpacePoints[Choose_i].transform.position);
         }
 
     }
@@ -411,7 +411,7 @@ public class SpaceControl : MonoBehaviour
                     TXTCountDown = 1.1f;                 //播放時間
                     NoMoney.gameObject.SetActive(false); //因為有做動畫，所以必須關閉再開啟，就會再撥放 
                     NoMoney.gameObject.SetActive(true);
-                    GameObject.Find("沒錢TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position + Vector3.up * 1);
+                    GameObject.Find("沒錢TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position );
                 }
             }
             else  //如果超過等級就顯示不能建造

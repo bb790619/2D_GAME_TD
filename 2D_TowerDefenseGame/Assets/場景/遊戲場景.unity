@@ -2876,8 +2876,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 120476709}
-  - component: {fileID: 120476708}
   - component: {fileID: 120476707}
+  - component: {fileID: 120476708}
   m_Layer: 0
   m_Name: MusicControl
   m_TagString: Untagged
@@ -4248,7 +4248,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u76EE\u524D\u70BA\u6700\u9AD8\u7B49\u7D1A!!"
+  m_Text: "\u6700\u9AD8\u7B49\u7D1A!!"
 --- !u!222 &180864432
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5932,7 +5932,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u51B7\u537B\u7D50\u675F\u624D\u80FD\u5347\u7D1A!!"
+  m_Text: "\u51B7\u537B\u5C1A\u672A\u7D50\u675F!!"
 --- !u!222 &283658313
 CanvasRenderer:
   m_ObjectHideFlags: 0
