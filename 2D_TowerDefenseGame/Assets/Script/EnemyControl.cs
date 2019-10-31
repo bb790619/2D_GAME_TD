@@ -58,6 +58,7 @@ public class EnemyControl : MonoBehaviour
                 Destroy(HpObj);
                 UIControl.PlayerHp -= 1;
                 GameObject.Find("UI").GetComponent<UIControl>().EndControl(); //使用<UIControl>的EndControl，執行扣血動畫
+                GameObject.Find("守門人").GetComponent<AudioSource>().Play(); //播放扣血音效
             }
             else MovePoints = PointSetting.points[Index];
 

@@ -37,10 +37,10 @@ public class SpaceControl : MonoBehaviour
     Vector2 Mouse_pos;                //紀錄觸碰的座標
     RaycastHit2D hit;
 
-    public GameObject Player1, Player2, Player3, Player4, Player5, Player6;   //放置角色的預置物
+    public GameObject[] Player;   //放置角色的預置物
     float TXTCountDown = 0f;           //"不能建造"文字的倒數計數器
     public GameObject StartPoint;
-
+    
     //給<BulletControl>使用
     public static int[] Damage1, Damage2, Damage3, Damage4, Damage5, Damage6; //子彈種類的傷害數值
     public static string[] Effect5, Effect6;    //技能的額外效果
@@ -111,13 +111,14 @@ public class SpaceControl : MonoBehaviour
         }
 
         ////畫面狀態0且觸碰螢幕時 => 進入畫面狀態1(空格出現)////
-        if (Input.GetMouseButtonDown(0) && PictureState == 0 && Time.timeScale == 1)//新增暫停按鍵，暫停時會出現視窗，且不能觸碰螢幕。遊戲開始時才能觸碰螢幕
+        //新增暫停按鍵，暫停時會出現視窗，且不能觸碰螢幕。遊戲開始時才能觸碰螢幕
+        if (Input.GetMouseButtonDown(0) && PictureState == 0 && Time.timeScale == 1)
         {
             if (hit.collider == null) State_1();       //執行畫面狀態1
             else if (hit.collider.tag == "Button") { }
             else if (hit.collider.tag == "Window") State_0();
-            else  AdvancedWindow(hit.collider.name, hit.collider.tag);                   //若有建造砲塔且觸碰砲塔時  
-            
+            else AdvancedWindow(hit.collider.name, hit.collider.tag);                   //若有建造砲塔且觸碰砲塔時  
+
         }
 
         ////畫面狀態1且觸碰螢幕時 => 觸碰空格進入畫面狀態2 or 無觸碰到空格進入畫面狀態0////
@@ -133,12 +134,7 @@ public class SpaceControl : MonoBehaviour
         else if (Input.GetMouseButtonDown(0) && PictureState == 2 && Time.timeScale == 1)
         {
             if (hit.collider == null) State_0();
-            else if (hit.collider.name == "角色1按鍵") BuildPlayer(Player1, hit.collider.name);  //建造角色
-            else if (hit.collider.name == "角色2按鍵") BuildPlayer(Player2, hit.collider.name);
-            else if (hit.collider.name == "角色3按鍵") BuildPlayer(Player3, hit.collider.name);
-            else if (hit.collider.name == "角色4按鍵") BuildPlayer(Player4, hit.collider.name);
-            else if (hit.collider.name == "角色5按鍵") BuildPlayer(Player5, hit.collider.name);
-            else if (hit.collider.name == "角色6按鍵") BuildPlayer(Player6, hit.collider.name);
+            //else if (hit.collider.tag == "BuildButton") BuildPlayer( hit.collider.name);
             else if (hit.collider.name == "升級按鍵") ChangePlayer();
             else if (hit.collider.name == "販賣按鍵") SellPlayer();
             else if (hit.collider.tag == "Window") State_0();                            //新增，點選開場提示時，執行畫面狀態0
@@ -146,6 +142,12 @@ public class SpaceControl : MonoBehaviour
             else AdvancedWindow(hit.collider.name, hit.collider.tag);                    //進階視窗   
         }
 
+        /*            else if (hit.collider.name == "角色1按鍵") BuildPlayer(Player[0], hit.collider.name);  //建造角色
+            else if (hit.collider.name == "角色2按鍵") BuildPlayer(Player[1], hit.collider.name);
+            else if (hit.collider.name == "角色3按鍵") BuildPlayer(Player[2], hit.collider.name);
+            else if (hit.collider.name == "角色4按鍵") BuildPlayer(Player[3], hit.collider.name);
+            else if (hit.collider.name == "角色5按鍵") BuildPlayer(Player[4], hit.collider.name);
+            else if (hit.collider.name == "角色6按鍵") BuildPlayer(Player[5], hit.collider.name);*/
         //控制TXT文字
         TXTCountDown -= Time.deltaTime;
         if (TXTCountDown <= 0f)
@@ -236,8 +238,12 @@ public class SpaceControl : MonoBehaviour
                 ChoosePlayerText.gameObject.SetActive(true);
                 ChoosePlayerPlus.gameObject.SetActive(false);
                 ChoosePlayerPlusText.gameObject.SetActive(false);
-                ChoosePlayer.transform.position = GameObject.Find(SpacePoints[i].name).transform.position;//選角視窗位子會在空格中間
-                ChoosePlayerText.transform.position = Camera.main.WorldToScreenPoint(ChoosePlayer.transform.position);
+
+                ChoosePlayer.transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(SpacePoints[i].name).transform.position); //選角視窗位子會在空格中間
+                ChoosePlayerText.transform.position = ChoosePlayer.transform.position; //選角視窗文字位子會在空格中間
+                //ChoosePlayer.transform.position = GameObject.Find(SpacePoints[i].name).transform.position;              //使用SPRITE，現在無使用
+                //ChoosePlayerText.transform.position = Camera.main.WorldToScreenPoint(ChoosePlayer.transform.position);
+
                 Choose_i = i;         //紀錄被點選空格的位子，給BuildPlayer1()使用
 
                 ChangePic(SpacePoints[i].name, "選取空格"); //被點選的格子會換成選取空格的圖案
@@ -249,20 +255,26 @@ public class SpaceControl : MonoBehaviour
         for (int i = 0; i < PlayerNum; i++)//錢不夠，視窗就會變暗
         {
             if (UIControl.PlayerMoney < UIControl.Player_Price[LvMax * (i)])
-                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);
+            {
+                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<Image>().color = new Color32(100, 100, 100, 255); //進階視窗的圖案變暗
+                //ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);      //使用SPRITE，現在無使用
+            }
+
             else
-                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);//進階視窗的圖案顏色恢復
+            {
+                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<Image>().color = new Color32(255, 255, 255, 255);//進階視窗的圖案顏色恢復
+                // ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);    //使用SPRITE，現在無使用
+            }
         }
 
     }
 
     ////選角視窗的功能，畫面狀態2時，觸碰角色視窗的按鈕建造角色////
     /// <summary>
-    /// 建造角色(要建造的角色，觸碰的按鍵名字)
+    /// 建造角色(觸碰的按鍵名字)
     /// </summary>
-    /// <param name="Name"></param>
     /// <param name="ButtonName"></param>
-    public void BuildPlayer(GameObject Name, string ButtonName)
+    public void BuildPlayer(string ButtonName)
     {
         for (int i = 1; i < PlayerNum + 1; i++)
             if (ButtonName == "角色" + i + "按鍵") PlayerKind[Choose_i] = i;  //觸碰的按鍵名字=角色種類，角色1、2...
@@ -272,7 +284,7 @@ public class SpaceControl : MonoBehaviour
             State_0();                  //選完角色之後，空格消失
             SpaceState[Choose_i] = 2;  //空格狀態為2
             LvState[Choose_i] = 1;     //砲塔等級為1
-            Instantiate(Name, SpacePoints[Choose_i].transform.position, Quaternion.identity).name = "砲塔" + Choose_i;  //產生的砲塔，命名為砲塔i
+            Instantiate(Player[PlayerKind[Choose_i] - 1], SpacePoints[Choose_i].transform.position, Quaternion.identity).name = "砲塔" + Choose_i;  //產生的砲塔，命名為砲塔i
             //GameObject.Find("砲塔" + Choose_i).transform.localScale = new Vector2(0.6f, 0.6f);                              //改變角色大小
             CreatCDUI(Choose_i);      //建造砲塔的冷卻時間的UI
             UIControl.PlayerMoney -= UIControl.Player_Price[Seat];//建造砲塔後扣錢
@@ -284,7 +296,6 @@ public class SpaceControl : MonoBehaviour
             NoMoney.gameObject.SetActive(true);
             GameObject.Find("沒錢TXT").transform.position = Camera.main.WorldToScreenPoint(SpacePoints[Choose_i].transform.position);
         }
-
     }
 
     ////出現進階視窗，畫面狀態2時，可升級或販賣////
@@ -310,16 +321,26 @@ public class SpaceControl : MonoBehaviour
                     ChoosePlayerText.gameObject.SetActive(false);
                     ChoosePlayerPlus.gameObject.SetActive(true);
                     ChoosePlayerPlusText.gameObject.SetActive(true);
-                    ChoosePlayerPlus.transform.position = GameObject.Find(Name).transform.position;//進階視窗位子會在砲塔中間  
-                    ChoosePlayerPlusText.transform.position = Camera.main.WorldToScreenPoint(ChoosePlayerPlus.transform.position);
+
+
+                    ChoosePlayerPlus.transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(Name).transform.position);//進階視窗位子會在砲塔中間  
+                    ChoosePlayerPlusText.transform.position = ChoosePlayerPlus.transform.position;                                  //進階視窗文字位子會在砲塔中間  
+                    //ChoosePlayerPlus.transform.position = GameObject.Find(Name).transform.position;                              //使用SPRITE，現在無使用
+                    //ChoosePlayerPlusText.transform.position = Camera.main.WorldToScreenPoint(ChoosePlayerPlus.transform.position);
 
                     int LvNext = LvState[Choose_j] + 1;                  //原本Lv1，要升級Lv2
-                    ChangePic("升級圖案", "Player/頭像/角色-0" + i);     //進階視窗的圖片更換(UI的Image)，換角色
+                    GameObject.Find("升級圖案").GetComponent<Image>().sprite = Resources.Load<Sprite>("Player/頭像/角色-0" + i); //更換進階視窗的圖片
                     ChangePricePlus(ChoosePlayerPlusText, i, LvNext);    //金錢
                     if (LvNext > LvMax || UIControl.PlayerMoney < PriceTemp)//超過最高等級，或者錢不夠，視窗就會變暗
-                        GameObject.Find("升級圖案").GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);
+                    {
+                        GameObject.Find("升級圖案").GetComponent<Image>().color = new Color32(100, 100, 100, 255);  //進階視窗的圖案顏色變暗
+                        //GameObject.Find("升級圖案").GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);   //使用SPRITE，現在無使用
+                    }
                     else
-                        GameObject.Find("升級圖案").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);//進階視窗的圖案顏色恢復
+                    {
+                        GameObject.Find("升級圖案").GetComponent<Image>().color = new Color32(255, 255, 255, 255);   //進階視窗的圖案顏色恢復
+                        //GameObject.Find("升級圖案").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);  //使用SPRITE，現在無使用
+                    }
 
                 }
             }
@@ -373,10 +394,7 @@ public class SpaceControl : MonoBehaviour
                 Name.transform.GetChild(0).GetComponent<Text>().text = (Lv - 1) + "/" + LvMax;   //顯示目前等級
                 Name.transform.GetChild(0).GetChild(0).GetComponent<Text>().text = "MAX";
             }
-
-
         }
-
     }
 
     /// <summary>
@@ -402,7 +420,7 @@ public class SpaceControl : MonoBehaviour
                     //GameObject.Find(PlayerName).GetComponent<Animator>().enabled = false; //動畫暫停
                     State_0();
                     LvState[Choose_j] += 1;       //升等
-                    GameObject.Find(PlayerName).transform.localScale += new Vector3(0.1f, 0.1f,0.1f);
+                    GameObject.Find(PlayerName).transform.localScale += new Vector3(0.1f, 0.1f, 0.1f);
                     UIControl.PlayerMoney -= UIControl.Player_Price[Seat];//升級砲塔後扣錢
                     CreatCDUI(Choose_j);
                 }
@@ -411,7 +429,7 @@ public class SpaceControl : MonoBehaviour
                     TXTCountDown = 1.1f;                 //播放時間
                     NoMoney.gameObject.SetActive(false); //因為有做動畫，所以必須關閉再開啟，就會再撥放 
                     NoMoney.gameObject.SetActive(true);
-                    GameObject.Find("沒錢TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position );
+                    GameObject.Find("沒錢TXT").transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(PlayerName).transform.position);
                 }
             }
             else  //如果超過等級就顯示不能建造

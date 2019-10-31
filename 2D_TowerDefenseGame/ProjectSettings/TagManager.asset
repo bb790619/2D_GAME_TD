@@ -15,6 +15,7 @@ TagManager:
   - Player5
   - Player6
   - Window
+  - BuildButton
   layers:
   - Default
   - TransparentFX

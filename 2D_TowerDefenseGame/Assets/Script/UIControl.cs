@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 public class UIControl : MonoBehaviour
 {
     ////參數設定//
-    public static int PlayerHp = 20;    //玩家血量
+    public static int PlayerHp = 4;    //玩家血量
     public static int PlayerMoney;      //玩家金錢                                        
     //[0-2]=角色1_LV1-LV3，[3-5]=角色2_LV1-LV3，[6-8]=角色3_LV1-LV3，[9-11]=角色4_LV1-LV3，以此類推
     //修改這邊的金額，<SpaceControl>會自動修改
@@ -69,10 +69,15 @@ public class UIControl : MonoBehaviour
         {
             Invoke("GoodGame", 5f);       //如果輸了，延遲1秒出現失敗視窗
             EndAni.SetBool("結束", true);  //執行玩家輸了的動畫
+            GameObject.Find("Main Camera").GetComponent<AudioSource>().enabled = false;//關閉背景音樂
         }
         //勝利條件，撐過所有波數，血量大於0，而且怪全都消失了會出現勝利視窗
         if (Wave > EnemyCreater.EnemyEnd && PlayerHp > 0 && GameObject.FindWithTag("Enemy") == null)
+        {
             Invoke("Victory", 3f);//如果贏了，延遲3秒出現勝利視窗
+            GameObject.Find("Main Camera").GetComponent<AudioSource>().enabled = false;//關閉背景音樂
+        }
+
 
     }
     /// <summary>

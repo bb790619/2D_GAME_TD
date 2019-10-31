@@ -45,7 +45,7 @@ public class StartScene : MonoBehaviour
     public void RealNextScene()
     {
         if (Right == true) SceneManager.LoadScene("說明場景"); //代表YES，要觀看說明
-        else SceneManager.LoadScene("遊戲場景");               //代表NO，直接開始遊戲
+        else SceneManager.LoadScene("準備場景");               //代表NO，直接開始遊戲
     }
     public void Quit()//開始場景的"離開"
     {
