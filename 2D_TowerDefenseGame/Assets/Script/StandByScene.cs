@@ -42,8 +42,11 @@ public class StandByScene : MonoBehaviour
 
     //控制天賦視窗
     [Header("天賦按鍵底部")] public GameObject TalentButton;
-    [Header("詢問升級視窗")] public GameObject TalentLevelUpWindow;
+    [Header("詢問天賦升級視窗")] public GameObject TalentLevelUpWindow;
 
+    //控制科技視窗
+    [Header("科技按鍵底部")] public GameObject TechnologyButton;
+    [Header("詢問科技升級視窗")] public GameObject TechnologyLevelUpWindow;
 
     // Start is called before the first frame update
     void Start()
@@ -88,6 +91,7 @@ public class StandByScene : MonoBehaviour
         {
             PassChapterLevel(ChapterNow, ChapterLevelNow, XX);
         }
+
 
     }
 
@@ -246,6 +250,8 @@ public class StandByScene : MonoBehaviour
         SceneManager.LoadScene("遊戲場景");
     }
 
+
+
     ////////天賦視窗的按鍵功能////////
     /// <summary>
     /// 天賦視窗的按鍵功能，按了會出現詢問升級視窗。取消功能。確定功能。(按鍵的編號)
@@ -254,25 +260,72 @@ public class StandByScene : MonoBehaviour
     public void ChooseTalentButton(int Name)
     {
         //0是玩家體力，1是經驗，2是初始金錢，3是戰鬥CD，4是玩家生命，5是戰鬥金錢
-        //6是取消。7是確定。
         int Count = TalentButton.transform.childCount;
         if (Name < Count)
         {
             TalentLevelUpWindow.SetActive(true);
             TalentLevelUpWindow.transform.position = TalentButton.transform.GetChild(Name).transform.position;
         }
-        else if (Name == Count)  //取消
-            TalentLevelUpWindow.SetActive(false);
-        else if (Name == Count + 1) //確定
-        {
-            print("升級");
-        }
     }
+    /// <summary>
+    /// 天賦視窗，詢問升級的取消功能
+    /// </summary>
     public void CloseTalentLevelUp()
     {
         TalentLevelUpWindow.SetActive(false);
     }
+    /// <summary>
+    /// 天賦視窗，詢問升級的確定功能
+    /// </summary>
     public void OpenTalentLevelUp()
+    {
+        print("升級");
+    }
+
+
+
+    ////////科技視窗的按鍵功能////////
+    /// <summary>
+    /// 科技視窗的按鍵功能，按了會出現詢問升級視窗。取消功能。確定功能。(按鍵的編號)
+    /// </summary>
+    /// <param name="Name"></param>
+    public void ChooseTechnologyButton(string Name)
+    {
+        /*
+         Name => 1-1是角色1的+攻擊力[1]，1-2是角色1的+等級上限[2]，1-3是角色1的額外能力[3]。[0]為角色1圖案。
+                 2-1是角色2的+攻擊力[5]，2-2是角色2的+等級上限[6]，2-3是角色2的額外能力[7]。[4]為角色2圖案。
+         Pos是數字對應的按鍵位子。 
+         TechMAX是各角色可提升的能力數量 。   
+        */
+        int Pos; int TechMAX = 3;
+        for (int i = 1; i <= SpaceControl.PlayerNum; i++) //角色數量
+        {
+            for (int j = 1; j <= TechMAX; j++)            //能力數量
+            {
+                if (Name == i + "-" + j)
+                {
+                    Pos = (i - 1) * (TechMAX + 1) + j;
+                    TechnologyLevelUpWindow.SetActive(true);
+                    TechnologyLevelUpWindow.transform.position = TechnologyButton.transform.GetChild(Pos).transform.position;
+                }
+                  
+            }
+        }
+        
+        
+    }
+    /// <summary>
+    /// 科技視窗，詢問升級的取消功能以及視窗底部的取消功能
+    /// </summary>
+    public void CloseTechnologyLevelUp()
+    {
+        //詢問升級和視窗底部都有關閉詢問視窗，如果滑動視窗會按到視窗底部，也會關閉視窗
+        TechnologyLevelUpWindow.SetActive(false);
+    }
+    /// <summary>
+    /// 科技視窗，詢問升級的確定功能
+    /// </summary>
+    public void OpenTechnologyLevelUp()
     {
         print("升級");
     }
