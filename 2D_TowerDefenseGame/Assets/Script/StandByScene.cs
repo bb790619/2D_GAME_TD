@@ -8,9 +8,9 @@ using UnityEngine.SceneManagement;
 public class StandByScene : MonoBehaviour
 {
     //放置視窗，按下個按鈕會跳出的視窗
-    [Header("戰役")] public GameObject AdvtureButton;
-    [Header("天賦")] public GameObject TalentButton;
-    [Header("科技樹")] public GameObject TechnologyButton;
+    [Header("戰役")] public GameObject AdvtureWindow;
+    [Header("天賦")] public GameObject TalentWindow;
+    [Header("科技樹")] public GameObject TechnologyWindow;
 
     //可以控制上方面板的能力值
     [Header("等級Text")] public GameObject LevelText;
@@ -20,21 +20,29 @@ public class StandByScene : MonoBehaviour
     [Header("能量Text")] public GameObject EnergyText;
 
     //上方面板的能力數值
-    int LevelNow = 10;                        //現在等級
-    float LevelEXP = 10, LevelEXPNow = 8;       //升等所需經驗，現在經驗
+    int LevelNow = 10;                               //現在等級
+    float LevelEXP = 10, LevelEXPNow = 8;            //升等所需經驗，現在經驗
     float BodyStrngthMAX = 30, BodyStrngthNow = 25;  //最大體力值，現在體力值
-    int EnergyNow = 2;                       //現在能量值
+    int EnergyNow = 2;                               //現在能量值
 
     //控制戰役視窗
-    [Header("章節按鍵底部")] public GameObject Chapter; //放置章節
-    int ChapterMax;                                     //章節的最大數量(在START計算)
+    [Header("章節按鍵底部")] public GameObject Chapter;     //放置章節
+    int ChapterMax;                                         //章節的最大數量(在START計算)
+    [Header("目前開放的章節")] public int ChapterLimit = 2; //目前開放的章節，假如等於2，代表只會開放到第二章
+    [Header("即將推出的文字")] public Text LimitTXT;
     [Header("關卡按鍵底部")] public GameObject[] ChapterLevel;  //放置關卡
-    int[] ChapterLevelMax;                              //各關卡的最大數量(在START計算)
+    int[] ChapterLevelMax;                                 //各關卡的最大數量(在START計算)
     [Header("選擇關卡背景")] public GameObject ChapterLevelBG;
-    int ChapterNow, ChapterLevelNow;                    //現在選到的章節，現在選到的關卡
+    int ChapterNow, ChapterLevelNow;                        //現在選到的章節，現在選到的關卡
     [Header("目前通過的章節")] public int ChapterPass;
     [Header("目前通過的關卡")] public int[] ChapterLevelPass;
     [Header("選擇模式的文字")] public Text ChooseModeText;
+    [Header("過關的星星數")] public GameObject PassStars;
+    public int XX;//測試用，目前過關的星星數，之後在刪除
+
+    //控制天賦視窗
+    [Header("天賦按鍵底部")] public GameObject TalentButton;
+    [Header("詢問升級視窗")] public GameObject TalentLevelUpWindow;
 
 
     // Start is called before the first frame update
@@ -61,9 +69,11 @@ public class StandByScene : MonoBehaviour
             ChapterLevel[ChapterPass].transform.GetChild(ChapterLevelPass[ChapterPass])=> ChapterLevel[3].transform.GetChild(ChapterLevelPass[3])
             => ChapterLevel[3].transform.GetChild(5) => "4-6"
         */
-        ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass]+1));  //顯示目前已通過的關卡
-        Chapter.transform.GetChild(ChapterPass).GetComponent<Image>().color = new Color32(255, 255, 0, 255); //章節變黃色，代表選取
-        ChapterLevel[ChapterPass].transform.GetChild(ChapterLevelPass[ChapterPass]).GetComponent<Image>().color = new Color32(255, 255, 0, 255);//關卡變黃色，代表選取
+        ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
+        //Chapter.transform.GetChild(ChapterPass).GetComponent<Image>().color = new Color32(255, 255, 0, 255); //章節變黃色，代表選取
+        //ChapterLevel[ChapterPass].transform.GetChild(ChapterLevelPass[ChapterPass]).GetComponent<Image>().color = new Color32(255, 255, 0, 255);//關卡變黃色，代表選取
+
+        LimitTXT.transform.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -72,24 +82,72 @@ public class StandByScene : MonoBehaviour
         AbilityValue();  //UI上的數值
         LockChapterLevel();// 未通過的關卡會被鎖按鍵
 
-        
-         //關卡升級
+
+        //關卡升級
         if (Input.GetKeyDown("up"))
         {
-            ChapterLevelPass[ChapterPass] += 1;
-            if (ChapterLevelPass[ChapterPass] >= ChapterLevelMax[ChapterPass])
-            {
-                ChapterPass += 1;
-            }
-            print(ChapterLevelPass[ChapterPass]);
+            PassChapterLevel(ChapterNow, ChapterLevelNow, XX);
         }
-        
+
     }
 
-    ////戰役視窗的按鍵功能////
-
     /// <summary>
-    /// 戰役視窗的按鍵功能(在面板上輸入章節關卡)
+    /// 過關之後，關卡數+1，顯示星星數(過關的星星數)
+    /// </summary>
+    public void PassChapterLevel(int Chap, int ChapLevel, int Grade)
+    {
+
+        if (ChapterPass < ChapterLimit) //小於最大關卡數，過關後關卡+ 1
+        {
+            //點選關卡後，過關會新增星星。星星會出現在關卡的父物件下。調整大小。
+            if (GameObject.Find("星星" + Chap + "-" + ChapLevel) == null) //如果沒有產生過星星，才會產生星星，避免重複產生
+                Instantiate(PassStars, ChapterLevel[Chap - 1].transform.GetChild(ChapLevel - 1).position, Quaternion.identity)
+                        .name = "星星" + Chap + "-" + ChapLevel;
+            GameObject.Find("星星" + Chap + "-" + ChapLevel)
+                       .transform.SetParent(ChapterLevel[Chap - 1].transform.GetChild(ChapLevel - 1));
+            GameObject.Find("星星" + Chap + "-" + ChapLevel)
+                       .transform.localScale = new Vector3(1, 1, 1);
+            /*
+            Instantiate(PassStars,   ChapterLevel[ChapterPass].transform.GetChild( ChapterLevelPass[ChapterPass] ).position , Quaternion.identity)
+                       .name ="星星"+ (ChapterPass+1)+"-"+ (ChapterLevelPass[ChapterPass] + 1);
+            GameObject.Find("星星" + (ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1))
+                       .transform.SetParent( ChapterLevel[ChapterPass].transform.GetChild(ChapterLevelPass[ChapterPass]) );
+            GameObject.Find("星星" + (ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1))
+                       .transform.localScale = new Vector3(1, 1, 1);
+                       */
+            //依照過關星星數改變顏色
+            for (int i = 0; i < Grade; i++)
+                GameObject.Find("星星" + Chap + "-" + ChapLevel).
+                    transform.GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+
+            //如果關卡等於最新進度，關卡開放+1
+            if (Chap == ChapterPass + 1 && ChapLevel == ChapterLevelPass[ChapterPass] + 1)
+            {
+                ChapterLevelPass[ChapterPass] += 1; //關卡就+1
+                ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
+            }
+        }
+
+        //過關之後關卡數+1，如果超過最大關卡數，章節就+1
+        //如果破關到最大限制的章節，後面就顯示尚未推出，而且不能再點選
+        if (ChapterLevelPass[ChapterPass] >= ChapterLevelMax[ChapterPass])
+        {
+            if (ChapterPass + 1 < ChapterLimit) //小於最大關卡數，章節才能進位
+                ChapterPass += 1;
+        }
+        if (ChapterPass + 1 == ChapterLimit && ChapterLevelPass[ChapterPass] == ChapterLevelMax[ChapterPass])
+        {
+            LimitTXT.transform.gameObject.SetActive(true);
+            LimitTXT.transform.position = Chapter.transform.GetChild(ChapterLimit).position;
+        }
+
+
+    }
+
+
+    ////////戰役視窗的按鍵功能////////
+    /// <summary>
+    /// 戰役視窗的按鍵功能，紀錄選到的章節及改變顏色(在面板上輸入章節關卡)
     /// </summary>
     /// <param name="Name"></param>
     public void ChooseButton(string Name)
@@ -122,15 +180,18 @@ public class StandByScene : MonoBehaviour
                 Chapter.transform.GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //沒選到的章節顏色恢復
             }
         }
-        for (int j = 1; j < ChapterLevelMax[ChapterNow]; j++)//選到的關卡變黃色
+
+        for (int j = 1; j <= ChapterLevelMax[ChapterNow - 1]; j++)//選到的關卡變黃色
         {
             if (ChapterLevelNow == j)
-                ChapterLevel[ChapterNow - 1].transform.GetChild(j-1).GetComponent<Image>().color = new Color32(255, 255, 0, 255); //選到的章節變黃色
+            {
+                ChapterLevel[ChapterNow - 1].transform.GetChild(j - 1).GetComponent<Image>().color = new Color32(255, 255, 0, 255); //選到的章節變黃色
+            }
             else if (ChapterLevelNow != j)
-                ChapterLevel[ChapterNow - 1].transform.GetChild(j-1).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //沒選到的章節顏色恢復
+                ChapterLevel[ChapterNow - 1].transform.GetChild(j - 1).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //沒選到的章節顏色恢復
+
         }
 
-        print(ChapterNow + "-" + ChapterLevelNow);
     }
     /// <summary>
     /// 戰役視窗，未通過的關卡會被鎖按鍵
@@ -185,10 +246,39 @@ public class StandByScene : MonoBehaviour
         SceneManager.LoadScene("遊戲場景");
     }
 
+    ////////天賦視窗的按鍵功能////////
+    /// <summary>
+    /// 天賦視窗的按鍵功能，按了會出現詢問升級視窗。取消功能。確定功能。(按鍵的編號)
+    /// </summary>
+    /// <param name="Name"></param>
+    public void ChooseTalentButton(int Name)
+    {
+        //0是玩家體力，1是經驗，2是初始金錢，3是戰鬥CD，4是玩家生命，5是戰鬥金錢
+        //6是取消。7是確定。
+        int Count = TalentButton.transform.childCount;
+        if (Name < Count)
+        {
+            TalentLevelUpWindow.SetActive(true);
+            TalentLevelUpWindow.transform.position = TalentButton.transform.GetChild(Name).transform.position;
+        }
+        else if (Name == Count)  //取消
+            TalentLevelUpWindow.SetActive(false);
+        else if (Name == Count + 1) //確定
+        {
+            print("升級");
+        }
+    }
+    public void CloseTalentLevelUp()
+    {
+        TalentLevelUpWindow.SetActive(false);
+    }
+    public void OpenTalentLevelUp()
+    {
+        print("升級");
+    }
 
 
-    ////控制上方面板數值變動////
-
+    ////////控制上方面板數值變動   ////////
     /// <summary>
     /// UI上的能力值
     /// </summary>
@@ -201,37 +291,39 @@ public class StandByScene : MonoBehaviour
         EnergyText.GetComponent<Text>().text = EnergyNow.ToString();                        //現在能量(文字)
 
     }
-    ////控制視窗關閉或開啟////
+
+
+    ////////控制視窗關閉或開啟////////
     /// <summary>
     /// 關閉視窗，返回最初介面
     /// </summary>
     public void WindowClose()
     {
-        AdvtureButton.SetActive(false);
-        TalentButton.SetActive(false);
-        TechnologyButton.SetActive(false);
+        AdvtureWindow.SetActive(false);
+        TalentWindow.SetActive(false);
+        TechnologyWindow.SetActive(false);
     }
     /// <summary>
     /// 打開戰役視窗
     /// </summary>
     public void Window_Advture()
     {
-        AdvtureButton.SetActive(true);
-        print("");
+        AdvtureWindow.SetActive(true);
+        ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
     }
     /// <summary>
     /// 打開天賦視窗
     /// </summary>
     public void Window_Talent()
     {
-        TalentButton.SetActive(true);
+        TalentWindow.SetActive(true);
     }
     /// <summary>
     /// 打開科技樹視窗
     /// </summary>
     public void Window_Technology()
     {
-        TechnologyButton.SetActive(true);
+        TechnologyWindow.SetActive(true);
     }
 
 

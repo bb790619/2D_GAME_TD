@@ -19,6 +19,7 @@ public class SpaceControl : MonoBehaviour
     public static int[] LvState;      //砲塔等級
     int[] PlayerCount;                //建造時的冷卻狀態，0為無，1為正在建造
     public static int[] PlayerKind;   //砲塔建造種類，角色1、角色2...
+    //bool Isbuild = false;             //新增，目前是否有按下建造按鍵
 
     public GameObject ChoosePlayer;         //選角視窗
     public GameObject ChoosePlayerText;     //選角視窗的文字
@@ -112,9 +113,9 @@ public class SpaceControl : MonoBehaviour
 
         ////畫面狀態0且觸碰螢幕時 => 進入畫面狀態1(空格出現)////
         //新增暫停按鍵，暫停時會出現視窗，且不能觸碰螢幕。遊戲開始時才能觸碰螢幕
-        if (Input.GetMouseButtonDown(0) && PictureState == 0 && Time.timeScale == 1)
+        if (Input.GetMouseButtonDown(0) && PictureState == 0 && Time.timeScale >= 1)
         {
-            if (hit.collider == null) State_1();       //執行畫面狀態1
+            if (hit.collider == null ) State_1();       //執行畫面狀態1
             else if (hit.collider.tag == "Button") { }
             else if (hit.collider.tag == "Window") State_0();
             else AdvancedWindow(hit.collider.name, hit.collider.tag);                   //若有建造砲塔且觸碰砲塔時  
@@ -122,7 +123,7 @@ public class SpaceControl : MonoBehaviour
         }
 
         ////畫面狀態1且觸碰螢幕時 => 觸碰空格進入畫面狀態2 or 無觸碰到空格進入畫面狀態0////
-        else if (Input.GetMouseButtonDown(0) && PictureState == 1 && Time.timeScale == 1)
+        else if (Input.GetMouseButtonDown(0) && PictureState == 1 && Time.timeScale >= 1)
         {
             if (hit.collider == null) State_0();                                      //執行畫面狀態0
             else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);  //執行畫面狀態2
@@ -131,10 +132,10 @@ public class SpaceControl : MonoBehaviour
 
         }
         ////畫面狀態2且觸碰螢幕時 => 觸碰角色視窗建造角色，空格狀態變為2 or 觸控到其他空格，繼續執行畫面狀態2 or 無觸碰到空格進入畫面狀態0////
-        else if (Input.GetMouseButtonDown(0) && PictureState == 2 && Time.timeScale == 1)
+        else if (Input.GetMouseButtonDown(0) && PictureState == 2 && Time.timeScale >= 1)
         {
             if (hit.collider == null) State_0();
-            //else if (hit.collider.tag == "BuildButton") BuildPlayer( hit.collider.name);
+            else if (hit.collider.tag == "BuildButton") BuildPlayer( hit.collider.name);
             else if (hit.collider.name == "升級按鍵") ChangePlayer();
             else if (hit.collider.name == "販賣按鍵") SellPlayer();
             else if (hit.collider.tag == "Window") State_0();                            //新增，點選開場提示時，執行畫面狀態0
@@ -239,10 +240,11 @@ public class SpaceControl : MonoBehaviour
                 ChoosePlayerPlus.gameObject.SetActive(false);
                 ChoosePlayerPlusText.gameObject.SetActive(false);
 
-                ChoosePlayer.transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(SpacePoints[i].name).transform.position); //選角視窗位子會在空格中間
-                ChoosePlayerText.transform.position = ChoosePlayer.transform.position; //選角視窗文字位子會在空格中間
-                //ChoosePlayer.transform.position = GameObject.Find(SpacePoints[i].name).transform.position;              //使用SPRITE，現在無使用
-                //ChoosePlayerText.transform.position = Camera.main.WorldToScreenPoint(ChoosePlayer.transform.position);
+                //選角視窗位子和文字會在空格中間
+                //ChoosePlayer.transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(SpacePoints[i].name).transform.position);//使用IMAGE
+                //ChoosePlayerText.transform.position = ChoosePlayer.transform.position; //選角視窗文字位子會在空格中間
+                ChoosePlayer.transform.position = GameObject.Find(SpacePoints[i].name).transform.position;              //使用SPRITE
+                ChoosePlayerText.transform.position = Camera.main.WorldToScreenPoint(ChoosePlayer.transform.position);
 
                 Choose_i = i;         //紀錄被點選空格的位子，給BuildPlayer1()使用
 
@@ -256,14 +258,14 @@ public class SpaceControl : MonoBehaviour
         {
             if (UIControl.PlayerMoney < UIControl.Player_Price[LvMax * (i)])
             {
-                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<Image>().color = new Color32(100, 100, 100, 255); //進階視窗的圖案變暗
-                //ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);      //使用SPRITE，現在無使用
+                //ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<Image>().color = new Color32(100, 100, 100, 255); //進階視窗的圖案變暗，使用IMAGE
+                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);      //使用SPRITE
             }
 
             else
             {
-                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<Image>().color = new Color32(255, 255, 255, 255);//進階視窗的圖案顏色恢復
-                // ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);    //使用SPRITE，現在無使用
+                //ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<Image>().color = new Color32(255, 255, 255, 255);//進階視窗的圖案顏色恢復，使用IMAGE
+                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);    //使用SPRITE
             }
         }
 
@@ -322,24 +324,27 @@ public class SpaceControl : MonoBehaviour
                     ChoosePlayerPlus.gameObject.SetActive(true);
                     ChoosePlayerPlusText.gameObject.SetActive(true);
 
-
-                    ChoosePlayerPlus.transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(Name).transform.position);//進階視窗位子會在砲塔中間  
-                    ChoosePlayerPlusText.transform.position = ChoosePlayerPlus.transform.position;                                  //進階視窗文字位子會在砲塔中間  
-                    //ChoosePlayerPlus.transform.position = GameObject.Find(Name).transform.position;                              //使用SPRITE，現在無使用
-                    //ChoosePlayerPlusText.transform.position = Camera.main.WorldToScreenPoint(ChoosePlayerPlus.transform.position);
+                    //進階視窗位子和文字會在砲塔中間  
+                    //ChoosePlayerPlus.transform.position = Camera.main.WorldToScreenPoint(GameObject.Find(Name).transform.position);//使用Image
+                    //ChoosePlayerPlusText.transform.position = ChoosePlayerPlus.transform.position;                                   
+                    ChoosePlayerPlus.transform.position = GameObject.Find(Name).transform.position;                                  //使用SPRITE
+                    ChoosePlayerPlusText.transform.position = Camera.main.WorldToScreenPoint(ChoosePlayerPlus.transform.position);
 
                     int LvNext = LvState[Choose_j] + 1;                  //原本Lv1，要升級Lv2
-                    GameObject.Find("升級圖案").GetComponent<Image>().sprite = Resources.Load<Sprite>("Player/頭像/角色-0" + i); //更換進階視窗的圖片
                     ChangePricePlus(ChoosePlayerPlusText, i, LvNext);    //金錢
+
+                    //GameObject.Find("升級圖案").GetComponent<Image>().sprite = Resources.Load<Sprite>("Player/頭像/角色-0" + i); //更換進階視窗的圖片，使用Image
+                    ChangePic("升級圖案", "Player/頭像/角色-0" + i); //更換進階視窗的圖片，使用SPRITE
+
                     if (LvNext > LvMax || UIControl.PlayerMoney < PriceTemp)//超過最高等級，或者錢不夠，視窗就會變暗
                     {
-                        GameObject.Find("升級圖案").GetComponent<Image>().color = new Color32(100, 100, 100, 255);  //進階視窗的圖案顏色變暗
-                        //GameObject.Find("升級圖案").GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);   //使用SPRITE，現在無使用
+                        //GameObject.Find("升級圖案").GetComponent<Image>().color = new Color32(100, 100, 100, 255);  //進階視窗的圖案顏色變暗，使用Image
+                        GameObject.Find("升級圖案").GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);   //使用SPRITE
                     }
                     else
                     {
-                        GameObject.Find("升級圖案").GetComponent<Image>().color = new Color32(255, 255, 255, 255);   //進階視窗的圖案顏色恢復
-                        //GameObject.Find("升級圖案").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);  //使用SPRITE，現在無使用
+                        //GameObject.Find("升級圖案").GetComponent<Image>().color = new Color32(255, 255, 255, 255);   //進階視窗的圖案顏色恢復，使用Image
+                        GameObject.Find("升級圖案").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);  //使用SPRITE
                     }
 
                 }

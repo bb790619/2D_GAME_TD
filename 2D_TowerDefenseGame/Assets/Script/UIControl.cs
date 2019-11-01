@@ -53,7 +53,7 @@ public class UIControl : MonoBehaviour
     {
         GameObject.Find("金錢TXT").GetComponent<Text>().text = PlayerMoney.ToString();  //顯示金錢
         GameObject.Find("生命TXT").GetComponent<Text>().text = PlayerHp.ToString();     //顯示玩家生命
-                                                                                      //開場提示消失才能執行
+                                                                                        //開場提示消失才能執行
         if (GameObject.FindWithTag("Window") == null)
         {
             NowTime = EnemyCreater.TimeDelay; //下波倒數時間
@@ -77,9 +77,26 @@ public class UIControl : MonoBehaviour
             Invoke("Victory", 3f);//如果贏了，延遲3秒出現勝利視窗
             GameObject.Find("Main Camera").GetComponent<AudioSource>().enabled = false;//關閉背景音樂
         }
+    }
 
+    /// <summary>
+    /// 遊戲加速
+    /// </summary>
+    public void SpeedUp()
+    {
+        if (GameObject.Find("加速按鍵").transform.GetChild(0).GetComponent<Text>().text == "x1")
+        {
+            GameObject.Find("加速按鍵").transform.GetChild(0).GetComponent<Text>().text = "x2";
+            Time.timeScale = 2;
+        }
+        else if (GameObject.Find("加速按鍵").transform.GetChild(0).GetComponent<Text>().text == "x2")
+        {
+            GameObject.Find("加速按鍵").transform.GetChild(0).GetComponent<Text>().text = "x1";
+            Time.timeScale = 1;
+        }
 
     }
+
     /// <summary>
     /// 執行玩家扣血後的動畫
     /// </summary>
@@ -87,7 +104,6 @@ public class UIControl : MonoBehaviour
     {
         EndAni.SetTrigger("攻擊");
     }
-
 
     public void Opening()//開場1秒後(剛好淡出結束)，讓時間暫停
     {
