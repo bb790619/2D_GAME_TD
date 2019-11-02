@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-//控制準備場景的UI，放在"UI"上
+//控制"準備場景"的UI，放在"UI"上
 public class StandByScene : MonoBehaviour
 {
     //放置視窗，按下個按鈕會跳出的視窗
     [Header("戰役")] public GameObject AdvtureWindow;
     [Header("天賦")] public GameObject TalentWindow;
-    [Header("科技樹")] public GameObject TechnologyWindow;
+    [Header("科技")] public GameObject TechnologyWindow;
 
     //可以控制上方面板的能力值
     [Header("等級Text")] public GameObject LevelText;
@@ -34,8 +34,8 @@ public class StandByScene : MonoBehaviour
     int[] ChapterLevelMax;                                 //各關卡的最大數量(在START計算)
     [Header("選擇關卡背景")] public GameObject ChapterLevelBG;
     int ChapterNow, ChapterLevelNow;                        //現在選到的章節，現在選到的關卡
-    [Header("目前通過的章節")] public int ChapterPass;
-    [Header("目前通過的關卡")] public int[] ChapterLevelPass;
+    [Header("目前通過的章節")] public static int ChapterPass;
+    [Header("目前通過的關卡")] public static int[] ChapterLevelPass;
     [Header("選擇模式的文字")] public Text ChooseModeText;
     [Header("過關的星星數")] public GameObject PassStars;
     public int XX;//測試用，目前過關的星星數，之後在刪除
@@ -47,6 +47,14 @@ public class StandByScene : MonoBehaviour
     //控制科技視窗
     [Header("科技按鍵底部")] public GameObject TechnologyButton;
     [Header("詢問科技升級視窗")] public GameObject TechnologyLevelUpWindow;
+    
+    [SerializeField]
+    PlayerData data;
+    [System.Serializable]
+    public class PlayerData
+    {
+        public int ChapterPass = StandByScene.ChapterPass;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -72,9 +80,10 @@ public class StandByScene : MonoBehaviour
             ChapterLevel[ChapterPass].transform.GetChild(ChapterLevelPass[ChapterPass])=> ChapterLevel[3].transform.GetChild(ChapterLevelPass[3])
             => ChapterLevel[3].transform.GetChild(5) => "4-6"
         */
-        ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
         //Chapter.transform.GetChild(ChapterPass).GetComponent<Image>().color = new Color32(255, 255, 0, 255); //章節變黃色，代表選取
         //ChapterLevel[ChapterPass].transform.GetChild(ChapterLevelPass[ChapterPass]).GetComponent<Image>().color = new Color32(255, 255, 0, 255);//關卡變黃色，代表選取
+
+        ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
 
         LimitTXT.transform.gameObject.SetActive(false);
     }
@@ -86,14 +95,30 @@ public class StandByScene : MonoBehaviour
         LockChapterLevel();// 未通過的關卡會被鎖按鍵
 
 
-        //關卡升級
+        //關卡升級。測試用，之後再修改，按上代表通關
         if (Input.GetKeyDown("up"))
         {
             PassChapterLevel(ChapterNow, ChapterLevelNow, XX);
         }
 
+        if (Input.GetKeyDown("right"))//存檔
+        {
+            //print("儲存"+ JsonUtility.ToJson(data));
+            //PlayerPrefs.SetString("JsonData",JsonUtility.ToJson(data));
+            print("儲存" + ChapterPass);
+            PlayerPrefs.SetInt("Chapter",ChapterPass);
+        }
+        if (Input.GetKeyDown("left"))//讀檔
+        {
+            // print("讀檔"+data);
+            // data = JsonUtility.FromJson<PlayerData>(PlayerPrefs.GetString("JsonData"));
+            ChapterPass= PlayerPrefs.GetInt("Chapter");
+            print("讀檔" + ChapterPass);
+        }
 
     }
+
+ 
 
     /// <summary>
     /// 過關之後，關卡數+1，顯示星星數(過關的星星數)
@@ -129,6 +154,7 @@ public class StandByScene : MonoBehaviour
             {
                 ChapterLevelPass[ChapterPass] += 1; //關卡就+1
                 ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
+                print("過關"+ChapterPass);
             }
         }
 
@@ -355,6 +381,8 @@ public class StandByScene : MonoBehaviour
         AdvtureWindow.SetActive(false);
         TalentWindow.SetActive(false);
         TechnologyWindow.SetActive(false);
+        TalentLevelUpWindow.SetActive(false);
+        TechnologyLevelUpWindow.SetActive(false);
     }
     /// <summary>
     /// 打開戰役視窗
