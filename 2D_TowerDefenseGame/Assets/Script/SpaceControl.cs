@@ -39,13 +39,8 @@ public class SpaceControl : MonoBehaviour
     RaycastHit2D hit;
 
     public GameObject[] Player;   //放置角色的預置物
-    float TXTCountDown = 0f;           //"不能建造"文字的倒數計數器
-    public GameObject StartPoint;
-    
-    //給<BulletControl>使用
-    public static int[] Damage1, Damage2, Damage3, Damage4, Damage5, Damage6; //子彈種類的傷害數值
-    public static string[] Effect5, Effect6;    //技能的額外效果
-    int[] CRIPro_5, CRIPro_6;                  //技能發動機率，角色5和6的參數
+    float TXTCountDown = 0f;      //"不能建造"文字的倒數計數器
+    public GameObject StartPoint; //"開始提示視窗"
 
     /*觸控間隔，時間內才算點擊，超過就算移動。無使用
     float begainTime = 0f;              //觸控螢幕開始的時間

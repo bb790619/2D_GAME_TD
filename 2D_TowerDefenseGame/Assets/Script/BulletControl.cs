@@ -80,6 +80,8 @@ public class BulletControl : MonoBehaviour
                 if (Lv == 1) BulletDamageControl.Damage[i] = Random.Range(18, 22);
                 else if (Lv == 2) BulletDamageControl.Damage[i] = Random.Range(40, 45);
                 else if (Lv == 3) BulletDamageControl.Damage[i] = Random.Range(65, 70);
+
+                BulletDamageControl.Damage[i] += StandByScene.TechPoint[0] * 5;
             }
             //角色2，範圍攻擊，火球
             else if (this.gameObject.name == "子彈2_" + i)
@@ -88,7 +90,9 @@ public class BulletControl : MonoBehaviour
                 if (Lv == 1) BulletDamageControl.Damage[i] = Random.Range(25, 30);
                 else if (Lv == 2) BulletDamageControl.Damage[i] = Random.Range(55, 60);
                 else if (Lv == 3) BulletDamageControl.Damage[i] = Random.Range(110, 120);
-                GetComponent<CircleCollider2D>().radius = 2f;  //攻擊範圍增加                          
+                GetComponent<CircleCollider2D>().radius = 2f;  //攻擊範圍增加   
+
+                BulletDamageControl.Damage[i] += StandByScene.TechPoint[3] * 5;
             }
             //角色3，單體攻擊(攻擊距離遠)，遠程
             else if (this.gameObject.name == "子彈3_" + i)
@@ -98,6 +102,8 @@ public class BulletControl : MonoBehaviour
                 else if (Lv == 2) BulletDamageControl.Damage[i] = Random.Range(40, 45);
                 else if (Lv == 3) BulletDamageControl.Damage[i] = Random.Range(65, 70);
                 transform.localScale = new Vector3(1f, 1f, 0);
+
+                BulletDamageControl.Damage[i] += StandByScene.TechPoint[6] * 5;
             }
             //角色4，範圍攻擊，緩速
             else if (this.gameObject.name == "子彈4_" + i)
@@ -106,7 +112,9 @@ public class BulletControl : MonoBehaviour
                 if (Lv == 1) BulletDamageControl.Damage[i] = Random.Range(15, 20);
                 else if (Lv == 2) BulletDamageControl.Damage[i] = Random.Range(35, 40);
                 else if (Lv == 3) BulletDamageControl.Damage[i] = Random.Range(55, 60);
-                GetComponent<CircleCollider2D>().radius = 2f;  //攻擊範圍增加                              
+                GetComponent<CircleCollider2D>().radius = 2f;  //攻擊範圍增加 
+                
+                BulletDamageControl.Damage[i] += StandByScene.TechPoint[9] * 5;
             }
             //角色5，單體攻擊(攻擊範圍不變)，暈擊
             else if (this.gameObject.name == "子彈5_" + i)
@@ -142,6 +150,8 @@ public class BulletControl : MonoBehaviour
                     BulletDamageControl.Effect[i] = "暈擊";
                     BulletDamageControl.Damage[i] = Random.Range(90, 100) + 40;
                 }
+
+                BulletDamageControl.Damage[i] += StandByScene.TechPoint[12] * 5;
             }
             //角色6，單體攻擊(攻擊範圍不變)，爆擊
             else if (this.gameObject.name == "子彈6_" + i)
@@ -150,33 +160,32 @@ public class BulletControl : MonoBehaviour
                 if (Lv == 1 && CRIPro > 10)
                 {
                     BulletDamageControl.Effect[i] = null;
-                    BulletDamageControl.Damage[i] = Random.Range(20, 25);
+                    BulletDamageControl.Damage[i] = Random.Range(20, 25) + StandByScene.TechPoint[15] * 5;
                 }
-
                 else if (Lv == 1 && CRIPro <= 10)
                 {
                     BulletDamageControl.Effect[i] = "爆擊";
-                    BulletDamageControl.Damage[i] = Random.Range(20, 25) * 3 / 2;
+                    BulletDamageControl.Damage[i] =( Random.Range(20, 25)+StandByScene.TechPoint[15] * 5) * 3 / 2;
                 }
                 else if (Lv == 2 && CRIPro > 20)
                 {
                     BulletDamageControl.Effect[i] = null;
-                    BulletDamageControl.Damage[i] = Random.Range(45, 50);
+                    BulletDamageControl.Damage[i] = Random.Range(45, 50+StandByScene.TechPoint[15] * 5);
                 }
                 else if (Lv == 2 && CRIPro <= 20)
                 {
                     BulletDamageControl.Effect[i] = "爆擊";
-                    BulletDamageControl.Damage[i] = Random.Range(45, 50) * 3 / 2;
+                    BulletDamageControl.Damage[i] =( Random.Range(45, 50)+ StandByScene.TechPoint[15] * 5) * 3 / 2;
                 }
                 else if (Lv == 3 && CRIPro > 40)
                 {
                     BulletDamageControl.Effect[i] = null;
-                    BulletDamageControl.Damage[i] = Random.Range(90, 100);
+                    BulletDamageControl.Damage[i] = Random.Range(90, 100)+ StandByScene.TechPoint[15] * 5;
                 }
                 else if (Lv == 3 && CRIPro <= 40)
                 {
                     BulletDamageControl.Effect[i] = "爆擊";
-                    BulletDamageControl.Damage[i] = Random.Range(90, 100) * 3 / 2;
+                    BulletDamageControl.Damage[i] =( Random.Range(90, 100)+ StandByScene.TechPoint[15] * 5) * 3 / 2;
                 }
             }
         }

@@ -9,8 +9,8 @@ using UnityEngine.SceneManagement;
 public class UIControl : MonoBehaviour
 {
     ////參數設定//
-    public static int PlayerHp = 4;    //玩家血量
-    public static int PlayerMoney;      //玩家金錢                                        
+    public static int PlayerHp ;    //玩家血量
+    public static int PlayerMoney; //玩家初始金錢                                        
     //[0-2]=角色1_LV1-LV3，[3-5]=角色2_LV1-LV3，[6-8]=角色3_LV1-LV3，[9-11]=角色4_LV1-LV3，以此類推
     //修改這邊的金額，<SpaceControl>會自動修改
     public static int[] Player_Price = { 45, 85, 140,
@@ -33,6 +33,9 @@ public class UIControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        PlayerHp=10 + StandByScene.TalentPoint[4] * 2;         //<StandByScene>的技能每升一級，玩家生命+2
+        PlayerMoney = 200 + StandByScene.TalentPoint[2] * 50; ;//<StandByScene>的技能每升一級，玩家生命+2
+
         //transform.Find 可以找到隱藏的物件
         VictoryWindow.transform.gameObject.SetActive(false);
         GGWindow.transform.gameObject.SetActive(false);
@@ -44,7 +47,6 @@ public class UIControl : MonoBehaviour
         //Invoke("Opening", 1f);        //遊戲場景會先淡出，開啟難度視窗，1秒後淡出消失，同時讓時間暫停
 
         NowTime = EnemyCreater.TimeDelay; //下波怪出現的時間
-        PlayerMoney = 200;                //玩家初始金錢
         Mode = 1f;                        //1倍(現在無使用)
     }
 

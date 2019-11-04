@@ -40,7 +40,6 @@ public class WeaponControl : MonoBehaviour
 
         //CD結束後開始開始執行，每0.5秒執行一次"SearchEnemy"
         InvokeRepeating("SearchEnemy", SpaceControl.CoolTime, 0.5f);
-
     }
 
     // Update is called once per frame

@@ -29,7 +29,7 @@ public class EnemyControl : MonoBehaviour
     {
         ////怪物參數設定，這裡修改怪物血量和金錢////
         HpMax = EnemyCreater.EnemyWave * 30 * UIControl.Mode;   //怪物血量和波數以及難度有關      
-        AddPrice = 5 + EnemyCreater.EnemyWave;                      //怪物死掉，玩家會增加金錢，增加的金錢和波數有關
+        AddPrice = 5 + EnemyCreater.EnemyWave + StandByScene.TalentPoint[5]*2;                      //怪物死掉，玩家會增加金錢，增加的金錢和波數有關
         //////////////////////////////
         Hp = HpMax;                               //開場時，怪物現有血量=最大值
         MovePoints = PointSetting.points[0];      //怪物移動的方向
