@@ -10,7 +10,7 @@ public class UIControl : MonoBehaviour
 {
     ////參數設定//
     public static int PlayerHp ;    //玩家血量
-    public static int PlayerMoney; //玩家初始金錢                                        
+    public static int PlayerMoney; //玩家初始金錢  
     //[0-2]=角色1_LV1-LV3，[3-5]=角色2_LV1-LV3，[6-8]=角色3_LV1-LV3，[9-11]=角色4_LV1-LV3，以此類推
     //修改這邊的金額，<SpaceControl>會自動修改
     public static int[] Player_Price = { 45, 85, 140,
@@ -19,7 +19,6 @@ public class UIControl : MonoBehaviour
                                          30, 50, 100,
                                          25, 40,  80,
                                          40, 80, 130  };
-
     public static float Mode;             //選擇難度後，血量的比例，給<EnemyControl>使用
     float NowTime = 0f;                   //下波怪出現的時間
     float Wave = 0f;                       //出怪的波數 
@@ -33,8 +32,8 @@ public class UIControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        PlayerHp=10 + StandByScene.TalentPoint[4] * 2;         //<StandByScene>的技能每升一級，玩家生命+2
-        PlayerMoney = 200 + StandByScene.TalentPoint[2] * 50; ;//<StandByScene>的技能每升一級，玩家生命+2
+        PlayerHp =10 + StandByScene.TalentPoint[4] * 2;         //<StandByScene>的技能每升一級，玩家生命+2
+        PlayerMoney = 200 + StandByScene.TalentPoint[2] * 50; ;//<StandByScene>的技能每升一級，玩家金錢+50
 
         //transform.Find 可以找到隱藏的物件
         VictoryWindow.transform.gameObject.SetActive(false);

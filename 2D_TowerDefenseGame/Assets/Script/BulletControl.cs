@@ -119,33 +119,35 @@ public class BulletControl : MonoBehaviour
             //角色5，單體攻擊(攻擊範圍不變)，暈擊
             else if (this.gameObject.name == "子彈5_" + i)
             {
+                int[] Bullet_CRI_5 = { 15, 30, 50 }; //暈擊機率
+                for(int j=0;j<=2;j++) Bullet_CRI_5[j] += StandByScene.TechPoint[14]*3; //增加機率
                 //LV1有15%暈2秒並10傷害，LV2有30%暈2秒並20傷害，LV3有50%暈2秒並40傷害 
-                if (Lv == 1 && CRIPro > 15)
+                if (Lv == 1 && CRIPro > Bullet_CRI_5[0])
                 {
                     BulletDamageControl.Effect[i] = null;
                     BulletDamageControl.Damage[i] = Random.Range(16, 23);
                 }
-                else if (Lv == 1 && CRIPro <= 15)
+                else if (Lv == 1 && CRIPro <= Bullet_CRI_5[0])
                 {
                     BulletDamageControl.Effect[i] = "暈擊";
                     BulletDamageControl.Damage[i] = Random.Range(20, 25) + 10;
                 }
-                else if (Lv == 2 && CRIPro > 30)
+                else if (Lv == 2 && CRIPro > Bullet_CRI_5[1])
                 {
                     BulletDamageControl.Effect[i] = null;
                     BulletDamageControl.Damage[i] = Random.Range(25, 48);
                 }
-                else if (Lv == 2 && CRIPro <= 30)
+                else if (Lv == 2 && CRIPro <= Bullet_CRI_5[1])
                 {
                     BulletDamageControl.Effect[i] = "暈擊";
                     BulletDamageControl.Damage[i] = Random.Range(45, 50) + 20;
                 }
-                else if (Lv == 3 && CRIPro > 50)
+                else if (Lv == 3 && CRIPro > Bullet_CRI_5[2])
                 {
                     BulletDamageControl.Effect[i] = null;
                     BulletDamageControl.Damage[i] = Random.Range(80, 90);
                 }
-                else if (Lv == 3 && CRIPro <= 50)
+                else if (Lv == 3 && CRIPro <= Bullet_CRI_5[2])
                 {
                     BulletDamageControl.Effect[i] = "暈擊";
                     BulletDamageControl.Damage[i] = Random.Range(90, 100) + 40;
@@ -156,33 +158,35 @@ public class BulletControl : MonoBehaviour
             //角色6，單體攻擊(攻擊範圍不變)，爆擊
             else if (this.gameObject.name == "子彈6_" + i)
             {
+                int[] Bullet_CRI_6 = { 10, 20, 40 }; //爆擊機率
+                for (int j = 0; j <= 2; j++) Bullet_CRI_6[j] += StandByScene.TechPoint[17] * 2; //增加機率
                 //LV1爆擊率10%有1.5的傷害，LV2爆擊率20%有1.5的傷害，LV3爆擊率40%有1.5的傷害   
-                if (Lv == 1 && CRIPro > 10)
+                if (Lv == 1 && CRIPro > Bullet_CRI_6[0])
                 {
                     BulletDamageControl.Effect[i] = null;
                     BulletDamageControl.Damage[i] = Random.Range(20, 25) + StandByScene.TechPoint[15] * 5;
                 }
-                else if (Lv == 1 && CRIPro <= 10)
+                else if (Lv == 1 && CRIPro <= Bullet_CRI_6[0])
                 {
                     BulletDamageControl.Effect[i] = "爆擊";
                     BulletDamageControl.Damage[i] =( Random.Range(20, 25)+StandByScene.TechPoint[15] * 5) * 3 / 2;
                 }
-                else if (Lv == 2 && CRIPro > 20)
+                else if (Lv == 2 && CRIPro > Bullet_CRI_6[1])
                 {
                     BulletDamageControl.Effect[i] = null;
                     BulletDamageControl.Damage[i] = Random.Range(45, 50+StandByScene.TechPoint[15] * 5);
                 }
-                else if (Lv == 2 && CRIPro <= 20)
+                else if (Lv == 2 && CRIPro <= Bullet_CRI_6[1])
                 {
                     BulletDamageControl.Effect[i] = "爆擊";
                     BulletDamageControl.Damage[i] =( Random.Range(45, 50)+ StandByScene.TechPoint[15] * 5) * 3 / 2;
                 }
-                else if (Lv == 3 && CRIPro > 40)
+                else if (Lv == 3 && CRIPro > Bullet_CRI_6[2])
                 {
                     BulletDamageControl.Effect[i] = null;
                     BulletDamageControl.Damage[i] = Random.Range(90, 100)+ StandByScene.TechPoint[15] * 5;
                 }
-                else if (Lv == 3 && CRIPro <= 40)
+                else if (Lv == 3 && CRIPro <= Bullet_CRI_6[2])
                 {
                     BulletDamageControl.Effect[i] = "爆擊";
                     BulletDamageControl.Damage[i] =( Random.Range(90, 100)+ StandByScene.TechPoint[15] * 5) * 3 / 2;

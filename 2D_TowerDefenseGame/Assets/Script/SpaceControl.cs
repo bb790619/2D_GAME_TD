@@ -10,7 +10,8 @@ public class SpaceControl : MonoBehaviour
 {
     ////參數設定////
     public static int PlayerNum = 6;   //角色數量，讓其他腳本使用
-    public static int LvMax = 3;       //角色最大等級
+    public static int[] LvMax = { 2, 2, 2, 2, 2, 2 };       //目前角色最大等級
+    int LvMaxAll = 3;                  //可以提升的角色最大等級
     public static float CoolTime = 3f; //建造砲塔的冷卻時間
     ////////////////
     int PictureState = 0;             //畫面狀態
@@ -110,7 +111,7 @@ public class SpaceControl : MonoBehaviour
         //新增暫停按鍵，暫停時會出現視窗，且不能觸碰螢幕。遊戲開始時才能觸碰螢幕
         if (Input.GetMouseButtonDown(0) && PictureState == 0 && Time.timeScale >= 1)
         {
-            if (hit.collider == null ) State_1();       //執行畫面狀態1
+            if (hit.collider == null) State_1();       //執行畫面狀態1
             else if (hit.collider.tag == "Button") { }
             else if (hit.collider.tag == "Window") State_0();
             else AdvancedWindow(hit.collider.name, hit.collider.tag);                   //若有建造砲塔且觸碰砲塔時  
@@ -130,7 +131,7 @@ public class SpaceControl : MonoBehaviour
         else if (Input.GetMouseButtonDown(0) && PictureState == 2 && Time.timeScale >= 1)
         {
             if (hit.collider == null) State_0();
-            else if (hit.collider.tag == "BuildButton") BuildPlayer( hit.collider.name);
+            else if (hit.collider.tag == "BuildButton") BuildPlayer(hit.collider.name);
             else if (hit.collider.name == "升級按鍵") ChangePlayer();
             else if (hit.collider.name == "販賣按鍵") SellPlayer();
             else if (hit.collider.tag == "Window") State_0();                            //新增，點選開場提示時，執行畫面狀態0
@@ -138,12 +139,6 @@ public class SpaceControl : MonoBehaviour
             else AdvancedWindow(hit.collider.name, hit.collider.tag);                    //進階視窗   
         }
 
-        /*            else if (hit.collider.name == "角色1按鍵") BuildPlayer(Player[0], hit.collider.name);  //建造角色
-            else if (hit.collider.name == "角色2按鍵") BuildPlayer(Player[1], hit.collider.name);
-            else if (hit.collider.name == "角色3按鍵") BuildPlayer(Player[2], hit.collider.name);
-            else if (hit.collider.name == "角色4按鍵") BuildPlayer(Player[3], hit.collider.name);
-            else if (hit.collider.name == "角色5按鍵") BuildPlayer(Player[4], hit.collider.name);
-            else if (hit.collider.name == "角色6按鍵") BuildPlayer(Player[5], hit.collider.name);*/
         //控制TXT文字
         TXTCountDown -= Time.deltaTime;
         if (TXTCountDown <= 0f)
@@ -251,7 +246,7 @@ public class SpaceControl : MonoBehaviour
 
         for (int i = 0; i < PlayerNum; i++)//錢不夠，視窗就會變暗
         {
-            if (UIControl.PlayerMoney < UIControl.Player_Price[LvMax * (i)])
+            if (UIControl.PlayerMoney < UIControl.Player_Price[LvMaxAll * (i)])
             {
                 //ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<Image>().color = new Color32(100, 100, 100, 255); //進階視窗的圖案變暗，使用IMAGE
                 ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);      //使用SPRITE
@@ -275,7 +270,7 @@ public class SpaceControl : MonoBehaviour
     {
         for (int i = 1; i < PlayerNum + 1; i++)
             if (ButtonName == "角色" + i + "按鍵") PlayerKind[Choose_i] = i;  //觸碰的按鍵名字=角色種類，角色1、2...
-        int Seat = LvMax * (PlayerKind[Choose_i] - 1); //金錢，讀取 UIControl.Player_Price[0]、[3]、[6]、[9]
+        int Seat = LvMaxAll * (PlayerKind[Choose_i] - 1); //金錢，讀取 UIControl.Player_Price[0]、[3]、[6]、[9]
         if (UIControl.PlayerMoney >= UIControl.Player_Price[Seat]) //金錢夠才能建造
         {
             State_0();                  //選完角色之後，空格消失
@@ -331,7 +326,7 @@ public class SpaceControl : MonoBehaviour
                     //GameObject.Find("升級圖案").GetComponent<Image>().sprite = Resources.Load<Sprite>("Player/頭像/角色-0" + i); //更換進階視窗的圖片，使用Image
                     ChangePic("升級圖案", "Player/頭像/角色-0" + i); //更換進階視窗的圖片，使用SPRITE
 
-                    if (LvNext > LvMax || UIControl.PlayerMoney < PriceTemp)//超過最高等級，或者錢不夠，視窗就會變暗
+                    if (LvNext > LvMax[i - 1] || UIControl.PlayerMoney < PriceTemp)//超過最高等級，或者錢不夠，視窗就會變暗
                     {
                         //GameObject.Find("升級圖案").GetComponent<Image>().color = new Color32(100, 100, 100, 255);  //進階視窗的圖案顏色變暗，使用Image
                         GameObject.Find("升級圖案").GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);   //使用SPRITE
@@ -361,40 +356,38 @@ public class SpaceControl : MonoBehaviour
     /// 選角視窗各角色金錢(選角視窗)
     /// </summary>
     /// <param name="Name"></param>
-    /// <param name="Player"></param>
-    /// <param name="Lv"></param>
     public void ChangePrice(GameObject Name)
     {
-        /*  <UIControl>的Player_Price，各角色金錢
-           [0][1][2] 、[3][4][5]、[6][7][8]、[9][10][11]
-           角色1等級1或2或3...以此類推，            */
         for (int i = 0; i < PlayerNum; i++) //更換金錢
-            Name.transform.GetChild(i).GetChild(0).GetComponent<Text>().text = UIControl.Player_Price[LvMax * (i)].ToString();
+            Name.transform.GetChild(i).GetChild(0).GetComponent<Text>().text = UIControl.Player_Price[LvMaxAll * i].ToString();
     }
     /// <summary>
     /// 進階視窗的各角色金額(進階視窗，角色種類，要升級的等級)
     /// </summary>
     /// <param name="Name"></param>
+    /// <param name="Player"></param>
+    /// <param name="Lv"></param>
     public void ChangePricePlus(GameObject Name, int Player, int Lv)
     {
         /*  <UIControl>的Player_Price，各角色金錢
             [0][1][2] 、[3][4][5]、[6][7][8]、[9][10][11]
             角色1等級1或2或3...以此類推，
         */
-        for (int i = 2; i <= LvMax; i++)   //各角色等級的金錢 
+        for (int i = 2; i <= LvMax[Player - 1]; i++)   //各角色等級的金錢 
         {
             if (Lv == i)
             {
-                PriceTemp = UIControl.Player_Price[LvMax * (Player - 1) + Lv - 1];
-                Name.transform.GetChild(0).GetComponent<Text>().text = (Lv - 1) + "/" + LvMax;   //顯示目前等級
+                PriceTemp = UIControl.Player_Price[LvMaxAll * (Player - 1) + Lv - 1];
+                Name.transform.GetChild(0).GetComponent<Text>().text = (Lv - 1) + "/" + LvMax[Player - 1];   //顯示目前等級
                 Name.transform.GetChild(0).GetChild(0).GetComponent<Text>().text = PriceTemp.ToString();   //更換金錢
             }
             else if (Lv > i)
             {
-                Name.transform.GetChild(0).GetComponent<Text>().text = (Lv - 1) + "/" + LvMax;   //顯示目前等級
+                Name.transform.GetChild(0).GetComponent<Text>().text = (Lv - 1) + "/" + LvMax[Player - 1];   //顯示目前等級
                 Name.transform.GetChild(0).GetChild(0).GetComponent<Text>().text = "MAX";
             }
         }
+
     }
 
     /// <summary>
@@ -409,9 +402,9 @@ public class SpaceControl : MonoBehaviour
               [2]=3*0+2，[5]=3*1+2，[78=3*2+2，[11]=3*3+2 => 角色1的等級2升3、角色2的等級2升3...
               最大等級 * 角色種類 + 現有等級
             */
-            int Seat = LvMax * (PlayerKind[Choose_j] - 1) + LvState[Choose_j];
+            int Seat = LvMaxAll * (PlayerKind[Choose_j] - 1) + LvState[Choose_j];
 
-            if (LvState[Choose_j] < LvMax)//等級內才可以升級
+            if (LvState[Choose_j] < LvMax[PlayerKind[Choose_j] - 1])//等級內才可以升級
             {
                 if (UIControl.PlayerMoney >= UIControl.Player_Price[Seat]) //新增，金錢夠才能升級
                 {
@@ -468,7 +461,7 @@ public class SpaceControl : MonoBehaviour
             {
                 if (PlayerTag == "Player" + j)
                 {
-                    Sum += UIControl.Player_Price[LvMax * (j - 1) + i];
+                    Sum += UIControl.Player_Price[LvMaxAll * (j - 1) + i];
                 }
             }
         }

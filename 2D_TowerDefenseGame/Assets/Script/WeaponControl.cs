@@ -22,6 +22,8 @@ public class WeaponControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Range[2] += StandByScene.TechPoint[8]*0.2f; //增加角色3的射程
+
         //做法1，從Resources/Prefab/子彈，自動加入子彈的Prefab(要把要加入的Prefab放入Resources資料夾)
         Bullet = Resources.Load<GameObject>("子彈");
 

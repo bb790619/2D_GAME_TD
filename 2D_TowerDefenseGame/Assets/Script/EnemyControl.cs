@@ -134,6 +134,7 @@ public class EnemyControl : MonoBehaviour
                 if (BulletControl.Lv == 1) Speed = 0.9f;      //LV1速度減少10%，，LV2速度減少20%，，LV3速度減少30%。持續2秒
                 else if (BulletControl.Lv == 2) Speed = 0.8f;
                 else if (BulletControl.Lv == 3) Speed = 0.6f;
+                Speed -= StandByScene.TechPoint[11] *0.03f; //增加緩速能力
                 TimeCount[3] = EffectConti[3];     //緩速2秒，2秒後就恢復速度和顏色
                 this.gameObject.GetComponent<SpriteRenderer>().color = new Color32(0, 120, 255, 255);//怪物被打到變藍色
                 BulletToEemy(BulletDamageControl.Damage[i], collision.gameObject, i);
@@ -193,7 +194,8 @@ public class EnemyControl : MonoBehaviour
         if (BulletControl.Lv == 1) ConDamage = 5;
         else if (BulletControl.Lv == 2) ConDamage = 10;
         else if (BulletControl.Lv == 3) ConDamage = 15;
-        Hp -= HpMax * ConDamage / 100;
+        ConDamage += StandByScene.TechPoint[2];
+       Hp -= HpMax * ConDamage / 100;
     }
 
 

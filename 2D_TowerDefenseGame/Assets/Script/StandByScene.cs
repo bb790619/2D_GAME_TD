@@ -26,7 +26,7 @@ public class StandByScene : MonoBehaviour
     public static float LevelEXPNow = 0;     //現在經驗
     public static float BodyStrngthMAX = 30;//最大體力值
     public static float BodyStrngthNow = 15;//現在體力值
-    public static int EnergyNow = 1;       //現在能量值
+    public static int EnergyNow = 5;       //現在能量值
 
     //控制戰役視窗
     [Header("章節按鍵底部")] public GameObject Chapter;     //放置章節
@@ -58,8 +58,10 @@ public class StandByScene : MonoBehaviour
     int TechPosPlus;  //科技視窗，被點選到的能力，對應的陣列位子 [0][1][2]、[3][4][5]...
     public static int TechMAX = 3;    //科技視窗，各角色的可升級能力數量
     public static int TechCount = TechMAX * SpaceControl.PlayerNum; //所有可升級能力的總數量
-    public static int[] TechPoint = { 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0 }; //天賦視窗，要提升的能力
-    int[] TechPointMax = { 5, 3, 5, 5, 3, 5, 5, 3, 5, 5, 3, 5, 5, 3, 5, 5, 3, 5 };//天賦視窗，要提升的能力的最大值
+    public static int[] TechPoint = new int[TechCount]; //天賦視窗，要提升的能力(只有要升級的能力，沒有圖片)
+    int[] TechPointMax = { 5, 1, 5, 5, 1, 5, 5, 1, 5, 5, 1, 5, 5, 1, 5, 5, 1, 5 };//天賦視窗，要提升的能力的最大值(只有要升級的能力，沒有圖片)
+
+    [Header("點數不足的文字")] public Text EnergyTXT;
 
     [SerializeField]
     PlayerData data;
@@ -94,13 +96,10 @@ public class StandByScene : MonoBehaviour
         */
         ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
         LimitTXT.transform.gameObject.SetActive(false);
-        #endregion
-
-        //天賦視窗
-        #region
-
 
         #endregion
+
+        EnergyTXT.transform.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -312,7 +311,7 @@ public class StandByScene : MonoBehaviour
         if (Name < TalenCount)
         {
             TalentLevelUpWindow.SetActive(true);
-            TalentLevelUpWindow.transform.position = TalentButton.transform.GetChild(Name).transform.position;
+            TalentLevelUpWindow.transform.position = TalentButton.transform.GetChild(TalentSpace).transform.position;
         }
     }
     /// <summary>
@@ -328,12 +327,21 @@ public class StandByScene : MonoBehaviour
     public void OpenTalentLevelUp()
     {
         //0是玩家體力，1是經驗，2是初始金錢，3是戰鬥CD，4是玩家生命，5是戰鬥金錢
-        TalentLevelUpWindow.SetActive(false); //關閉視窗
-        //如果未達最高等級，按升級就+1等。若升到最高等級則鎖住按鍵
-        if (TalentPoint[TalentSpace] < TalentPointMax[TalentSpace])
+        //如果未達最高等級且能量足夠時，按升級就+1等。若升到最高等級則鎖住按鍵
+        if (TalentPoint[TalentSpace] < TalentPointMax[TalentSpace] && EnergyNow >= 1)
         {
-            TalentPoint[TalentSpace] += 1;
+            EnergyNow -= 1; //能量-1
+            TalentPoint[TalentSpace] += 1;//等級+1
         }
+        else if (EnergyNow <= 0)
+        {
+            //因為有動畫，所以先開啟再關閉
+            EnergyTXT.transform.gameObject.SetActive(false);
+            EnergyTXT.transform.gameObject.SetActive(true);
+            EnergyTXT.transform.position = TalentButton.transform.GetChild(TalentSpace).transform.position;
+        }
+        TalentLevelUpWindow.SetActive(false); //關閉詢問視窗
+
 
         //升級提升能力
         //其實有些可以不用寫，但這樣比較好修正，所以還是寫出來。
@@ -390,29 +398,39 @@ public class StandByScene : MonoBehaviour
     /// 科技視窗，詢問升級的確定功能
     /// </summary>
     public void OpenTechnologyLevelUp()
-    {
-        TechnologyLevelUpWindow.SetActive(false);
-        if (TechPoint[TechPosPlus] < TechPointMax[TechPosPlus]) TechPoint[TechPosPlus] += 1;
-        /*升級提升能力
-        //其實有些可以不用寫，但這樣比較好修正，所以還是寫出來。*/
-        //TechPosPlus=0、3、6、9、12、15，<BulletControl>增加角色攻擊力，每升一級，角色1攻擊力+5
-        /*
-        if (TechPosPlus == 1) SpaceControl.LvMax[0] += 1; //增加各角色等級上限
-        if (TechPosPlus == 4) SpaceControl.LvMax[1] += 1;
-        if (TechPosPlus == 7) SpaceControl.LvMax[2] += 1;
-        if (TechPosPlus == 10) SpaceControl.LvMax[3] += 1;
-        if (TechPosPlus == 13) SpaceControl.LvMax[4] += 1;
-        if (TechPosPlus == 16) SpaceControl.LvMax[5] += 1;
+    {     
+        //如果未達最高等級且能量足夠時，按升級就+1等。若升到最高等級則鎖住按鍵
+        if (TechPoint[TechPosPlus] < TechPointMax[TechPosPlus] && EnergyNow >=1)
+        {
+            EnergyNow -= 1; //能量-1
+            TechPoint[TechPosPlus] += 1;//等級+1
+        }
+        else if (EnergyNow <= 0)
+        {
+            //因為有動畫，所以先開啟再關閉
+            EnergyTXT.transform.gameObject.SetActive(false);
+            EnergyTXT.transform.gameObject.SetActive(true);
+            EnergyTXT.transform.position = TechnologyButton.transform.GetChild(TechPos).transform.position;
+        }
+        TechnologyLevelUpWindow.SetActive(false); //關閉詢問視窗
+        /*  
+         升級提升能力。其實有些可以不用寫，但這樣比較好修正，所以還是寫出來。
+         TechPosPlus=0、3、6、9、12、15，<BulletControl>增加角色攻擊力，每升一級，角色1攻擊力+5 。 TechPosPlus=0=>TechPoint[0]+1
         */
+        //增加各角色等級上限，原始等級上限2級(Lv0)，最高可提高到3級(Lv1)
+        if (TechPosPlus == 1) SpaceControl.LvMax[0] += 1;
+        else if (TechPosPlus == 4) SpaceControl.LvMax[1] += 1;
+        else if (TechPosPlus == 7) SpaceControl.LvMax[2] += 1;
+        else if (TechPosPlus == 10) SpaceControl.LvMax[3] += 1;
+        else if (TechPosPlus == 13) SpaceControl.LvMax[4] += 1;
+        else if (TechPosPlus == 16) SpaceControl.LvMax[5] += 1;
+        else if (TechPosPlus == 5) for (int i = 3; i <= 5; i++)  UIControl.Player_Price[i] -= 3;//角色2額外能力，減少成本
         /*
-        if (TechPosPlus == 2) 
-        if (TechPosPlus == 5) 
-        if (TechPosPlus == 8) 
-        if (TechPosPlus == 11)
-        if (TechPosPlus == 14) 
-        if (TechPosPlus == 17) 
-        */
-
+          TechPosPlus=2、5、8、11、14、17，增加角色額外能力   
+          2  => <EnemyControl>增加詛咒扣血量，5  => <UIControl>減少建造成本
+          8  => <Weaponcontrol>增加攻擊射程 ，11 => <EnemyControl>增加緩速能力
+          14 => <BulletControl>增加暈擊機率  ，17 => <<BulletControl>>增加爆擊機率
+         */
     }
     #endregion
 
