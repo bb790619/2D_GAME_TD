@@ -67,7 +67,11 @@ public class StandByScene : MonoBehaviour
     int[] TechPointMax = { 5, 1, 5, 5, 1, 5, 5, 1, 5, 5, 1, 5, 5, 1, 5, 5, 1, 5 };//天賦視窗，要提升的能力的最大值(只有要升級的能力，沒有圖片)
 
     [Header("點數不足的文字")] public Text EnergyTXT;
+    public static bool LoadNow = true; //讀檔初始化，只有第一次開啟時會讀取檔案
+    public static bool SaveNow = true; //為了清除數據，false就先不存檔
 
+    //存檔和讀檔
+    #region
     [SerializeField]
     PlayerData data;
     [System.Serializable]
@@ -82,31 +86,57 @@ public class StandByScene : MonoBehaviour
 
         public int ChapterPass;       //目前通過的章節
         public int[] ChapterLevelPass;//目前通過的關卡
-        public int[,] StarsNum = new int[5, 8];//目前過關的星星數，存檔用
+        public int[] StarsNum_1 = new int[8];//目前過關的星星數，把二維分開成一維陣列
+        public int[] StarsNum_2 = new int[8];
+        public int[] StarsNum_3 = new int[8];
+        public int[] StarsNum_4 = new int[8];
+        public int[] StarsNum_5 = new int[8];
         public bool Repeat; //初始化數字
 
         public int[] TalentPoint; //天賦視窗，要提升的能力
         public int[] TechPoint; //天賦視窗，要提升的能力(只有要升級的能力，沒有圖片)
     }
-
-    public void Save()//存檔
+    /// <summary>
+    /// 存檔的資料
+    /// </summary>
+    public void Save()
     {
         data.LevelNow = LevelNow; data.LevelEXPMAX = LevelEXPMAX; data.LevelEXPNow = LevelEXPNow;
         data.BodyStrngthMAX = BodyStrngthMAX; data.BodyStrngthNow = BodyStrngthNow; data.EnergyNow = EnergyNow;
         data.ChapterPass = ChapterPass; data.ChapterLevelPass = ChapterLevelPass;
-        data.StarsNum = StarsNum; data.Repeat = Repeat;
+        for (int i = 0; i < 8; i++)
+        {
+            data.StarsNum_1[i] = StarsNum[0, i];
+            data.StarsNum_2[i] = StarsNum[1, i];
+            data.StarsNum_3[i] = StarsNum[2, i];
+            data.StarsNum_4[i] = StarsNum[3, i];
+            data.StarsNum_5[i] = StarsNum[4, i];
+        }
+        data.Repeat = Repeat;
         data.TalentPoint = TalentPoint; data.TechPoint = TechPoint;
-        print("儲存" + JsonUtility.ToJson(data));
     }
+    /// <summary>
+    /// 讀取的檔案資料
+    /// </summary>
     public void Load()
     {
         LevelNow = data.LevelNow; LevelEXPMAX = data.LevelEXPMAX; LevelEXPNow = data.LevelEXPNow;
         BodyStrngthMAX = data.BodyStrngthMAX; BodyStrngthNow = data.BodyStrngthNow; EnergyNow = data.EnergyNow;
         ChapterPass = data.ChapterPass; ChapterLevelPass = data.ChapterLevelPass;
-        StarsNum = data.StarsNum; Repeat = data.Repeat;
+        for (int i = 0; i < 8; i++)
+        {
+            StarsNum[0, i] = data.StarsNum_1[i];
+            StarsNum[1, i] = data.StarsNum_2[i];
+            StarsNum[2, i] = data.StarsNum_3[i];
+            StarsNum[3, i] = data.StarsNum_4[i];
+            StarsNum[4, i] = data.StarsNum_5[i];
+        }
+        Repeat = data.Repeat;
         TalentPoint = data.TalentPoint; TechPoint = data.TechPoint;
         print("讀檔" + data);
+
     }
+    #endregion
 
     // Start is called before the first frame update
     void Start()
@@ -130,9 +160,15 @@ public class StandByScene : MonoBehaviour
             }
             Repeat = false;
             Save();//沒存檔先讀檔會有問題，所以先存一次
+        } 
+        
+        if (LoadNow == true)//只有第一次開啟遊戲時會讀取檔案
+        {
+            data = JsonUtility.FromJson<PlayerData>(PlayerPrefs.GetString("JsonData"));
+            Load();
+            LoadNow = false;
         }
-        Load();
-        for (int i = 0; i < ChapterMax; i++)
+        for (int i = 0; i < ChapterMax; i++)//關卡的文字
         {
             for (int j = 0; j < ChapterLevelMax[i]; j++)
             {
@@ -158,7 +194,17 @@ public class StandByScene : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Save();
+        if (SaveNow == true)
+        {
+            Save();
+            PlayerPrefs.SetString("JsonData", JsonUtility.ToJson(data));
+        }
+        if (Input.GetKeyDown("space"))//為了清除數據，false就先不存檔
+        {
+            SaveNow = false;
+            print("不存了");
+        }
+
         AbilityValue();  //UI上的數值
         LockChapterLevel();// 未通過的關卡會被鎖按鍵
 
@@ -174,20 +220,14 @@ public class StandByScene : MonoBehaviour
         if (Input.GetKeyDown("right"))
         {
             Save();
-
             PlayerPrefs.SetString("JsonData", JsonUtility.ToJson(data));
-            //print("儲存" + ChapterPass);
-            //PlayerPrefs.SetInt("Chapter", ChapterPass);
+            print("儲存");
         }
         //讀檔，測試用
         if (Input.GetKeyDown("left"))
         {
             data = JsonUtility.FromJson<PlayerData>(PlayerPrefs.GetString("JsonData"));
-
             Load();
-            //print("讀檔" + ChapterPass);
-            //ChapterPass = PlayerPrefs.GetInt("Chapter");
-            print(StarsNum);
         }
         //清除，測試用
         if (Input.GetKeyDown("down"))

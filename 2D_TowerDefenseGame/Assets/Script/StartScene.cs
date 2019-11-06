@@ -17,7 +17,6 @@ public class StartScene : MonoBehaviour
         //讀取檔案
         #region
         string XX = PlayerPrefs.GetString("Start");
-        print(XX);
         if (XX == "True") Right = true;
         else if (XX == "False") Right = false;
         #endregion
@@ -46,6 +45,9 @@ public class StartScene : MonoBehaviour
     }
     private void Update()
     {
+        PlayerPrefs.SetString("Start", Right.ToString());//存檔
+
+        //測試用
         if (Input.GetKeyDown("right"))
         {
             print("存檔");
