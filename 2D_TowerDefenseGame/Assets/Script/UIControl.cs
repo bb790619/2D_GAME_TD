@@ -9,7 +9,8 @@ using UnityEngine.SceneManagement;
 public class UIControl : MonoBehaviour
 {
     ////參數設定//
-    public static int PlayerHp ;    //玩家血量
+    public static int PlayerHp;    //玩家血量
+    public static int PlayerHpMax;  //玩家血量最大值
     public static int PlayerMoney; //玩家初始金錢  
     //[0-2]=角色1_LV1-LV3，[3-5]=角色2_LV1-LV3，[6-8]=角色3_LV1-LV3，[9-11]=角色4_LV1-LV3，以此類推
     //修改這邊的金額，<SpaceControl>會自動修改
@@ -19,20 +20,21 @@ public class UIControl : MonoBehaviour
                                          30, 50, 100,
                                          25, 40,  80,
                                          40, 80, 130  };
-    public static float Mode;             //選擇難度後，血量的比例，給<EnemyControl>使用
     float NowTime = 0f;                   //下波怪出現的時間
     float Wave = 0f;                       //出怪的波數 
     public Image VictoryWindow;           //勝利視窗("勝利視窗")
     public Image GGWindow;                //失敗視窗("失敗視窗")
     public Image OptionWindow;            //暫停視窗("暫停視窗")
-    //public Image ModeWindow;            //難度視窗("難度視窗")
 
     public Animator EndAni;                //守門人的動畫
+
+    public static int Chap,Level;  //這場遊戲的章節和關卡
 
     // Start is called before the first frame update
     void Start()
     {
-        PlayerHp =10 + StandByScene.TalentPoint[4] * 2;         //<StandByScene>的技能每升一級，玩家生命+2
+        PlayerHpMax = 10 + StandByScene.TalentPoint[4] * 2;         //<StandByScene>的技能每升一級，玩家生命+2
+        PlayerHp = PlayerHpMax;
         PlayerMoney = 200 + StandByScene.TalentPoint[2] * 50; ;//<StandByScene>的技能每升一級，玩家金錢+50
 
         //transform.Find 可以找到隱藏的物件
@@ -42,11 +44,10 @@ public class UIControl : MonoBehaviour
 
         Time.timeScale = 1;   //遊戲開始
         //GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
-        //ModeWindow.transform.gameObject.SetActive(true); //開啟難度視窗
         //Invoke("Opening", 1f);        //遊戲場景會先淡出，開啟難度視窗，1秒後淡出消失，同時讓時間暫停
 
         NowTime = EnemyCreater.TimeDelay; //下波怪出現的時間
-        Mode = 1f;                        //1倍(現在無使用)
+        Chap = 0;Level = 0; //先初始化，如果過關再讀取這場遊戲的章節和關卡
     }
 
     // Update is called once per frame
@@ -54,7 +55,7 @@ public class UIControl : MonoBehaviour
     {
         GameObject.Find("金錢TXT").GetComponent<Text>().text = PlayerMoney.ToString();  //顯示金錢
         GameObject.Find("生命TXT").GetComponent<Text>().text = PlayerHp.ToString();     //顯示玩家生命
-                                                                                        //開場提示消失才能執行
+                                                                                      //開場提示消失才能執行
         if (GameObject.FindWithTag("Window") == null)
         {
             NowTime = EnemyCreater.TimeDelay; //下波倒數時間
@@ -131,6 +132,19 @@ public class UIControl : MonoBehaviour
     ////勝利視窗////
     public void Victory()//遊戲勝利
     {
+        int Grade = 0;
+        if (PlayerHp >= PlayerHpMax * 9 / 10) Grade = 3; //剩餘血量有9成得3顆星
+        else if (PlayerHp >= PlayerHpMax * 7 / 10 && PlayerHp < PlayerHpMax*9/10) Grade = 2;//剩餘血量有7成得2顆星
+        else Grade = 1;                                  //剩餘血量有7成以下得1顆星
+
+        Chap = StandByScene.ChapterNow; Level = StandByScene.ChapterLevelNow; //如果過關了，就記錄這關的章節和關卡
+        //初次過關會送能量，1顆星星會+1能量，假設第一次只有1顆就+1能量，第二次3顆就再+2能量。
+        if (Grade > StandByScene.StarsNum[Chap - 1, Level - 1]) StandByScene.EnergyNow += (Grade - StandByScene.StarsNum[Chap - 1, Level - 1] );   
+        StandByScene.StarsNum[Chap- 1, Level - 1] = Grade;                    //記錄這關的星星數
+
+        for (int i = 0; i < Grade; i++) //勝利視窗的星星數
+            VictoryWindow.transform.GetChild(0).GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //過關幾顆星，就變亮幾顆星星
+
         GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
         VictoryWindow.transform.gameObject.SetActive(true);
     }
@@ -139,7 +153,6 @@ public class UIControl : MonoBehaviour
     public void GoodGame()//遊戲失敗
     {
         GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
-        Time.timeScale = 0;
         VictoryWindow.transform.gameObject.SetActive(false);
         GGWindow.transform.gameObject.SetActive(true);
     }
@@ -156,33 +169,9 @@ public class UIControl : MonoBehaviour
     }
     public void Window_YesNow()//回到開始場景
     {
-        SceneManager.LoadScene("開始場景");
+        SceneManager.LoadScene("準備場景");
     }
 
-    /*
-    ////難度視窗////
-    public void EasyMode()//簡單模式，金錢200，怪物血量90%
-    {
-        ModeWindow.transform.gameObject.SetActive(false);//關閉視窗，開始遊戲
-        StartGame();
-        PlayerMoney = 200;
-        Mode = 0.9f;
-    }
-    public void NormalMode()//正常模式，金錢150，怪物血量100%
-    {
-        ModeWindow.transform.gameObject.SetActive(false);
-        StartGame();
-        PlayerMoney = 150;
-        Mode = 1f;
-    }
-    public void HardMode()//困難模式，金錢100，怪物血量110%
-    {
-        ModeWindow.transform.gameObject.SetActive(false);
-        StartGame();
-        PlayerMoney = 100;
-        Mode = 1.1f;
-    }
-    */
 
 
 }

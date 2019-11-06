@@ -12,7 +12,7 @@ public class SpaceControl : MonoBehaviour
     public static int PlayerNum = 6;   //角色數量，讓其他腳本使用
     public static int[] LvMax = { 2, 2, 2, 2, 2, 2 };       //目前角色最大等級
     int LvMaxAll = 3;                  //可以提升的角色最大等級
-    public static float CoolTime = 3f; //建造砲塔的冷卻時間
+    public static float CoolTime = 3.01f; //建造砲塔的冷卻時間
     ////////////////
     int PictureState = 0;             //畫面狀態
     public static GameObject[] SpacePoints;         //所有空格的陣列名稱

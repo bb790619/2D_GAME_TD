@@ -13,6 +13,15 @@ public class StartScene : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        
+        //讀取檔案
+        #region
+        string XX = PlayerPrefs.GetString("Start");
+        print(XX);
+        if (XX == "True") Right = true;
+        else if (XX == "False") Right = false;
+        #endregion
+        
         Time.timeScale = 1; //讓遊戲不要處於暫停狀態
 
         //開場時問號視窗移至外面，讓問號視窗一直都在，用SetActive之後，NO的動畫不會執行
@@ -35,7 +44,20 @@ public class StartScene : MonoBehaviour
             Ani.speed = 10f;                          
         }
     }
+    private void Update()
+    {
+        if (Input.GetKeyDown("right"))
+        {
+            print("存檔");
+            PlayerPrefs.SetString("Start", Right.ToString());//存檔
+        }
 
+        if (Input.GetKeyDown("up"))
+        {
+            print("清除");
+            PlayerPrefs.DeleteKey("Start");//按"上"就清除存檔資料
+        }
+    }
 
     ////開始場景的按鍵功能
     public void NextScene() //開始場景的"開始"，會延遲1秒執行
@@ -57,7 +79,7 @@ public class StartScene : MonoBehaviour
     }
     public void Return() //開始場景的問號的"返回"
     {
-        Setting.transform.gameObject.SetActive(false);
+        Setting.transform.position = GameObject.Find("隱藏").transform.position; //點選返回時，讓視窗移置"穩藏"
     }
 
     public void SettingsYesNo() //"問號視窗"，選擇是否要跳過說明
