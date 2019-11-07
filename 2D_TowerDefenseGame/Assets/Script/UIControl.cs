@@ -28,7 +28,7 @@ public class UIControl : MonoBehaviour
 
     public Animator EndAni;                //守門人的動畫
 
-    public static int Chap,Level;  //這場遊戲的章節和關卡
+    public static int Chap, Level;  //這場遊戲的章節和關卡
 
     // Start is called before the first frame update
     void Start()
@@ -47,7 +47,7 @@ public class UIControl : MonoBehaviour
         //Invoke("Opening", 1f);        //遊戲場景會先淡出，開啟難度視窗，1秒後淡出消失，同時讓時間暫停
 
         NowTime = EnemyCreater.TimeDelay; //下波怪出現的時間
-        Chap = 0;Level = 0; //先初始化，如果過關再讀取這場遊戲的章節和關卡
+        Chap = 0; Level = 0; //先初始化，如果過關再讀取這場遊戲的章節和關卡
     }
 
     // Update is called once per frame
@@ -134,13 +134,22 @@ public class UIControl : MonoBehaviour
     {
         int Grade = 0;
         if (PlayerHp >= PlayerHpMax * 9 / 10) Grade = 3; //剩餘血量有9成得3顆星
-        else if (PlayerHp >= PlayerHpMax * 7 / 10 && PlayerHp < PlayerHpMax*9/10) Grade = 2;//剩餘血量有7成得2顆星
+        else if (PlayerHp >= PlayerHpMax * 7 / 10 && PlayerHp < PlayerHpMax * 9 / 10) Grade = 2;//剩餘血量有7成得2顆星
         else Grade = 1;                                  //剩餘血量有7成以下得1顆星
 
         Chap = StandByScene.ChapterNow; Level = StandByScene.ChapterLevelNow; //如果過關了，就記錄這關的章節和關卡
-        //初次過關會送能量，1顆星星會+1能量，假設第一次只有1顆就+1能量，第二次3顆就再+2能量。
-        if (Grade > StandByScene.StarsNum[Chap - 1, Level - 1]) StandByScene.EnergyNow += (Grade - StandByScene.StarsNum[Chap - 1, Level - 1] );   
-        StandByScene.StarsNum[Chap- 1, Level - 1] = Grade;                    //記錄這關的星星數
+        if (StandByScene.HardMode == false)//普通模式時
+        {  
+            //初次過關會送能量，1顆星星會+1能量，假設第一次只有1顆就+1能量，第二次3顆就再+2能量。
+            if (Grade > StandByScene.StarsNum[Chap - 1, Level - 1]) StandByScene.EnergyNow += (Grade - StandByScene.StarsNum[Chap - 1, Level - 1]);
+            StandByScene.StarsNum[Chap - 1, Level - 1] = Grade;                    //記錄這關的星星數
+        }
+        else if (StandByScene.HardMode == true)//困難模式時
+        {
+            if (Grade > StandByScene.StarsNumHard[Chap - 1, Level - 1]) StandByScene.EnergyNow += (Grade - StandByScene.StarsNumHard[Chap - 1, Level - 1]);
+            StandByScene.StarsNumHard[Chap - 1, Level - 1] = Grade;                    //記錄這關的星星數
+        }
+
 
         for (int i = 0; i < Grade; i++) //勝利視窗的星星數
             VictoryWindow.transform.GetChild(0).GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //過關幾顆星，就變亮幾顆星星

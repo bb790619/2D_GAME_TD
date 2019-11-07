@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 //控制"準備場景"的UI，放在"UI"上
 public class StandByScene : MonoBehaviour
 {
+    #region
     //放置視窗，按下個按鈕會跳出的視窗
     [Header("戰役")] public GameObject AdvtureWindow;
     [Header("天賦")] public GameObject TalentWindow;
@@ -21,7 +22,6 @@ public class StandByScene : MonoBehaviour
 
     //上方面板的能力數值
     public static int LevelNow = 1;          //現在等級
-    public static float LevelEXP = 5;       //升等所需經驗
     public static float LevelEXPMAX = 8;    //經驗的最大值(超過就升等)
     public static float LevelEXPNow = 0;     //現在經驗
     public static float BodyStrngthMAX = 30;//最大體力值
@@ -32,20 +32,31 @@ public class StandByScene : MonoBehaviour
 
     //控制戰役視窗
     [Header("章節按鍵底部")] public GameObject Chapter;     //放置章節
+    [Header("章節按鍵底部(困難模式)")] public GameObject ChapterHard;     //放置章節
     public static int ChapterMax;                           //章節的最大數量(在START計算)
     [Header("目前開放的章節")] public int ChapterLimit = 2; //目前開放的章節，假如等於2，代表只會開放到第二章
-    [Header("即將推出的文字")] public Text LimitTXT;
     [Header("關卡按鍵底部")] public GameObject[] ChapterLevel;  //放置關卡
+    [Header("關卡按鍵底部(困難模式")] public GameObject[] ChapterLevelHard;  //放置關卡
     public static int[] ChapterLevelMax;                        //各關卡的最大數量(在START計算)
+    [Header("選擇章節背景")] public GameObject ChapterBG;
+    [Header("選擇章節背景(困難模式)")] public GameObject ChapterBGHard;
     [Header("選擇關卡背景")] public GameObject ChapterLevelBG;
+    [Header("選擇關卡背景(困難模式)")] public GameObject ChapterLevelBGHard;
     public static int ChapterNow, ChapterLevelNow;        //現在選到的章節，現在選到的關卡
-    [Header("目前通過的章節")] public static int ChapterPass;
-    [Header("目前通過的關卡")] public static int[] ChapterLevelPass;
+    public static int ChapterPass;//目前通過的章節
+    public static int[] ChapterLevelPass;//目前通過的關卡
+    public static int[,] StarsNum = new int[5, 8];//目前過關的星星數
+    public static int ChapterPassHard;//目前通過的章節(困難模式)
+    public static int[] ChapterLevelPassHard;//目前通過的關卡(困難模式)
+    public static int[,] StarsNumHard = new int[5, 8];//目前過關的星星數(困難模式)
     [Header("選擇模式的文字")] public Text ChooseModeText;
     [Header("過關的星星數的圖片")] public GameObject PassStars;
     [Header("體力不足的文字")] public Text BodyStrngthTXT;
-    public static int[,] StarsNum = new int[5, 8];//目前過關的星星數，存檔用
+    [Header("即將推出的文字")] public Text LimitTXT;
+    [Header("即將推出的文字(困難模式)")] public Text LimitTXTHard;
+
     public static bool Repeat = true; //初始化數字
+    public static bool HardMode = false;//目前是否為困難模式
 
 
     //控制天賦視窗
@@ -69,6 +80,7 @@ public class StandByScene : MonoBehaviour
     [Header("點數不足的文字")] public Text EnergyTXT;
     public static bool LoadNow = true; //讀檔初始化，只有第一次開啟時會讀取檔案
     public static bool SaveNow = true; //為了清除數據，false就先不存檔
+    #endregion
 
     //存檔和讀檔
     #region
@@ -91,6 +103,13 @@ public class StandByScene : MonoBehaviour
         public int[] StarsNum_3 = new int[8];
         public int[] StarsNum_4 = new int[8];
         public int[] StarsNum_5 = new int[8];
+        public int ChapterPassHard;       //困難模式
+        public int[] ChapterLevelPassHard;
+        public int[] StarsNum_1_Hard = new int[8];
+        public int[] StarsNum_2_Hard = new int[8];
+        public int[] StarsNum_3_Hard = new int[8];
+        public int[] StarsNum_4_Hard = new int[8];
+        public int[] StarsNum_5_Hard = new int[8];
         public bool Repeat; //初始化數字
 
         public int[] TalentPoint; //天賦視窗，要提升的能力
@@ -104,6 +123,7 @@ public class StandByScene : MonoBehaviour
         data.LevelNow = LevelNow; data.LevelEXPMAX = LevelEXPMAX; data.LevelEXPNow = LevelEXPNow;
         data.BodyStrngthMAX = BodyStrngthMAX; data.BodyStrngthNow = BodyStrngthNow; data.EnergyNow = EnergyNow;
         data.ChapterPass = ChapterPass; data.ChapterLevelPass = ChapterLevelPass;
+        data.ChapterPassHard = ChapterPassHard; data.ChapterLevelPassHard = ChapterLevelPassHard;
         for (int i = 0; i < 8; i++)
         {
             data.StarsNum_1[i] = StarsNum[0, i];
@@ -111,6 +131,11 @@ public class StandByScene : MonoBehaviour
             data.StarsNum_3[i] = StarsNum[2, i];
             data.StarsNum_4[i] = StarsNum[3, i];
             data.StarsNum_5[i] = StarsNum[4, i];
+            data.StarsNum_1_Hard[i] = StarsNumHard[0, i];
+            data.StarsNum_2_Hard[i] = StarsNumHard[1, i];
+            data.StarsNum_3_Hard[i] = StarsNumHard[2, i];
+            data.StarsNum_4_Hard[i] = StarsNumHard[3, i];
+            data.StarsNum_5_Hard[i] = StarsNumHard[4, i];
         }
         data.Repeat = Repeat;
         data.TalentPoint = TalentPoint; data.TechPoint = TechPoint;
@@ -123,6 +148,7 @@ public class StandByScene : MonoBehaviour
         LevelNow = data.LevelNow; LevelEXPMAX = data.LevelEXPMAX; LevelEXPNow = data.LevelEXPNow;
         BodyStrngthMAX = data.BodyStrngthMAX; BodyStrngthNow = data.BodyStrngthNow; EnergyNow = data.EnergyNow;
         ChapterPass = data.ChapterPass; ChapterLevelPass = data.ChapterLevelPass;
+        ChapterPassHard = data.ChapterPassHard; ChapterLevelPassHard = data.ChapterLevelPassHard;
         for (int i = 0; i < 8; i++)
         {
             StarsNum[0, i] = data.StarsNum_1[i];
@@ -130,6 +156,11 @@ public class StandByScene : MonoBehaviour
             StarsNum[2, i] = data.StarsNum_3[i];
             StarsNum[3, i] = data.StarsNum_4[i];
             StarsNum[4, i] = data.StarsNum_5[i];
+            StarsNumHard[0, i] = data.StarsNum_1_Hard[i];
+            StarsNumHard[1, i] = data.StarsNum_2_Hard[i];
+            StarsNumHard[2, i] = data.StarsNum_3_Hard[i];
+            StarsNumHard[3, i] = data.StarsNum_4_Hard[i];
+            StarsNumHard[4, i] = data.StarsNum_5_Hard[i];
         }
         Repeat = data.Repeat;
         TalentPoint = data.TalentPoint; TechPoint = data.TechPoint;
@@ -141,6 +172,7 @@ public class StandByScene : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        print(Repeat);
         //戰役視窗，初始化
         #region
         //因為重新開啟時，數字都會歸0，使用Bool值讓初始化數值只執行一次
@@ -149,39 +181,46 @@ public class StandByScene : MonoBehaviour
             ChapterMax = Chapter.transform.childCount;  //章節的數量
             ChapterLevelMax = new int[ChapterMax];      //每個章節的最大關卡數量
             ChapterLevelPass = new int[ChapterMax];     //每個章節通過的關卡數量
-
+            ChapterLevelPassHard = new int[ChapterMax];     //每個章節通過的關卡數量
             for (int i = 0; i < ChapterMax; i++)
             {
                 ChapterLevelMax[i] = ChapterLevel[i].transform.childCount; //各關卡的數量
                 for (int j = 0; j < ChapterLevelMax[i]; j++)
                 {
                     ChapterLevelPass[i] = 0;
+                    ChapterLevelPassHard[i] = 0;
                 }
             }
             Repeat = false;
             Save();//沒存檔先讀檔會有問題，所以先存一次
-        } 
-        
-        if (LoadNow == true)//只有第一次開啟遊戲時會讀取檔案
+        }
+        /*
+        //只有第一次開啟遊戲時會讀取檔案
+        if (LoadNow == true)
         {
             data = JsonUtility.FromJson<PlayerData>(PlayerPrefs.GetString("JsonData"));
             Load();
             LoadNow = false;
         }
+        */
         for (int i = 0; i < ChapterMax; i++)//關卡的文字
         {
             for (int j = 0; j < ChapterLevelMax[i]; j++)
             {
                 ChapterLevel[i].transform.GetChild(j).GetChild(0).GetComponent<Text>().text = (i + 1) + "-" + (j + 1);
+                ChapterLevelHard[i].transform.GetChild(j).GetChild(0).GetComponent<Text>().text = (i + 1) + "-" + (j + 1);
             }
         }
         #endregion
 
-        //如果過關了
-        if (UIControl.Chap != 0 && UIControl.Level != 0)
-            PassChapterLevel(UIControl.Chap, UIControl.Level, StarsNum[UIControl.Chap - 1, UIControl.Level - 1]);
-
         LimitTXT.transform.gameObject.SetActive(false);
+        LimitTXTHard.transform.gameObject.SetActive(false);
+        //如果過關了
+        if (UIControl.Chap != 0 && UIControl.Level != 0 && HardMode == false) //普通模式
+            PassChapterLevel(UIControl.Chap, UIControl.Level, StarsNum[UIControl.Chap - 1, UIControl.Level - 1], HardMode);
+        else if (UIControl.Chap != 0 && UIControl.Level != 0 && HardMode == true) //困難模式
+            PassChapterLevel(UIControl.Chap, UIControl.Level, StarsNumHard[UIControl.Chap - 1, UIControl.Level - 1], HardMode);
+
         /*
           初始畫面為通過的關卡，假設要顯示第4章節第6關卡(代表已通過第三章節，已通過第四章節中的第5關卡)
           ChapterPass為通過的章節，假設為3，要顯示第4章節，所以就是ChapterPass+1   => "4" => 顯示第四章節的關卡
@@ -211,10 +250,16 @@ public class StandByScene : MonoBehaviour
         //過關，測試用。按"上"就是過關，星星數隨機產生
         if (Input.GetKeyDown("up"))
         {
-            StarsNum[ChapterNow - 1, ChapterLevelNow - 1] = Random.Range(1, 4);
-            print("過關" + ChapterNow + "-" + ChapterLevelNow + "的星星" + StarsNum[ChapterNow - 1, ChapterLevelNow - 1]);
-            PassChapterLevel(ChapterNow, ChapterLevelNow, StarsNum[ChapterNow - 1, ChapterLevelNow - 1]);
-            //StarsNum[UIControl.Chap - 1, UIControl.Level - 1]
+            if (HardMode == false)
+            {
+                StarsNum[ChapterNow - 1, ChapterLevelNow - 1] = Random.Range(1, 4);
+                PassChapterLevel(ChapterNow, ChapterLevelNow, StarsNum[ChapterNow - 1, ChapterLevelNow - 1], HardMode);
+            }
+            else if (HardMode == true)
+            {
+                StarsNumHard[ChapterNow - 1, ChapterLevelNow - 1] = Random.Range(1, 4);
+                PassChapterLevel(ChapterNow, ChapterLevelNow, StarsNumHard[ChapterNow - 1, ChapterLevelNow - 1], HardMode);
+            }
         }
         //存檔，測試用
         if (Input.GetKeyDown("right"))
@@ -239,110 +284,211 @@ public class StandByScene : MonoBehaviour
 
 
 
-    /// <summary>
-    /// 過關之後，關卡數+1，顯示星星數(過關的星星數)
-    /// </summary>
-    public void PassChapterLevel(int Chap, int ChapLevel, int Grade)
-    {
-        AdvtureWindow.SetActive(true);//先開啟視窗，紀錄星星數再關閉
-
-        if (ChapterPass < ChapterLimit) //小於最大關卡數，過關後關卡+ 1
-        {
-            //點選關卡後，過關會新增星星。星星會出現在關卡的父物件下。調整大小。
-            if (GameObject.Find("星星" + Chap + "-" + ChapLevel) == null) //如果沒有產生過星星，才會產生星星，避免重複產生
-            {
-                Instantiate(PassStars, ChapterLevel[Chap - 1].transform.GetChild(ChapLevel - 1).position, Quaternion.identity)
-                      .name = "星星" + Chap + "-" + ChapLevel;
-            }
-            GameObject.Find("星星" + Chap + "-" + ChapLevel)
-                       .transform.SetParent(ChapterLevel[Chap - 1].transform.GetChild(ChapLevel - 1));
-            GameObject.Find("星星" + Chap + "-" + ChapLevel)
-                       .transform.localScale = new Vector3(1, 1, 1);
-            //依照過關星星數改變顏色
-            for (int i = 0; i < Grade; i++)
-                GameObject.Find("星星" + Chap + "-" + ChapLevel).
-                    transform.GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255);
-            //如果關卡等於最新進度，關卡開放+1
-            if (Chap == ChapterPass + 1 && ChapLevel == ChapterLevelPass[ChapterPass] + 1)
-            {
-                ChapterLevelPass[ChapterPass] += 1; //關卡就+1
-                ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
-            }
-        }
-        //過關之後關卡數+1，如果超過最大關卡數，章節就+1
-        //如果破關到最大限制的章節，後面就顯示尚未推出，而且不能再點選
-        if (ChapterLevelPass[ChapterPass] >= ChapterLevelMax[ChapterPass])
-        {
-            if (ChapterPass + 1 < ChapterLimit) //小於最大關卡數，章節才能進位
-                ChapterPass += 1;
-        }
-        if (ChapterPass + 1 == ChapterLimit && ChapterLevelPass[ChapterPass] == ChapterLevelMax[ChapterPass])
-        {
-            LimitTXT.transform.gameObject.SetActive(true);
-            LimitTXT.transform.position = Chapter.transform.GetChild(ChapterLimit).position;
-        }
-
-        //過關之後，獲得經驗。若經驗值超過最大值則升等，並且提升經驗值的最大值
-        //升1等+1能量
-        LevelEXPNow += LevelEXP;
-        if (LevelEXPNow >= LevelEXPMAX)
-        {
-            LevelNow += 1;
-            LevelEXPNow = LevelEXPNow - LevelEXPMAX;
-            LevelEXPMAX *= 1.5f;
-            EnergyNow += 1;
-        }
-        AdvtureWindow.SetActive(false);
-    }
 
 
     ////////戰役視窗的按鍵功能////////
+    #region
     /// <summary>
-    /// 戰役視窗的按鍵功能，紀錄選到的章節及改變顏色(在面板上輸入章節關卡)
+    /// 過關之後，關卡數+1，顯示星星數[過關章節，過關關卡，過關的星星數，目前模式]
+    /// </summary>
+    /// <param name="Chap"></param>
+    /// <param name="ChapLevel"></param>
+    /// <param name="Grade"></param>
+    /// <param name="Mode"></param>
+    public void PassChapterLevel(int Chap, int ChapLevel, int Grade, bool Mode)
+    {
+        AdvtureWindow.SetActive(true);//先開啟視窗，紀錄星星數再關閉
+        if (Mode == false)//普通模式
+        #region
+        {
+            if (ChapterPass < ChapterLimit) //小於最大關卡數，過關後關卡+ 1
+            {
+                //點選關卡後，過關會新增星星。星星會出現在關卡的父物件下。調整大小。
+                if (GameObject.Find("星星" + Chap + "-" + ChapLevel) == null) //如果沒有產生過星星，才會產生星星，避免重複產生
+                {
+                    Instantiate(PassStars, ChapterLevel[Chap - 1].transform.GetChild(ChapLevel - 1).position, Quaternion.identity)
+                          .name = "星星" + Chap + "-" + ChapLevel;
+                }
+                GameObject.Find("星星" + Chap + "-" + ChapLevel)
+                           .transform.SetParent(ChapterLevel[Chap - 1].transform.GetChild(ChapLevel - 1));
+                GameObject.Find("星星" + Chap + "-" + ChapLevel)
+                           .transform.localScale = new Vector3(1, 1, 1);
+                //依照過關星星數改變顏色
+                for (int i = 0; i < Grade; i++)
+                    GameObject.Find("星星" + Chap + "-" + ChapLevel).
+                        transform.GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+                //如果關卡等於最新進度，關卡開放+1
+                if (Chap == ChapterPass + 1 && ChapLevel == ChapterLevelPass[ChapterPass] + 1)
+                {
+                    ChapterLevelPass[ChapterPass] += 1; //關卡就+1
+                    ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
+                }
+            }
+            //過關之後關卡數+1，如果超過最大關卡數，章節就+1
+            //如果破關到最大限制的章節，後面就顯示尚未推出，而且不能再點選
+            if (ChapterLevelPass[ChapterPass] >= ChapterLevelMax[ChapterPass])
+            {
+                if (ChapterPass + 1 < ChapterLimit) //小於最大關卡數，章節才能進位
+                    ChapterPass += 1;
+            }
+            if (ChapterPass + 1 == ChapterLimit && ChapterLevelPass[ChapterPass] == ChapterLevelMax[ChapterPass])
+            {
+                LimitTXT.transform.gameObject.SetActive(true);
+                LimitTXT.transform.position = Chapter.transform.GetChild(ChapterLimit).position;
+            }
+
+            //過關之後，獲得經驗。若經驗值超過最大值則升等，並且提升經驗值的最大值
+            //升1等+1能量
+            LevelEXPNow += BodyNormal + TalentPoint[1];
+            if (LevelEXPNow >= LevelEXPMAX)
+            {
+                LevelNow += 1;
+                LevelEXPNow = LevelEXPNow - LevelEXPMAX;
+                LevelEXPMAX *= 1.5f;
+                EnergyNow += 1;
+            }
+        }
+        #endregion
+        else if (Mode == true)//困難模式(基本上只是複製普通模式)
+        #region
+        {
+            if (ChapterPassHard < ChapterLimit) //小於最大關卡數，過關後關卡+ 1
+            {
+                //點選關卡後，過關會新增星星。星星會出現在關卡的父物件下。調整大小。
+                if (GameObject.Find("困難星星" + Chap + "-" + ChapLevel) == null) //如果沒有產生過星星，才會產生星星，避免重複產生
+                {
+                    Instantiate(PassStars, ChapterLevelHard[Chap - 1].transform.GetChild(ChapLevel - 1).position, Quaternion.identity)
+                          .name = "困難星星" + Chap + "-" + ChapLevel;
+                }
+                GameObject.Find("困難星星" + Chap + "-" + ChapLevel)
+                           .transform.SetParent(ChapterLevelHard[Chap - 1].transform.GetChild(ChapLevel - 1));
+                GameObject.Find("困難星星" + Chap + "-" + ChapLevel)
+                           .transform.localScale = new Vector3(1, 1, 1);
+                //依照過關星星數改變顏色
+                for (int i = 0; i < Grade; i++)
+                    GameObject.Find("困難星星" + Chap + "-" + ChapLevel).
+                        transform.GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+                //如果關卡等於最新進度，關卡開放+1
+                if (Chap == ChapterPassHard + 1 && ChapLevel == ChapterLevelPassHard[ChapterPassHard] + 1)
+                {
+                    ChapterLevelPassHard[ChapterPassHard] += 1; //關卡就+1
+                    ChooseButton("困難" + (ChapterPassHard + 1) + "-" + (ChapterLevelPassHard[ChapterPassHard] + 1));  //顯示目前已通過的關卡
+                }
+            }
+            //過關之後關卡數+1，如果超過最大關卡數，章節就+1
+            //如果破關到最大限制的章節，後面就顯示尚未推出，而且不能再點選
+            if (ChapterLevelPassHard[ChapterPassHard] >= ChapterLevelMax[ChapterPassHard])
+            {
+                if (ChapterPassHard + 1 < ChapterLimit) //小於最大關卡數，章節才能進位
+                    ChapterPassHard += 1;
+            }
+            if (ChapterPassHard + 1 == ChapterLimit && ChapterLevelPassHard[ChapterPassHard] == ChapterLevelMax[ChapterPassHard])
+            {
+                LimitTXTHard.transform.gameObject.SetActive(true);
+                LimitTXTHard.transform.position = Chapter.transform.GetChild(ChapterLimit).position;
+            }
+
+            //過關之後，獲得經驗。若經驗值超過最大值則升等，並且提升經驗值的最大值
+            //升1等+1能量
+            LevelEXPNow += BodyHard + TalentPoint[1];
+            if (LevelEXPNow >= LevelEXPMAX)
+            {
+                LevelNow += 1;
+                LevelEXPNow = LevelEXPNow - LevelEXPMAX;
+                LevelEXPMAX *= 1.5f;
+                EnergyNow += 1;
+            }
+        }
+        #endregion
+        AdvtureWindow.SetActive(false);
+    }
+    /// <summary>
+    /// 戰役視窗的按鍵功能，紀錄選到的章節及改變顏色[在面板上輸入的章節關卡，目前模式]
     /// </summary>
     /// <param name="Name"></param>
     public void ChooseButton(string Name)
     {
-        //第一章的按鍵為1-0，第二章為2-0...1-1顯示1-1，2-5顯示2-5..
-        for (int i = 0; i < ChapterMax; i++)
+        if (HardMode == false)//普通模式
         {
-
-            for (int j = 0; j <= ChapterLevelMax[i]; j++)
+            ChapterBGHard.SetActive(false);
+            ChapterLevelBGHard.SetActive(false);
+            //第一章的按鍵為1-0，第二章為2-0...1-1顯示1-1，2-5顯示2-5..
+            for (int i = 0; i < ChapterMax; i++)
             {
-                if (Name == (i + 1) + "-" + j)
+                for (int j = 0; j <= ChapterLevelMax[i]; j++)
                 {
-                    ChapterNow = i + 1;      //現在選到的章節
-                    ChapterLevelNow = j;     //現在選到的關卡
+                    if (Name == (i + 1) + "-" + j)
+                    {
+                        ChapterNow = i + 1;      //現在選到的章節
+                        ChapterLevelNow = j;     //現在選到的關卡
+                    }
                 }
             }
+            //按哪個章節，哪個關卡就出現，其他關卡隱藏
+            for (int i = 0; i < ChapterMax; i++)
+            {
+                if (ChapterNow == (i + 1))
+                {
+                    ChapterLevelBG.transform.GetChild(i).gameObject.SetActive(true);
+                    Chapter.transform.GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 0, 255); //選到的章節變黃色
+                }
+                else if (ChapterNow != (i + 1))
+                {
+                    ChapterLevelBG.transform.GetChild(i).gameObject.SetActive(false);
+                    Chapter.transform.GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //沒選到的章節顏色恢復
+                }
+            }
+            for (int j = 1; j <= ChapterLevelMax[ChapterNow - 1]; j++)//選到的關卡變黃色
+            {
+                if (ChapterLevelNow == j)
+                {
+                    ChapterLevel[ChapterNow - 1].transform.GetChild(j - 1).GetComponent<Image>().color = new Color32(255, 255, 0, 255); //選到的關卡變黃色
+                }
+                else if (ChapterLevelNow != j)
+                    ChapterLevel[ChapterNow - 1].transform.GetChild(j - 1).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //沒選到的關卡顏色恢復
+            }
         }
-
-        //按哪個章節，哪個關卡就出現，其他關卡隱藏
-        for (int i = 0; i < ChapterMax; i++)
+        else if (HardMode == true) //困難模式(複製普通模式)
         {
-            if (ChapterNow == (i + 1))
+            ChapterBG.SetActive(false);
+            ChapterLevelBG.SetActive(false);
+            //第一章的按鍵為1-0，第二章為2-0...1-1顯示1-1，2-5顯示2-5..
+            for (int i = 0; i < ChapterMax; i++)
             {
-                ChapterLevelBG.transform.GetChild(i).gameObject.SetActive(true);
-                Chapter.transform.GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 0, 255); //選到的章節變黃色
+                for (int j = 0; j <= ChapterLevelMax[i]; j++)
+                {
+                    if (Name == "困難" + (i + 1) + "-" + j)
+                    {
+                        ChapterNow = i + 1;      //現在選到的章節
+                        ChapterLevelNow = j;     //現在選到的關卡
+                    }
+                }
             }
-            else if (ChapterNow != (i + 1))
+            //按哪個章節，哪個關卡就出現，其他關卡隱藏
+            for (int i = 0; i < ChapterMax; i++)
             {
-                ChapterLevelBG.transform.GetChild(i).gameObject.SetActive(false);
-                Chapter.transform.GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //沒選到的章節顏色恢復
+                if (ChapterNow == (i + 1))
+                {
+                    ChapterLevelBGHard.transform.GetChild(i).gameObject.SetActive(true);
+                    ChapterHard.transform.GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 0, 255); //選到的章節變黃色
+                }
+                else if (ChapterNow != (i + 1))
+                {
+                    ChapterLevelBGHard.transform.GetChild(i).gameObject.SetActive(false);
+                    ChapterHard.transform.GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //沒選到的章節顏色恢復
+                }
+            }
+            for (int j = 1; j <= ChapterLevelMax[ChapterNow - 1]; j++)//選到的關卡變黃色
+            {
+                if (ChapterLevelNow == j)
+                {
+                    ChapterLevelHard[ChapterNow - 1].transform.GetChild(j - 1).GetComponent<Image>().color = new Color32(255, 255, 0, 255); //選到的關卡變黃色
+                }
+                else if (ChapterLevelNow != j)
+                    ChapterLevelHard[ChapterNow - 1].transform.GetChild(j - 1).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //沒選到的關卡顏色恢復
+
             }
         }
-
-        for (int j = 1; j <= ChapterLevelMax[ChapterNow - 1]; j++)//選到的關卡變黃色
-        {
-            if (ChapterLevelNow == j)
-            {
-                ChapterLevel[ChapterNow - 1].transform.GetChild(j - 1).GetComponent<Image>().color = new Color32(255, 255, 0, 255); //選到的關卡變黃色
-            }
-            else if (ChapterLevelNow != j)
-                ChapterLevel[ChapterNow - 1].transform.GetChild(j - 1).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //沒選到的關卡顏色恢復
-
-        }
-
     }
     /// <summary>
     /// 戰役視窗，未通過的關卡會被鎖按鍵
@@ -353,15 +499,32 @@ public class StandByScene : MonoBehaviour
         {
             for (int j = 0; j < ChapterLevelMax[i]; j++)  //關卡
             {
-                if (i <= ChapterPass && j <= ChapterLevelPass[i]) //解鎖
+                //普通模式
+                if (HardMode == false)
                 {
-                    Chapter.transform.GetChild(i).GetComponent<Button>().interactable = true;        //章節解鎖
-                    ChapterLevel[i].transform.GetChild(j).GetComponent<Button>().interactable = true;//關卡解鎖
+                    if (i <= ChapterPass && j <= ChapterLevelPass[i]) //解鎖
+                    {
+                        Chapter.transform.GetChild(i).GetComponent<Button>().interactable = true;        //章節解鎖
+                        ChapterLevel[i].transform.GetChild(j).GetComponent<Button>().interactable = true;//關卡解鎖
+                    }
+                    else if (i > ChapterPass)  //上鎖
+                        Chapter.transform.GetChild(i).GetComponent<Button>().interactable = false;    //章節上鎖
+                    else if (j > ChapterLevelPass[i])  //上鎖 
+                        ChapterLevel[i].transform.GetChild(j).GetComponent<Button>().interactable = false; //關卡上鎖
                 }
-                else if (i > ChapterPass)  //上鎖
-                    Chapter.transform.GetChild(i).GetComponent<Button>().interactable = false;    //章節上鎖
-                else if (j > ChapterLevelPass[i])  //上鎖 
-                    ChapterLevel[i].transform.GetChild(j).GetComponent<Button>().interactable = false; //關卡上鎖
+                //困難模式，必須通過普通模式才能解鎖困難模式
+                else if (HardMode == true)
+                {
+                    if (i <= ChapterPassHard && j <= ChapterLevelPassHard[i] ) //解鎖
+                    {
+                        ChapterHard.transform.GetChild(i).GetComponent<Button>().interactable = true;        //章節解鎖
+                        ChapterLevelHard[i].transform.GetChild(j).GetComponent<Button>().interactable = true;//關卡解鎖
+                    }
+                    else if (i > ChapterPassHard )  //上鎖
+                        ChapterHard.transform.GetChild(i).GetComponent<Button>().interactable = false;    //章節上鎖
+                    else if (j > ChapterLevelPassHard[i])  //上鎖 
+                        ChapterLevelHard[i].transform.GetChild(j).GetComponent<Button>().interactable = false; //關卡上鎖
+                }
             }
         }
     }
@@ -371,17 +534,31 @@ public class StandByScene : MonoBehaviour
     public void Mode()
     {
         string ModeTXT = ChooseModeText.GetComponent<Text>().text;
-        if (ModeTXT == "普通模式")
+        if (ModeTXT == "普通模式")//切換成困難模式
         {
-            ChooseModeText.GetComponent<Text>().text = "困難模式";
-            GameObject.Find("戰役視窗").GetComponent<Image>().sprite = Resources.Load<Sprite>("背景3");
-            GameObject.Find("消耗能量").transform.GetChild(0).GetComponent<Text>().text = "X" + BodyHard;
+            ChooseModeText.GetComponent<Text>().text = "困難模式";                                       //更換文字
+            GameObject.Find("戰役視窗").GetComponent<Image>().sprite = Resources.Load<Sprite>("背景3");  //更換圖片
+            GameObject.Find("消耗能量").transform.GetChild(0).GetComponent<Text>().text = "X" + BodyHard;//更換消耗能量文字
+            HardMode = true;
+            ChapterBG.SetActive(false);
+            ChapterLevelBG.SetActive(false);                                            //關閉普通視窗
+            ChapterBGHard.SetActive(true);
+            ChapterLevelBGHard.SetActive(true);                                         //開啟困難視窗
+            AppearStars();
+            ChooseButton("困難" + (ChapterPassHard + 1) + "-" + (ChapterLevelPassHard[ChapterPassHard] + 1));//移至最新的關卡
         }
-        else if (ModeTXT == "困難模式")
+        else if (ModeTXT == "困難模式")//切換成普通模式
         {
             ChooseModeText.GetComponent<Text>().text = "普通模式";
             GameObject.Find("戰役視窗").GetComponent<Image>().sprite = Resources.Load<Sprite>("背景2");
             GameObject.Find("消耗能量").transform.GetChild(0).GetComponent<Text>().text = "X" + BodyNormal;
+            HardMode = false;
+            ChapterBG.SetActive(true);
+            ChapterLevelBG.SetActive(true);
+            ChapterBGHard.SetActive(false);
+            ChapterLevelBGHard.SetActive(false);
+            AppearStars();
+            ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));
         }
     }
     /// <summary>
@@ -429,8 +606,55 @@ public class StandByScene : MonoBehaviour
     {
         SceneManager.LoadScene("遊戲場景");
     }
+    /// <summary>
+    /// 因為星星不會儲存，每次開啟場景會消失，所以要重新產生星星
+    /// </summary>
+    public void AppearStars()
+    {
+        for (int i = 0; i < ChapterMax; i++)//先開啟關卡視窗，不然會找不到是否有星星
+        {
+            ChapterLevelBG.transform.GetChild(i).gameObject.SetActive(true);
+            ChapterLevelBGHard.transform.GetChild(i).gameObject.SetActive(true);
+        }
 
-
+        if (HardMode == false)
+        {
+            for (int i = 0; i < ChapterPass + 1; i++)
+            {
+                for (int j = 0; j < ChapterLevelPass[i]; j++)
+                {
+                    if (GameObject.Find("星星" + (i + 1) + "-" + (j + 1)) == null) //如果沒有產生過星星，才會產生星星，避免重複產生
+                    {
+                        Instantiate(PassStars, ChapterLevel[i].transform.GetChild(j).position, Quaternion.identity).name = "星星" + (i + 1) + "-" + (j + 1);
+                    }
+                    GameObject.Find("星星" + (i + 1) + "-" + (j + 1)).transform.SetParent(ChapterLevel[i].transform.GetChild(j));
+                    GameObject.Find("星星" + (i + 1) + "-" + (j + 1)).transform.localScale = new Vector3(1, 1, 1);
+                    //依照過關星星數改變顏色
+                    for (int l = 0; l < StarsNum[i, j]; l++)
+                        GameObject.Find("星星" + (i + 1) + "-" + (j + 1)).transform.GetChild(l).GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+                }
+            }
+        }
+        else if (HardMode == true)
+        {
+            for (int i = 0; i < ChapterPassHard + 1; i++)
+            {
+                for (int j = 0; j < ChapterLevelPassHard[i]; j++)
+                {
+                    if (GameObject.Find("困難星星" + (i + 1) + "-" + (j + 1)) == null) //如果沒有產生過星星，才會產生星星，避免重複產生
+                    {
+                        Instantiate(PassStars, ChapterLevelHard[i].transform.GetChild(j).position, Quaternion.identity).name = "困難星星" + (i + 1) + "-" + (j + 1);
+                    }
+                    GameObject.Find("困難星星" + (i + 1) + "-" + (j + 1)).transform.SetParent(ChapterLevelHard[i].transform.GetChild(j));
+                    GameObject.Find("困難星星" + (i + 1) + "-" + (j + 1)).transform.localScale = new Vector3(1, 1, 1);
+                    //依照過關星星數改變顏色
+                    for (int l = 0; l < StarsNumHard[i, j]; l++)
+                        GameObject.Find("困難星星" + (i + 1) + "-" + (j + 1)).transform.GetChild(l).GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+                }
+            }
+        }
+    }
+    #endregion
 
     ////////天賦視窗的按鍵功能////////
     #region
@@ -474,7 +698,7 @@ public class StandByScene : MonoBehaviour
             {
                 BodyStrngthNow += 5; BodyStrngthMAX += 5;
             }
-            else if (TalentSpace == 1) LevelEXP += 1; //每升一級，過關經驗+1
+            else if (TalentSpace == 1) { }                         //每升一級，過關經驗+1
             else if (TalentSpace == 2) { }                         //每升一級，初始金錢+50。<UIControl>會增加
             else if (TalentSpace == 3) SpaceControl.CoolTime -= 1; //每升一級，冷卻時間-1秒
             else if (TalentSpace == 4) { }                         //每升一級，玩家生命+2。<UIControl>會增加
@@ -632,25 +856,32 @@ public class StandByScene : MonoBehaviour
     public void Window_Advture()
     {
         AdvtureWindow.SetActive(true);
-        //因為星星不會儲存，所以每次開啟場景會消失，所以改成開啟視窗就重新產生星星
-        for (int i = 0; i < ChapterMax; i++)//先開啟關卡視窗，不然會找不到是否有星星
-            ChapterLevelBG.transform.GetChild(i).gameObject.SetActive(true);
-        for (int i = 0; i < ChapterPass + 1; i++)
+        if (HardMode == false)//普通模式
         {
-            for (int j = 0; j < ChapterLevelPass[i]; j++)
-            {
-                if (GameObject.Find("星星" + (i + 1) + "-" + (j + 1)) == null) //如果沒有產生過星星，才會產生星星，避免重複產生
-                {
-                    Instantiate(PassStars, ChapterLevel[i].transform.GetChild(j).position, Quaternion.identity).name = "星星" + (i + 1) + "-" + (j + 1);
-                }
-                GameObject.Find("星星" + (i + 1) + "-" + (j + 1)).transform.SetParent(ChapterLevel[i].transform.GetChild(j));
-                GameObject.Find("星星" + (i + 1) + "-" + (j + 1)).transform.localScale = new Vector3(1, 1, 1);
-                //依照過關星星數改變顏色
-                for (int l = 0; l < StarsNum[i, j]; l++)
-                    GameObject.Find("星星" + (i + 1) + "-" + (j + 1)).transform.GetChild(l).GetComponent<Image>().color = new Color32(255, 255, 255, 255);
-            }
+            ChooseModeText.GetComponent<Text>().text = "普通模式";
+            GameObject.Find("戰役視窗").GetComponent<Image>().sprite = Resources.Load<Sprite>("背景2");
+            GameObject.Find("消耗能量").transform.GetChild(0).GetComponent<Text>().text = "X" + BodyNormal;
+            ChapterBG.SetActive(true);
+            ChapterLevelBG.SetActive(true);
+            ChapterBGHard.SetActive(false);
+            ChapterLevelBGHard.SetActive(false);
+            AppearStars();
+            ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
         }
-        ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡 
+        else if (HardMode == true)//困難模式
+        {
+            ChooseModeText.GetComponent<Text>().text = "困難模式";                                       //更換文字
+            GameObject.Find("戰役視窗").GetComponent<Image>().sprite = Resources.Load<Sprite>("背景3");  //更換圖片
+            GameObject.Find("消耗能量").transform.GetChild(0).GetComponent<Text>().text = "X" + BodyHard;//更換消耗能量文字
+            ChapterBG.SetActive(false);
+            ChapterLevelBG.SetActive(false);
+            ChapterBGHard.SetActive(true);
+            ChapterLevelBGHard.SetActive(true);
+            AppearStars();
+            ChooseButton("困難"+(ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
+        }
+
+
     }
     /// <summary>
     /// 打開天賦視窗
