@@ -112,7 +112,7 @@ public class WeaponControl : MonoBehaviour
         PlayerAni.SetTrigger("攻擊");                        //控制人物動畫-攻擊
 
         BulletDamageControl.Target[BulletDamageControl.BulletSerialNum] = TargetDir; //新增，紀錄子彈的目標座標。給<BulletControl>使用
-        BulletDamageControl.BulletSerialNum += 1;                                     //子彈流水號+1
+        BulletDamageControl.BulletSerialNum += 1;                                    //子彈流水號+1
     }
 
     /// <summary>

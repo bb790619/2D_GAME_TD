@@ -7,22 +7,36 @@ public class EnemyCreater : MonoBehaviour
 {
     //放置"敵人"的Prefab，並輸入編號，那場遊戲就使用那個怪物
     [Header("怪物的Prefab")] public GameObject[] EnemyPrefab;
-    [Header("使用哪個怪物的編號")] public int EnemyNumber;
-
+    //[Header("使用哪個怪物的編號")] public int EnemyNumber; //使用哪個怪物的編號
+    int EnemyNumber; //使用哪個怪物的編號
     //開場階段15秒，每波為30秒，每波出怪20隻(其餘為等待時間)
     public static float TimeDelay ;      //遊戲開場等待階段，讓<UIControl>來使用
-    public static float EnemyWaveTime = 5f; //每一波怪的時間，讓<UIControl>來使用
-    int EnemyNum = 2;                       //每波出怪數量
-
+    public static float EnemyWaveTime ;  //每一波怪的時間，讓<UIControl>來使用
+    int EnemyNum ;                       //每波出怪數量
 
     float Waiter = 1f;                    //出怪的間隔時間
-    public static int EnemyWave ;           //目前是第幾波怪(0是開場，1是第一波，以此類推)，讓<UIControl>來使用
-    public static int EnemyEnd = 2;         //出現幾波怪就結束遊戲
-    int EenmySerialNum;                     //怪物的流水號
+    public static int EnemyWave ;         //目前是第幾波怪(0是開場，1是第一波，以此類推)，讓<UIControl>來使用
+    public static int EnemyEnd =8;        //出現幾波怪就結束遊戲
+    int EenmySerialNum;                   //怪物的流水號
 
     // Start is called before the first frame update
     void Start()
     {
+        ////參數設定////
+        EnemyNumber = StandByScene.ChapterLevelNow-1; //依照關卡產生不同的怪物
+        if (StandByScene.HardMode == false) //普通模式
+        {
+            EnemyWaveTime = 15f;   //每一波怪的時間，讓<UIControl>來使用
+            EnemyNum = 8;          //每波出怪數量
+            EnemyEnd = 8;          //出現幾波怪就結束遊戲
+}
+        else if (StandByScene.HardMode == true)//困難模式
+        {
+            EnemyWaveTime = 25f;   //每一波怪的時間，讓<UIControl>來使用
+            EnemyNum =12;          //每波出怪數量
+            EnemyEnd =12;          //出現幾波怪就結束遊戲
+        }
+
         //重新開始時，參數復歸
         EnemyWave = 0;
         TimeDelay = 5f; //從這邊設定，開場階段時間

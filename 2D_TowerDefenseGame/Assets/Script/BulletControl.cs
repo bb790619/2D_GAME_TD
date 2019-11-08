@@ -28,10 +28,6 @@ public class BulletControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //砲彈從"此位子"至"怪物位子"，用一定速度移動
-        this.gameObject.transform.position = Vector3.Lerp(transform.position, BulletDamageControl.Target[PlayerNum], Speed * Time.deltaTime);
-
-
         //砲彈超過2秒就會消失
         if (SurviveTime <= 0f)
         {
@@ -39,6 +35,10 @@ public class BulletControl : MonoBehaviour
             Destroy(this.gameObject);
         }
         SurviveTime -= Time.deltaTime;
+
+        //砲彈從"此位子"至"怪物位子"，用一定速度移動
+        this.gameObject.transform.position = Vector3.Lerp(transform.position, BulletDamageControl.Target[PlayerNum], Speed * Time.deltaTime);
+
     }
 
     /// <summary>
@@ -87,9 +87,9 @@ public class BulletControl : MonoBehaviour
             else if (this.gameObject.name == "子彈2_" + i)
             {
                 //LV1傷害1倍，LV2傷害2倍，LV3傷害4倍
-                if (Lv == 1) BulletDamageControl.Damage[i] = Random.Range(25, 30);
-                else if (Lv == 2) BulletDamageControl.Damage[i] = Random.Range(55, 60);
-                else if (Lv == 3) BulletDamageControl.Damage[i] = Random.Range(110, 120);
+                if (Lv == 1) BulletDamageControl.Damage[i] = Random.Range(15, 20);
+                else if (Lv == 2) BulletDamageControl.Damage[i] = Random.Range(30, 40);
+                else if (Lv == 3) BulletDamageControl.Damage[i] = Random.Range(70, 90);
                 GetComponent<CircleCollider2D>().radius = 2f;  //攻擊範圍增加   
 
                 BulletDamageControl.Damage[i] += StandByScene.TechPoint[3] * 5;

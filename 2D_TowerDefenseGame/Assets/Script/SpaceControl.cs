@@ -41,7 +41,7 @@ public class SpaceControl : MonoBehaviour
 
     public GameObject[] Player;   //放置角色的預置物
     float TXTCountDown = 0f;      //"不能建造"文字的倒數計數器
-    public GameObject StartPoint; //"開始提示視窗"
+    GameObject StartPoint;        //"開始提示視窗"
 
     /*觸控間隔，時間內才算點擊，超過就算移動。無使用
     float begainTime = 0f;              //觸控螢幕開始的時間
@@ -75,7 +75,7 @@ public class SpaceControl : MonoBehaviour
         DontBuildTxt.gameObject.SetActive(false);
         DontLvUpTxt.gameObject.SetActive(false);
         NoMoney.gameObject.SetActive(false);
-
+        StartPoint = GameObject.Find("開始提示視窗");
     }
 
     // Update is called once per frame
@@ -183,7 +183,8 @@ public class SpaceControl : MonoBehaviour
         PictureState = 0;     //畫面狀態變為0，空格狀態此時為1就變為0                             
         for (int i = 0; i < SpacePoints.Length; i++)//當畫面狀態從1變為0時(空格消失)，空格狀態若為1則變為0(空格消失)
         {
-            ChangePic(SpacePoints[i].name, "空格"); //讓所有空格恢復空格圖案
+            if (StandByScene.HardMode == false) ChangePic(SpacePoints[i].name, "空格");        //讓所有空格恢復空格圖案，普通模式
+            else if (StandByScene.HardMode == true) ChangePic(SpacePoints[i].name, "紅色空格"); //讓所有空格恢復空格圖案，困難模式
 
             if (SpaceState[i] < 2)
             {
@@ -237,11 +238,16 @@ public class SpaceControl : MonoBehaviour
                 ChoosePlayerText.transform.position = Camera.main.WorldToScreenPoint(ChoosePlayer.transform.position);
 
                 Choose_i = i;         //紀錄被點選空格的位子，給BuildPlayer1()使用
-
-                ChangePic(SpacePoints[i].name, "選取空格"); //被點選的格子會換成選取空格的圖案
                 ChangePrice(ChoosePlayerText);//金錢
+                if (StandByScene.HardMode == false) ChangePic(SpacePoints[i].name, "選取空格");    //被點選的格子會換成選取空格的圖案，普通模式
+                else if (StandByScene.HardMode ==true) ChangePic(SpacePoints[i].name, "紅色選取空格"); //被點選的格子會換成選取空格的圖案，困難模式
+
             }
-            else ChangePic(SpacePoints[i].name, "空格");    //點選第二個空格時，讓第一個被選取的空格恢復空格圖案
+            else //點選第二個空格時，讓第一個被選取的空格恢復空格圖案
+            {
+                if (StandByScene.HardMode == false) ChangePic(SpacePoints[i].name, "空格");          //普通模式
+                else if (StandByScene.HardMode == true) ChangePic(SpacePoints[i].name, "紅色空格");  //困難模式
+            }
         }
 
         for (int i = 0; i < PlayerNum; i++)//錢不夠，視窗就會變暗

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
 
 
 //控制遊戲場景的UI及勝利和失敗視窗，放在"UI"上
@@ -26,7 +27,7 @@ public class UIControl : MonoBehaviour
     public Image GGWindow;                //失敗視窗("失敗視窗")
     public Image OptionWindow;            //暫停視窗("暫停視窗")
 
-    public Animator EndAni;                //守門人的動畫
+    Animator EndAni;                //守門人的動畫
 
     public static int Chap, Level;  //這場遊戲的章節和關卡
 
@@ -35,7 +36,7 @@ public class UIControl : MonoBehaviour
     {
         PlayerHpMax = 10 + StandByScene.TalentPoint[4] * 2;         //<StandByScene>的技能每升一級，玩家生命+2
         PlayerHp = PlayerHpMax;
-        PlayerMoney = 200 + StandByScene.TalentPoint[2] * 50; ;//<StandByScene>的技能每升一級，玩家金錢+50
+        PlayerMoney = 100 + StandByScene.TalentPoint[2] * 50; ;//<StandByScene>的技能每升一級，玩家金錢+50
 
         //transform.Find 可以找到隱藏的物件
         VictoryWindow.transform.gameObject.SetActive(false);
@@ -48,6 +49,8 @@ public class UIControl : MonoBehaviour
 
         NowTime = EnemyCreater.TimeDelay; //下波怪出現的時間
         Chap = 0; Level = 0; //先初始化，如果過關再讀取這場遊戲的章節和關卡
+
+        EndAni = GameObject.Find("守門人").GetComponent<Animator>();//守門人的動畫
     }
 
     // Update is called once per frame
@@ -98,7 +101,13 @@ public class UIControl : MonoBehaviour
         }
 
     }
-
+    /// <summary>
+    /// 開場1秒後(剛好淡出結束)，讓時間暫停
+    /// </summary>
+    public void Opening()
+    {
+        Time.timeScale = 0;
+    }
     /// <summary>
     /// 執行玩家扣血後的動畫
     /// </summary>
@@ -107,19 +116,23 @@ public class UIControl : MonoBehaviour
         EndAni.SetTrigger("攻擊");
     }
 
-    public void Opening()//開場1秒後(剛好淡出結束)，讓時間暫停
-    {
-        Time.timeScale = 0;
-    }
 
-    ////暫停視窗////
-    public void StartGame()//遊戲開始
+    ////////暫停視窗////////
+    #region
+    /// <summary>
+    /// 遊戲開始
+    /// </summary>
+    public void StartGame()
     {
         GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 0);//畫面恢復
-        Time.timeScale = 1;
+        if (GameObject.Find("加速按鍵").transform.GetChild(0).GetComponent<Text>().text == "x2")  Time.timeScale = 2;
+        else if (GameObject.Find("加速按鍵").transform.GetChild(0).GetComponent<Text>().text == "x1") Time.timeScale = 1;
         OptionWindow.transform.gameObject.SetActive(false);
     }
-    public void PauseGame()//遊戲暫停
+    /// <summary>
+    /// 遊戲暫停
+    /// </summary>
+    public void PauseGame()
     {
         if (GameObject.Find("難度視窗") == null)
         {
@@ -128,10 +141,13 @@ public class UIControl : MonoBehaviour
             OptionWindow.transform.gameObject.SetActive(true);
         }
     }
+    #endregion
 
-    ////勝利視窗////
-    public void Victory()//遊戲勝利
-    {
+    /// <summary>
+    /// 勝利視窗
+    /// </summary>
+    public void Victory()
+    {       
         int Grade = 0;
         if (PlayerHp >= PlayerHpMax * 9 / 10) Grade = 3; //剩餘血量有9成得3顆星
         else if (PlayerHp >= PlayerHpMax * 7 / 10 && PlayerHp < PlayerHpMax * 9 / 10) Grade = 2;//剩餘血量有7成得2顆星
@@ -139,7 +155,7 @@ public class UIControl : MonoBehaviour
 
         Chap = StandByScene.ChapterNow; Level = StandByScene.ChapterLevelNow; //如果過關了，就記錄這關的章節和關卡
         if (StandByScene.HardMode == false)//普通模式時
-        {  
+        {
             //初次過關會送能量，1顆星星會+1能量，假設第一次只有1顆就+1能量，第二次3顆就再+2能量。
             if (Grade > StandByScene.StarsNum[Chap - 1, Level - 1]) StandByScene.EnergyNow += (Grade - StandByScene.StarsNum[Chap - 1, Level - 1]);
             StandByScene.StarsNum[Chap - 1, Level - 1] = Grade;                    //記錄這關的星星數
@@ -157,9 +173,10 @@ public class UIControl : MonoBehaviour
         GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
         VictoryWindow.transform.gameObject.SetActive(true);
     }
-
-    ////失敗視窗////
-    public void GoodGame()//遊戲失敗
+    /// <summary>
+    /// 失敗視窗
+    /// </summary>
+    public void GoodGame()
     {
         GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
         VictoryWindow.transform.gameObject.SetActive(false);
@@ -167,20 +184,30 @@ public class UIControl : MonoBehaviour
     }
 
     ////勝利或失敗的按鍵////
-    public void Window_Yes()//再來一場，延遲一秒後回到開始場景
+    #region
+    /// <summary>
+    /// 再來一場，延遲一秒後回到開始場景
+    /// </summary>
+    public void Window_Yes()
     {
         Time.timeScale = 1;
         Invoke("Window_YesNow", 1f);
     }
-    public void Window_NO()//離開遊戲，關閉遊戲
+    /// <summary>
+    /// 離開遊戲，關閉遊戲
+    /// </summary>
+    public void Window_NO()
     {
         Application.Quit(); ;
     }
-    public void Window_YesNow()//回到開始場景
+    /// <summary>
+    /// 回到準備場景
+    /// </summary>
+    public void Window_YesNow()
     {
         SceneManager.LoadScene("準備場景");
     }
-
+    #endregion
 
 
 }

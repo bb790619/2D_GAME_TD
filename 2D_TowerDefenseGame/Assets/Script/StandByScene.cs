@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
 
 //控制"準備場景"的UI，放在"UI"上
 public class StandByScene : MonoBehaviour
 {
+    //欄位變數
     #region
     //放置視窗，按下個按鈕會跳出的視窗
     [Header("戰役")] public GameObject AdvtureWindow;
     [Header("天賦")] public GameObject TalentWindow;
     [Header("科技")] public GameObject TechnologyWindow;
+    [Header("選項")] public GameObject OptionWindow;
 
     //可以控制上方面板的能力值
     [Header("等級Text")] public GameObject LevelText;
@@ -31,13 +34,14 @@ public class StandByScene : MonoBehaviour
     int BodyHard = 10;  //困難模式扣10體力
 
     //控制戰役視窗
+    [Header("視窗的解說視窗")] public GameObject[] ExampleWindow; //放置問號
     [Header("章節按鍵底部")] public GameObject Chapter;     //放置章節
-    [Header("章節按鍵底部(困難模式)")] public GameObject ChapterHard;     //放置章節
+    [Header("章節按鍵底部(困難模式)")] public GameObject ChapterHard;     //放置章節(困難)
     public static int ChapterMax;                           //章節的最大數量(在START計算)
-    [Header("目前開放的章節")] public int ChapterLimit = 2; //目前開放的章節，假如等於2，代表只會開放到第二章
+    int ChapterLimit; //目前開放的章節，假如等於2，代表只會開放到第二章
     [Header("關卡按鍵底部")] public GameObject[] ChapterLevel;  //放置關卡
-    [Header("關卡按鍵底部(困難模式")] public GameObject[] ChapterLevelHard;  //放置關卡
-    public static int[] ChapterLevelMax;                        //各關卡的最大數量(在START計算)
+    [Header("關卡按鍵底部(困難模式")] public GameObject[] ChapterLevelHard;  //放置關卡(困難)
+    public static int[] ChapterLevelMax;                    //各關卡的最大數量(在START計算)
     [Header("選擇章節背景")] public GameObject ChapterBG;
     [Header("選擇章節背景(困難模式)")] public GameObject ChapterBGHard;
     [Header("選擇關卡背景")] public GameObject ChapterLevelBG;
@@ -55,7 +59,7 @@ public class StandByScene : MonoBehaviour
     [Header("即將推出的文字")] public Text LimitTXT;
     [Header("即將推出的文字(困難模式)")] public Text LimitTXTHard;
 
-    public static bool Repeat = true; //初始化數字
+    public static int Repeat; //初始化數字
     public static bool HardMode = false;//目前是否為困難模式
 
 
@@ -97,7 +101,7 @@ public class StandByScene : MonoBehaviour
         public int EnergyNow;       //現在能量值
 
         public int ChapterPass;       //目前通過的章節
-        public int[] ChapterLevelPass;//目前通過的關卡
+        public int[] ChapterLevelPass; //目前通過的關卡
         public int[] StarsNum_1 = new int[8];//目前過關的星星數，把二維分開成一維陣列
         public int[] StarsNum_2 = new int[8];
         public int[] StarsNum_3 = new int[8];
@@ -110,7 +114,7 @@ public class StandByScene : MonoBehaviour
         public int[] StarsNum_3_Hard = new int[8];
         public int[] StarsNum_4_Hard = new int[8];
         public int[] StarsNum_5_Hard = new int[8];
-        public bool Repeat; //初始化數字
+        //public bool Repeat; //初始化數字
 
         public int[] TalentPoint; //天賦視窗，要提升的能力
         public int[] TechPoint; //天賦視窗，要提升的能力(只有要升級的能力，沒有圖片)
@@ -137,7 +141,7 @@ public class StandByScene : MonoBehaviour
             data.StarsNum_4_Hard[i] = StarsNumHard[3, i];
             data.StarsNum_5_Hard[i] = StarsNumHard[4, i];
         }
-        data.Repeat = Repeat;
+        //data.Repeat = Repeat;
         data.TalentPoint = TalentPoint; data.TechPoint = TechPoint;
     }
     /// <summary>
@@ -162,39 +166,41 @@ public class StandByScene : MonoBehaviour
             StarsNumHard[3, i] = data.StarsNum_4_Hard[i];
             StarsNumHard[4, i] = data.StarsNum_5_Hard[i];
         }
-        Repeat = data.Repeat;
+        //Repeat = data.Repeat;
         TalentPoint = data.TalentPoint; TechPoint = data.TechPoint;
-        print("讀檔" + data);
-
     }
     #endregion
 
     // Start is called before the first frame update
     void Start()
     {
+        Repeat = PlayerPrefs.GetInt("Repeat"); //讀取檔案
         print(Repeat);
+        ChapterLimit = 4; //目前開放的章節，假如等於2，代表只會開放到第二章
+
         //戰役視窗，初始化
         #region
-        //因為重新開啟時，數字都會歸0，使用Bool值讓初始化數值只執行一次
-        if (Repeat == true)
+        ChapterMax = Chapter.transform.childCount;  //章節的數量
+        ChapterLevelMax = new int[ChapterMax];      //每個章節的最大關卡數量
+        ChapterLevelPass = new int[ChapterMax];     //每個章節通過的關卡數量
+        ChapterLevelPassHard = new int[ChapterMax];     //每個章節通過的關卡數量
+        for (int i = 0; i < ChapterMax; i++)
         {
-            ChapterMax = Chapter.transform.childCount;  //章節的數量
-            ChapterLevelMax = new int[ChapterMax];      //每個章節的最大關卡數量
-            ChapterLevelPass = new int[ChapterMax];     //每個章節通過的關卡數量
-            ChapterLevelPassHard = new int[ChapterMax];     //每個章節通過的關卡數量
-            for (int i = 0; i < ChapterMax; i++)
+            ChapterLevelMax[i] = ChapterLevel[i].transform.childCount; //各關卡的數量
+            for (int j = 0; j < ChapterLevelMax[i]; j++)
             {
-                ChapterLevelMax[i] = ChapterLevel[i].transform.childCount; //各關卡的數量
-                for (int j = 0; j < ChapterLevelMax[i]; j++)
-                {
-                    ChapterLevelPass[i] = 0;
-                    ChapterLevelPassHard[i] = 0;
-                }
+                ChapterLevelPass[i] = 0;
+                ChapterLevelPassHard[i] = 0;
             }
-            Repeat = false;
-            Save();//沒存檔先讀檔會有問題，所以先存一次
         }
-        /*
+        //因為重新開啟時，數字都會歸0，使用Bool值讓初始化數值只執行一次
+        if (Repeat == 0)
+        {
+            Repeat = 1;
+            Save();//沒存檔先讀檔會有問題，所以先存一次
+            PlayerPrefs.SetString("JsonData", JsonUtility.ToJson(data));
+        }
+        print(ChapterLevelPass[0]);
         //只有第一次開啟遊戲時會讀取檔案
         if (LoadNow == true)
         {
@@ -202,7 +208,7 @@ public class StandByScene : MonoBehaviour
             Load();
             LoadNow = false;
         }
-        */
+        print(ChapterLevelPass[0]);
         for (int i = 0; i < ChapterMax; i++)//關卡的文字
         {
             for (int j = 0; j < ChapterLevelMax[i]; j++)
@@ -212,7 +218,7 @@ public class StandByScene : MonoBehaviour
             }
         }
         #endregion
-
+        //隱藏文字
         LimitTXT.transform.gameObject.SetActive(false);
         LimitTXTHard.transform.gameObject.SetActive(false);
         //如果過關了
@@ -221,12 +227,7 @@ public class StandByScene : MonoBehaviour
         else if (UIControl.Chap != 0 && UIControl.Level != 0 && HardMode == true) //困難模式
             PassChapterLevel(UIControl.Chap, UIControl.Level, StarsNumHard[UIControl.Chap - 1, UIControl.Level - 1], HardMode);
 
-        /*
-          初始畫面為通過的關卡，假設要顯示第4章節第6關卡(代表已通過第三章節，已通過第四章節中的第5關卡)
-          ChapterPass為通過的章節，假設為3，要顯示第4章節，所以就是ChapterPass+1   => "4" => 顯示第四章節的關卡
-            ChapterLevelPass[0]=>第一章節通過的關卡數，所以要顯示第四章節的第6關卡數就是ChapterLevelPass[3]+1 => 4 - 6 
-        */
-        // ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
+        PlayerPrefs.SetInt("Repeat", Repeat);//存檔
 
     }
 
@@ -252,12 +253,12 @@ public class StandByScene : MonoBehaviour
         {
             if (HardMode == false)
             {
-                StarsNum[ChapterNow - 1, ChapterLevelNow - 1] = Random.Range(1, 4);
+                StarsNum[ChapterNow - 1, ChapterLevelNow - 1] = UnityEngine.Random.Range(1, 4);
                 PassChapterLevel(ChapterNow, ChapterLevelNow, StarsNum[ChapterNow - 1, ChapterLevelNow - 1], HardMode);
             }
             else if (HardMode == true)
             {
-                StarsNumHard[ChapterNow - 1, ChapterLevelNow - 1] = Random.Range(1, 4);
+                StarsNumHard[ChapterNow - 1, ChapterLevelNow - 1] = UnityEngine.Random.Range(1, 4);
                 PassChapterLevel(ChapterNow, ChapterLevelNow, StarsNumHard[ChapterNow - 1, ChapterLevelNow - 1], HardMode);
             }
         }
@@ -279,6 +280,10 @@ public class StandByScene : MonoBehaviour
         {
             print("清除");
             PlayerPrefs.DeleteKey("JsonData");
+            PlayerPrefs.DeleteKey("TimeData");
+            PlayerPrefs.DeleteKey("Repeat");
+            PlayerPrefs.DeleteKey("RepeatTime");
+            PlayerPrefs.DeleteKey("Start");
         }
     }
 
@@ -335,6 +340,7 @@ public class StandByScene : MonoBehaviour
             {
                 LimitTXT.transform.gameObject.SetActive(true);
                 LimitTXT.transform.position = Chapter.transform.GetChild(ChapterLimit).position;
+                LimitTXT.transform.SetParent(Chapter.transform.GetChild(ChapterLimit));
             }
 
             //過關之後，獲得經驗。若經驗值超過最大值則升等，並且提升經驗值的最大值
@@ -385,7 +391,8 @@ public class StandByScene : MonoBehaviour
             if (ChapterPassHard + 1 == ChapterLimit && ChapterLevelPassHard[ChapterPassHard] == ChapterLevelMax[ChapterPassHard])
             {
                 LimitTXTHard.transform.gameObject.SetActive(true);
-                LimitTXTHard.transform.position = Chapter.transform.GetChild(ChapterLimit).position;
+                LimitTXTHard.transform.position = ChapterHard.transform.GetChild(ChapterLimit).position;
+                LimitTXTHard.transform.SetParent(ChapterHard.transform.GetChild(ChapterLimit));
             }
 
             //過關之後，獲得經驗。若經驗值超過最大值則升等，並且提升經驗值的最大值
@@ -408,6 +415,11 @@ public class StandByScene : MonoBehaviour
     /// <param name="Name"></param>
     public void ChooseButton(string Name)
     {
+        /*
+          初始畫面為通過的關卡，假設要顯示第4章節第6關卡(代表已通過第三章節，已通過第四章節中的第5關卡)
+          ChapterPass為通過的章節，假設為3，要顯示第4章節，所以就是ChapterPass+1   => "4" => 顯示第四章節的關卡
+            ChapterLevelPass[0]=>第一章節通過的關卡數，所以要顯示第四章節的第6關卡數就是ChapterLevelPass[3]+1 => 4 - 6 
+        */
         if (HardMode == false)//普通模式
         {
             ChapterBGHard.SetActive(false);
@@ -515,12 +527,12 @@ public class StandByScene : MonoBehaviour
                 //困難模式，必須通過普通模式才能解鎖困難模式
                 else if (HardMode == true)
                 {
-                    if (i <= ChapterPassHard && j <= ChapterLevelPassHard[i] ) //解鎖
+                    if (i <= ChapterPassHard && j <= ChapterLevelPassHard[i]) //解鎖
                     {
                         ChapterHard.transform.GetChild(i).GetComponent<Button>().interactable = true;        //章節解鎖
                         ChapterLevelHard[i].transform.GetChild(j).GetComponent<Button>().interactable = true;//關卡解鎖
                     }
-                    else if (i > ChapterPassHard )  //上鎖
+                    else if (i > ChapterPassHard)  //上鎖
                         ChapterHard.transform.GetChild(i).GetComponent<Button>().interactable = false;    //章節上鎖
                     else if (j > ChapterLevelPassHard[i])  //上鎖 
                         ChapterLevelHard[i].transform.GetChild(j).GetComponent<Button>().interactable = false; //關卡上鎖
@@ -655,6 +667,23 @@ public class StandByScene : MonoBehaviour
         }
     }
     #endregion
+    /// <summary>
+    /// 開啟解說視窗
+    /// </summary>
+    public void ExampleOpen(int Name)
+    {
+        for (int i = 0; i < 3; i++) if (Name == i) ExampleWindow[i].SetActive(true);
+
+
+    }
+    /// <summary>
+    /// 關閉解說視窗
+    /// </summary>
+    public void ExampleClose(int Name)
+    {
+        for (int i = 0; i < 3; i++) if (Name == i) ExampleWindow[i].SetActive(false);
+    }
+
 
     ////////天賦視窗的按鍵功能////////
     #region
@@ -802,7 +831,7 @@ public class StandByScene : MonoBehaviour
     public void AbilityValue()
     {
         LevelText.GetComponent<Text>().text = LevelNow.ToString();                         //現在等級(文字)
-        LevelBar.GetComponent<Image>().fillAmount = LevelEXPNow / LevelEXPMAX;                 //現在經驗值(圖)
+        LevelBar.GetComponent<Image>().fillAmount = LevelEXPNow / LevelEXPMAX;              //現在經驗值(圖)
         BodyStrengthText.GetComponent<Text>().text = BodyStrngthNow + "/" + BodyStrngthMAX; //現在體力(文字)
         BodyStrengthBar.GetComponent<Image>().fillAmount = BodyStrngthNow / BodyStrngthMAX; //現在體力(圖)
         EnergyText.GetComponent<Text>().text = EnergyNow.ToString();                        //現在能量(文字)
@@ -849,6 +878,7 @@ public class StandByScene : MonoBehaviour
         TechnologyWindow.SetActive(false);
         TalentLevelUpWindow.SetActive(false);
         TechnologyLevelUpWindow.SetActive(false);
+        OptionWindow.SetActive(false);
     }
     /// <summary>
     /// 打開戰役視窗
@@ -866,6 +896,7 @@ public class StandByScene : MonoBehaviour
             ChapterBGHard.SetActive(false);
             ChapterLevelBGHard.SetActive(false);
             AppearStars();
+            print((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));
             ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
         }
         else if (HardMode == true)//困難模式
@@ -878,7 +909,7 @@ public class StandByScene : MonoBehaviour
             ChapterBGHard.SetActive(true);
             ChapterLevelBGHard.SetActive(true);
             AppearStars();
-            ChooseButton("困難"+(ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
+            ChooseButton("困難" + (ChapterPassHard + 1) + "-" + (ChapterLevelPassHard[ChapterPassHard] + 1));  //顯示目前已通過的關卡
         }
 
 
@@ -896,6 +927,20 @@ public class StandByScene : MonoBehaviour
     public void Window_Technology()
     {
         TechnologyWindow.SetActive(true);
+    }
+    /// <summary>
+    /// 打開選項視窗
+    /// </summary>
+    public void Window_Option()
+    {
+        OptionWindow.SetActive(true);
+    }
+    /// <summary>
+    /// "選項視窗"，離開遊戲，關閉遊戲
+    /// </summary>
+    public void Window_NO()
+    {
+        Application.Quit(); ;
     }
     #endregion
 

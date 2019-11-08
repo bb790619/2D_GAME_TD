@@ -11,6 +11,7 @@ public class BulletDamageControl : MonoBehaviour
     public static string[] Effect;               //額外效果名稱
     public static Vector3[] Target;              //子彈的目標座標
 
+    float SurviveTime=4;
     /*
        子彈傷害的計算方式，因為先前方法都會被覆蓋，所以分開計算
        先將子彈命名為，子彈X_Y ( X為子彈種類，Y為流水號)(流水號:讓每個數字分開，超過就重算)
