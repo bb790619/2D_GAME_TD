@@ -167,6 +167,21 @@ public class SpaceControl : MonoBehaviour
                 }
             }
         }
+        //錢不夠，視窗就會變暗
+        for (int i = 0; i < PlayerNum; i++)
+        {
+            if (UIControl.PlayerMoney < UIControl.Player_Price[LvMaxAll * (i)])
+            {
+                //ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<Image>().color = new Color32(100, 100, 100, 255); //進階視窗的圖案變暗，使用IMAGE
+                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);      //使用SPRITE
+            }
+
+            else
+            {
+                //ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<Image>().color = new Color32(255, 255, 255, 255);//進階視窗的圖案顏色恢復，使用IMAGE
+                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);    //使用SPRITE
+            }
+        }
     }
 
 
@@ -249,22 +264,6 @@ public class SpaceControl : MonoBehaviour
                 else if (StandByScene.HardMode == true) ChangePic(SpacePoints[i].name, "紅色空格");  //困難模式
             }
         }
-
-        for (int i = 0; i < PlayerNum; i++)//錢不夠，視窗就會變暗
-        {
-            if (UIControl.PlayerMoney < UIControl.Player_Price[LvMaxAll * (i)])
-            {
-                //ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<Image>().color = new Color32(100, 100, 100, 255); //進階視窗的圖案變暗，使用IMAGE
-                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);      //使用SPRITE
-            }
-
-            else
-            {
-                //ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<Image>().color = new Color32(255, 255, 255, 255);//進階視窗的圖案顏色恢復，使用IMAGE
-                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);    //使用SPRITE
-            }
-        }
-
     }
 
     ////選角視窗的功能，畫面狀態2時，觸碰角色視窗的按鈕建造角色////

@@ -82,8 +82,8 @@ public class StandByScene : MonoBehaviour
     int[] TechPointMax = { 5, 1, 5, 5, 1, 5, 5, 1, 5, 5, 1, 5, 5, 1, 5, 5, 1, 5 };//天賦視窗，要提升的能力的最大值(只有要升級的能力，沒有圖片)
 
     [Header("點數不足的文字")] public Text EnergyTXT;
-    public static bool LoadNow = true; //讀檔初始化，只有第一次開啟時會讀取檔案
     public static bool SaveNow = true; //為了清除數據，false就先不存檔
+    public static bool LoadNow = true; //開始遊戲時就執行一次，這樣切換場景就不會執行
     #endregion
 
     //存檔和讀檔
@@ -169,47 +169,77 @@ public class StandByScene : MonoBehaviour
         //Repeat = data.Repeat;
         TalentPoint = data.TalentPoint; TechPoint = data.TechPoint;
     }
+    /// <summary>
+    /// 讀取<UIControl>存的過關關卡和星星數
+    /// </summary>
+    public void LoadStar()
+    {
+        string Temp = PlayerPrefs.GetString("PassStar");
+        for (int i = 1; i <= 5; i++)
+        {
+            for (int j = 1; j <= 8; j++)
+            {
+                for (int k = 1; k <= 3; k++)
+                {
+                    if (Temp == i + "-" + j + "-" + k + "模式" + false)
+                    {
+                        ChapterNow = i;
+                        ChapterLevelNow = j;
+                        StarsNum[ChapterNow - 1, ChapterLevelNow - 1] = k;
+                        HardMode = false;
+                    }
+                    else if (Temp == i + "-" + j + "-" + k + "模式" + true)
+                    {
+                        ChapterNow = i;
+                        ChapterLevelNow = j;
+                        StarsNumHard[ChapterNow - 1, ChapterLevelNow - 1] = k;
+                        HardMode = true;
+                    }
+                }
+            }
+        }
+    }
     #endregion
 
     // Start is called before the first frame update
     void Start()
     {
+        /*因為要讀檔前需要先建立存檔資料，可是這樣每次開始時，沒讀檔又被覆蓋
+        所以這裡另外儲存資料，只有第一次開啟遊戲才會執行存檔再讀檔，之後開始時都不會存檔就直接讀檔*/
         Repeat = PlayerPrefs.GetInt("Repeat"); //讀取檔案
-        print(Repeat);
         ChapterLimit = 4; //目前開放的章節，假如等於2，代表只會開放到第二章
 
         //戰役視窗，初始化
         #region
-        ChapterMax = Chapter.transform.childCount;  //章節的數量
-        ChapterLevelMax = new int[ChapterMax];      //每個章節的最大關卡數量
-        ChapterLevelPass = new int[ChapterMax];     //每個章節通過的關卡數量
-        ChapterLevelPassHard = new int[ChapterMax];     //每個章節通過的關卡數量
-        for (int i = 0; i < ChapterMax; i++)
+        //隱藏文字
+        LimitTXT.transform.gameObject.SetActive(false);
+        LimitTXTHard.transform.gameObject.SetActive(false);
+        if (LoadNow == true)
         {
-            ChapterLevelMax[i] = ChapterLevel[i].transform.childCount; //各關卡的數量
-            for (int j = 0; j < ChapterLevelMax[i]; j++)
+            ChapterMax = Chapter.transform.childCount;  //章節的數量
+            ChapterLevelMax = new int[ChapterMax];      //每個章節的最大關卡數量
+            ChapterLevelPass = new int[ChapterMax];     //每個章節通過的關卡數量
+            ChapterLevelPassHard = new int[ChapterMax];     //每個章節通過的關卡數量
+            for (int i = 0; i < ChapterMax; i++)
             {
-                ChapterLevelPass[i] = 0;
-                ChapterLevelPassHard[i] = 0;
+                ChapterLevelMax[i] = ChapterLevel[i].transform.childCount; //各關卡的數量
+                for (int j = 0; j < ChapterLevelMax[i]; j++)
+                {
+                    ChapterLevelPass[i] = 0;
+                    ChapterLevelPassHard[i] = 0;
+                }
             }
+            LoadNow = false;
         }
-        //因為重新開啟時，數字都會歸0，使用Bool值讓初始化數值只執行一次
+        //因為重新開啟時，數字都會歸0，使用Bool值讓初始化數值，第一次開啟遊戲才會執行，之後都不會執行
         if (Repeat == 0)
         {
             Repeat = 1;
             Save();//沒存檔先讀檔會有問題，所以先存一次
             PlayerPrefs.SetString("JsonData", JsonUtility.ToJson(data));
         }
-        print(ChapterLevelPass[0]);
-        //只有第一次開啟遊戲時會讀取檔案
-        if (LoadNow == true)
-        {
-            data = JsonUtility.FromJson<PlayerData>(PlayerPrefs.GetString("JsonData"));
-            Load();
-            LoadNow = false;
-        }
-        print(ChapterLevelPass[0]);
-        for (int i = 0; i < ChapterMax; i++)//關卡的文字
+        //關卡的文字
+        for (int i = 0; i < ChapterMax; i++)
         {
             for (int j = 0; j < ChapterLevelMax[i]; j++)
             {
@@ -217,18 +247,15 @@ public class StandByScene : MonoBehaviour
                 ChapterLevelHard[i].transform.GetChild(j).GetChild(0).GetComponent<Text>().text = (i + 1) + "-" + (j + 1);
             }
         }
-        #endregion
-        //隱藏文字
-        LimitTXT.transform.gameObject.SetActive(false);
-        LimitTXTHard.transform.gameObject.SetActive(false);
-        //如果過關了
-        if (UIControl.Chap != 0 && UIControl.Level != 0 && HardMode == false) //普通模式
-            PassChapterLevel(UIControl.Chap, UIControl.Level, StarsNum[UIControl.Chap - 1, UIControl.Level - 1], HardMode);
-        else if (UIControl.Chap != 0 && UIControl.Level != 0 && HardMode == true) //困難模式
-            PassChapterLevel(UIControl.Chap, UIControl.Level, StarsNumHard[UIControl.Chap - 1, UIControl.Level - 1], HardMode);
-
         PlayerPrefs.SetInt("Repeat", Repeat);//存檔
-
+        #endregion
+        //讀取檔案
+        data = JsonUtility.FromJson<PlayerData>(PlayerPrefs.GetString("JsonData"));
+        Load();//讀取關閉之前的檔案
+        LoadStar();//讀取過關的星星數
+        //如果過關了
+        if (UIControl.Chap != 0 && UIControl.Level != 0)
+            PassChapterLevel(ChapterNow, ChapterLevelNow, StarsNum[ChapterNow - 1, ChapterLevelNow - 1], HardMode);
     }
 
     // Update is called once per frame
@@ -279,16 +306,15 @@ public class StandByScene : MonoBehaviour
         if (Input.GetKeyDown("down"))
         {
             print("清除");
+            PlayerPrefs.DeleteAll();
+            /*
             PlayerPrefs.DeleteKey("JsonData");
             PlayerPrefs.DeleteKey("TimeData");
             PlayerPrefs.DeleteKey("Repeat");
             PlayerPrefs.DeleteKey("RepeatTime");
-            PlayerPrefs.DeleteKey("Start");
+            PlayerPrefs.DeleteKey("Start");*/
         }
     }
-
-
-
 
 
     ////////戰役視窗的按鍵功能////////
@@ -666,15 +692,12 @@ public class StandByScene : MonoBehaviour
             }
         }
     }
-    #endregion
     /// <summary>
     /// 開啟解說視窗
     /// </summary>
     public void ExampleOpen(int Name)
     {
         for (int i = 0; i < 3; i++) if (Name == i) ExampleWindow[i].SetActive(true);
-
-
     }
     /// <summary>
     /// 關閉解說視窗
@@ -683,7 +706,7 @@ public class StandByScene : MonoBehaviour
     {
         for (int i = 0; i < 3; i++) if (Name == i) ExampleWindow[i].SetActive(false);
     }
-
+    #endregion
 
     ////////天賦視窗的按鍵功能////////
     #region
@@ -896,7 +919,6 @@ public class StandByScene : MonoBehaviour
             ChapterBGHard.SetActive(false);
             ChapterLevelBGHard.SetActive(false);
             AppearStars();
-            print((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));
             ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
         }
         else if (HardMode == true)//困難模式

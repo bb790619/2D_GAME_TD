@@ -162,15 +162,17 @@ public class UIControl : MonoBehaviour
         }
         else if (StandByScene.HardMode == true)//困難模式時
         {
+            print("困難");
             if (Grade > StandByScene.StarsNumHard[Chap - 1, Level - 1]) StandByScene.EnergyNow += (Grade - StandByScene.StarsNumHard[Chap - 1, Level - 1]);
             StandByScene.StarsNumHard[Chap - 1, Level - 1] = Grade;                    //記錄這關的星星數
         }
-
-
         for (int i = 0; i < Grade; i++) //勝利視窗的星星數
             VictoryWindow.transform.GetChild(0).GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //過關幾顆星，就變亮幾顆星星
-
         GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
+        
+        //儲存過關的關卡+星星數+難度
+        string Temp = Chap + "-" + Level + "-" + Grade+"模式"+ StandByScene.HardMode; 
+        PlayerPrefs.SetString("PassStar", Temp);//存檔
         VictoryWindow.transform.gameObject.SetActive(true);
     }
     /// <summary>

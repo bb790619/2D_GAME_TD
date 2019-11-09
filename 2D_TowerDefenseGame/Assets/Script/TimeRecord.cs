@@ -66,7 +66,6 @@ public class TimeRecord : MonoBehaviour
     void Start()
     {
         Repeat = PlayerPrefs.GetInt("RepeatTime"); //讀取檔案
-        print(Repeat);
         //共用同一個存檔，只有第一次執行會存檔，避免數值一直被更新歸0
         if (Repeat == 0)
         {
@@ -142,7 +141,6 @@ public class TimeRecord : MonoBehaviour
         //經過多少秒
         TimeEnd = Second + 60 * Min + 60 * 60 * Hour + 60 * 60 * 24 * Day + 60 * 60 * 24 * 30 * Month + 60 * 60 * 24 * 30 * 12 * Year;
         TimeNow += TimeEnd;
-        print("經過"+TimeEnd+"秒，"+TimeNow);
     }
 
 }
