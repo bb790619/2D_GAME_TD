@@ -167,21 +167,27 @@ public class SpaceControl : MonoBehaviour
                 }
             }
         }
-        //錢不夠，視窗就會變暗
-        for (int i = 0; i < PlayerNum; i++)
-        {
-            if (UIControl.PlayerMoney < UIControl.Player_Price[LvMaxAll * (i)])
-            {
-                //ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<Image>().color = new Color32(100, 100, 100, 255); //進階視窗的圖案變暗，使用IMAGE
-                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);      //使用SPRITE
-            }
 
-            else
+        // 如果打開選角視窗或進階視窗時，讓金額變動時，視窗顏色也會跟著改變
+        //錢不夠，視窗就會變暗，錢足夠視窗就恢復
+        #region
+        for (int i = 0; i < PlayerNum; i++)//選角視窗
+        {
+            if (UIControl.PlayerMoney < UIControl.Player_Price[LvMaxAll * (i)]) ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);      //使用SPRITE
+            else ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);    //使用SPRITE
+        }
+        if (ChoosePlayerPlus.activeSelf == true)//進階視窗
+        {
+            for (int i = 1; i < PlayerNum + 1; i++)  //判斷是"Player" + i
             {
-                //ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<Image>().color = new Color32(255, 255, 255, 255);//進階視窗的圖案顏色恢復，使用IMAGE
-                ChoosePlayer.transform.GetChild(i).GetChild(0).GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);    //使用SPRITE
+                if (PlayerTag == "Player" + i)//超過最高等級，或者錢不夠，視窗就會變暗
+                {
+                    if (LvState[Choose_j] + 1 > LvMax[i - 1] || UIControl.PlayerMoney < PriceTemp) GameObject.Find("升級圖案").GetComponent<SpriteRenderer>().color = new Color32(100, 100, 100, 255);
+                    else GameObject.Find("升級圖案").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);
+                }
             }
         }
+        #endregion
     }
 
 
@@ -255,7 +261,7 @@ public class SpaceControl : MonoBehaviour
                 Choose_i = i;         //紀錄被點選空格的位子，給BuildPlayer1()使用
                 ChangePrice(ChoosePlayerText);//金錢
                 if (StandByScene.HardMode == false) ChangePic(SpacePoints[i].name, "選取空格");    //被點選的格子會換成選取空格的圖案，普通模式
-                else if (StandByScene.HardMode ==true) ChangePic(SpacePoints[i].name, "紅色選取空格"); //被點選的格子會換成選取空格的圖案，困難模式
+                else if (StandByScene.HardMode == true) ChangePic(SpacePoints[i].name, "紅色選取空格"); //被點選的格子會換成選取空格的圖案，困難模式
 
             }
             else //點選第二個空格時，讓第一個被選取的空格恢復空格圖案
@@ -330,7 +336,7 @@ public class SpaceControl : MonoBehaviour
 
                     //GameObject.Find("升級圖案").GetComponent<Image>().sprite = Resources.Load<Sprite>("Player/頭像/角色-0" + i); //更換進階視窗的圖片，使用Image
                     ChangePic("升級圖案", "Player/頭像/角色-0" + i); //更換進階視窗的圖片，使用SPRITE
-
+                    /*
                     if (LvNext > LvMax[i - 1] || UIControl.PlayerMoney < PriceTemp)//超過最高等級，或者錢不夠，視窗就會變暗
                     {
                         //GameObject.Find("升級圖案").GetComponent<Image>().color = new Color32(100, 100, 100, 255);  //進階視窗的圖案顏色變暗，使用Image
@@ -341,7 +347,7 @@ public class SpaceControl : MonoBehaviour
                         //GameObject.Find("升級圖案").GetComponent<Image>().color = new Color32(255, 255, 255, 255);   //進階視窗的圖案顏色恢復，使用Image
                         GameObject.Find("升級圖案").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 255);  //使用SPRITE
                     }
-
+                    */
                 }
             }
         }
@@ -392,7 +398,6 @@ public class SpaceControl : MonoBehaviour
                 Name.transform.GetChild(0).GetChild(0).GetComponent<Text>().text = "MAX";
             }
         }
-
     }
 
     /// <summary>
