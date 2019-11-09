@@ -28,15 +28,22 @@ public class UIControl : MonoBehaviour
     public Image OptionWindow;            //暫停視窗("暫停視窗")
 
     Animator EndAni;                //守門人的動畫
+    float TimeCount = 3;            //延遲時間開啟勝利視窗
+    bool Vic = false;               //讓計算勝利結果只會執行一次(和TimeCount一起使用)
 
     public static int Chap, Level;  //這場遊戲的章節和關卡
+    int Win = 0; //初始值為0，獲勝就為1
 
     // Start is called before the first frame update
     void Start()
     {
-        PlayerHpMax = 10 + StandByScene.TalentPoint[4] * 2;         //<StandByScene>的技能每升一級，玩家生命+2
+        PlayerHpMax = 10 + StandByScene.TalentPoint[4] * 2;    //<StandByScene>的技能每升一級，玩家生命+2
         PlayerHp = PlayerHpMax;
         PlayerMoney = 100 + StandByScene.TalentPoint[2] * 50; ;//<StandByScene>的技能每升一級，玩家金錢+50
+
+        Player_Price[3] =35; Player_Price[4] = 65; Player_Price[5] = 120; //固定初值，這樣就不會一直累加(目前想不到更好的，只好手動打一樣的數值)
+        for (int i = 3; i <= 5; i++)  Player_Price[i] -= StandByScene.TechPoint[5] * 3;//<StandByScene>的技能，角色2額外能力，減少成本
+
 
         //transform.Find 可以找到隱藏的物件
         VictoryWindow.transform.gameObject.SetActive(false);
@@ -51,6 +58,9 @@ public class UIControl : MonoBehaviour
         Chap = 0; Level = 0; //先初始化，如果過關再讀取這場遊戲的章節和關卡
 
         EndAni = GameObject.Find("守門人").GetComponent<Animator>();//守門人的動畫
+
+        //如果過關才會加經驗，如果過關關掉遊戲再重開，也會紀錄
+        PlayerPrefs.SetInt("Win", Win);//存檔，為了加經驗
     }
 
     // Update is called once per frame
@@ -58,7 +68,7 @@ public class UIControl : MonoBehaviour
     {
         GameObject.Find("金錢TXT").GetComponent<Text>().text = PlayerMoney.ToString();  //顯示金錢
         GameObject.Find("生命TXT").GetComponent<Text>().text = PlayerHp.ToString();     //顯示玩家生命
-                                                                                      //開場提示消失才能執行
+                                                                                       //開場提示消失才能執行
         if (GameObject.FindWithTag("Window") == null)
         {
             NowTime = EnemyCreater.TimeDelay; //下波倒數時間
@@ -72,15 +82,19 @@ public class UIControl : MonoBehaviour
         //失敗條件
         if (PlayerHp <= 0)
         {
-            Invoke("GoodGame", 5f);       //如果輸了，延遲1秒出現失敗視窗
+            Invoke("GoodGame", 3f);       //如果輸了，延遲1秒出現失敗視窗
             EndAni.SetBool("結束", true);  //執行玩家輸了的動畫
             GameObject.Find("Main Camera").GetComponent<AudioSource>().enabled = false;//關閉背景音樂
         }
         //勝利條件，撐過所有波數，血量大於0，而且怪全都消失了會出現勝利視窗
         if (Wave > EnemyCreater.EnemyEnd && PlayerHp > 0 && GameObject.FindWithTag("Enemy") == null)
         {
-            Invoke("Victory", 3f);//如果贏了，延遲3秒出現勝利視窗
-            GameObject.Find("Main Camera").GetComponent<AudioSource>().enabled = false;//關閉背景音樂
+            TimeCount -= Time.deltaTime;
+            if (TimeCount <= 0 & Vic==false)
+            {
+                Victory(); //出現勝利視窗(等於延遲3秒)，執行
+                Vic = true;
+            }
         }
     }
 
@@ -147,33 +161,25 @@ public class UIControl : MonoBehaviour
     /// 勝利視窗
     /// </summary>
     public void Victory()
-    {       
-        int Grade = 0;
+    {
+        GameObject.Find("Main Camera").GetComponent<AudioSource>().enabled = false;//關閉背景音樂
+        VictoryWindow.transform.gameObject.SetActive(true);                        //開啟勝利視窗
+        int Grade = 0; 
         if (PlayerHp >= PlayerHpMax * 9 / 10) Grade = 3; //剩餘血量有9成得3顆星
         else if (PlayerHp >= PlayerHpMax * 7 / 10 && PlayerHp < PlayerHpMax * 9 / 10) Grade = 2;//剩餘血量有7成得2顆星
         else Grade = 1;                                  //剩餘血量有7成以下得1顆星
-
         Chap = StandByScene.ChapterNow; Level = StandByScene.ChapterLevelNow; //如果過關了，就記錄這關的章節和關卡
-        if (StandByScene.HardMode == false)//普通模式時
-        {
-            //初次過關會送能量，1顆星星會+1能量，假設第一次只有1顆就+1能量，第二次3顆就再+2能量。
-            if (Grade > StandByScene.StarsNum[Chap - 1, Level - 1]) StandByScene.EnergyNow += (Grade - StandByScene.StarsNum[Chap - 1, Level - 1]);
-            StandByScene.StarsNum[Chap - 1, Level - 1] = Grade;                    //記錄這關的星星數
-        }
-        else if (StandByScene.HardMode == true)//困難模式時
-        {
-            print("困難");
-            if (Grade > StandByScene.StarsNumHard[Chap - 1, Level - 1]) StandByScene.EnergyNow += (Grade - StandByScene.StarsNumHard[Chap - 1, Level - 1]);
-            StandByScene.StarsNumHard[Chap - 1, Level - 1] = Grade;                    //記錄這關的星星數
-        }
+
         for (int i = 0; i < Grade; i++) //勝利視窗的星星數
             VictoryWindow.transform.GetChild(0).GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //過關幾顆星，就變亮幾顆星星
         GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
-        
+
         //儲存過關的關卡+星星數+難度
-        string Temp = Chap + "-" + Level + "-" + Grade+"模式"+ StandByScene.HardMode; 
-        PlayerPrefs.SetString("PassStar", Temp);//存檔
-        VictoryWindow.transform.gameObject.SetActive(true);
+        string Temp = Chap + "-" + Level + "-" + Grade+"模式"+ StandByScene.HardMode;
+        PlayerPrefs.SetString("PassStar", Temp);//存檔，為了加星星和能量
+        Win = 1; //獲勝就為1
+        PlayerPrefs.SetInt("Win", Win);         //存檔，為了加經驗
+        print(Win);
     }
     /// <summary>
     /// 失敗視窗

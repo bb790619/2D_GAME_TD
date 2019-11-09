@@ -30,6 +30,7 @@ public class StandByScene : MonoBehaviour
     public static float BodyStrngthMAX = 30;//最大體力值
     public static float BodyStrngthNow = 30;//現在體力值
     public static int EnergyNow = 1;       //現在能量值
+    int EnergyTemp = 0;                     //過關獲得的能量值，讀取<UIControl>存檔的值來使用 
     int BodyNormal = 5;  //普通模式扣5體力
     int BodyHard = 10;  //困難模式扣10體力
 
@@ -61,6 +62,7 @@ public class StandByScene : MonoBehaviour
 
     public static int Repeat; //初始化數字
     public static bool HardMode = false;//目前是否為困難模式
+    int[] PassStarChap = { 0, 0 };    //避免過關後關機，沒有到準備場景存檔時，"PassStar"就存檔過關資料，這裡紀錄過關的章節[0]和關卡[1]
 
 
     //控制天賦視窗
@@ -181,20 +183,25 @@ public class StandByScene : MonoBehaviour
             {
                 for (int k = 1; k <= 3; k++)
                 {
-                    if (Temp == i + "-" + j + "-" + k + "模式" + false)
+                    if (Temp == i + "-" + j + "-" + k + "模式" + false )
                     {
-                        ChapterNow = i;
-                        ChapterLevelNow = j;
-                        StarsNum[ChapterNow - 1, ChapterLevelNow - 1] = k;
-                        HardMode = false;
+                        PassStarChap[0] = i; //過關的章節
+                        PassStarChap[1] = j; //過關的關卡
+                        HardMode = false;    //過關的模式
+                        //先計算是否有比先前紀錄高，有就補上星星(和能量)，沒有就不變。
+                        if (k > StandByScene.StarsNum[PassStarChap[0] - 1, PassStarChap[1] - 1]) EnergyTemp = (k - StarsNum[PassStarChap[0] - 1, PassStarChap[1] - 1]);
+                        StarsNum[i - 1, j - 1] = k;
                     }
                     else if (Temp == i + "-" + j + "-" + k + "模式" + true)
                     {
-                        ChapterNow = i;
-                        ChapterLevelNow = j;
-                        StarsNumHard[ChapterNow - 1, ChapterLevelNow - 1] = k;
+                        PassStarChap[0] = i;
+                        PassStarChap[1] = j;
+                        StarsNum[i - 1, j - 1] = k;
                         HardMode = true;
+                        if (k > StandByScene.StarsNumHard[PassStarChap[0] - 1, PassStarChap[1] - 1]) EnergyTemp = (k - StarsNumHard[PassStarChap[0] - 1, PassStarChap[1] - 1]);
+                        StarsNumHard[PassStarChap[0] - 1, PassStarChap[1] - 1] = k;
                     }
+
                 }
             }
         }
@@ -249,13 +256,14 @@ public class StandByScene : MonoBehaviour
         }
         PlayerPrefs.SetInt("Repeat", Repeat);//存檔
         #endregion
+
         //讀取檔案
         data = JsonUtility.FromJson<PlayerData>(PlayerPrefs.GetString("JsonData"));
         Load();//讀取關閉之前的檔案
         LoadStar();//讀取過關的星星數
         //如果過關了
-        if (UIControl.Chap != 0 && UIControl.Level != 0)
-            PassChapterLevel(ChapterNow, ChapterLevelNow, StarsNum[ChapterNow - 1, ChapterLevelNow - 1], HardMode);
+        if (PassStarChap[0] != 0 && PassStarChap[1] != 0)
+            PassChapterLevel(PassStarChap[0], PassStarChap[1], StarsNum[PassStarChap[0] - 1, PassStarChap[1] - 1], HardMode);
     }
 
     // Update is called once per frame
@@ -306,13 +314,12 @@ public class StandByScene : MonoBehaviour
         if (Input.GetKeyDown("down"))
         {
             print("清除");
-            PlayerPrefs.DeleteAll();
+            PlayerPrefs.DeleteAll();//全部清除
             /*
-            PlayerPrefs.DeleteKey("JsonData");
-            PlayerPrefs.DeleteKey("TimeData");
-            PlayerPrefs.DeleteKey("Repeat");
-            PlayerPrefs.DeleteKey("RepeatTime");
-            PlayerPrefs.DeleteKey("Start");*/
+            PlayerPrefs.DeleteKey("JsonData");    PlayerPrefs.DeleteKey("TimeData");  PlayerPrefs.DeleteKey("Repeat");
+            PlayerPrefs.DeleteKey("RepeatTime");  PlayerPrefs.DeleteKey("Start");     PlayerPrefs.DeleteKey("PassStar");
+             PlayerPrefs.DeleteKey("Win");
+            */
         }
     }
 
@@ -329,6 +336,8 @@ public class StandByScene : MonoBehaviour
     public void PassChapterLevel(int Chap, int ChapLevel, int Grade, bool Mode)
     {
         AdvtureWindow.SetActive(true);//先開啟視窗，紀錄星星數再關閉
+        EnergyNow += EnergyTemp;
+        int Win= PlayerPrefs.GetInt("Win"); //讀取檔案，如果為1，就增加經驗。如果為0，就不增加經驗
         if (Mode == false)//普通模式
         #region
         {
@@ -371,7 +380,7 @@ public class StandByScene : MonoBehaviour
 
             //過關之後，獲得經驗。若經驗值超過最大值則升等，並且提升經驗值的最大值
             //升1等+1能量
-            LevelEXPNow += BodyNormal + TalentPoint[1];
+            if(Win==1) LevelEXPNow += BodyNormal + TalentPoint[1];
             if (LevelEXPNow >= LevelEXPMAX)
             {
                 LevelNow += 1;
@@ -423,7 +432,7 @@ public class StandByScene : MonoBehaviour
 
             //過關之後，獲得經驗。若經驗值超過最大值則升等，並且提升經驗值的最大值
             //升1等+1能量
-            LevelEXPNow += BodyHard + TalentPoint[1];
+            if (Win == 1) LevelEXPNow += BodyHard + TalentPoint[1];    
             if (LevelEXPNow >= LevelEXPMAX)
             {
                 LevelNow += 1;
@@ -432,6 +441,9 @@ public class StandByScene : MonoBehaviour
                 EnergyNow += 1;
             }
         }
+
+        Win = 0;//歸0，避免重複增加經驗
+        PlayerPrefs.SetInt("Win", Win);//存檔
         #endregion
         AdvtureWindow.SetActive(false);
     }
@@ -750,12 +762,13 @@ public class StandByScene : MonoBehaviour
             {
                 BodyStrngthNow += 5; BodyStrngthMAX += 5;
             }
-            else if (TalentSpace == 1) { }                         //每升一級，過關經驗+1
-            else if (TalentSpace == 2) { }                         //每升一級，初始金錢+50。<UIControl>會增加
-            else if (TalentSpace == 3) SpaceControl.CoolTime -= 1; //每升一級，冷卻時間-1秒
-            else if (TalentSpace == 4) { }                         //每升一級，玩家生命+2。<UIControl>會增加
-            else if (TalentSpace == 5) { }                         //每升一級，怪物死亡金錢+2。<EnemControl>會增加
-
+            /*
+            else if (TalentSpace == 1) { }      //每升一級，過關經驗+1
+            else if (TalentSpace == 2) { }      //每升一級，初始金錢+50。<UIControl>會增加
+            else if (TalentSpace == 3) { }      //每升一級，冷卻時間-1秒。<SpaceControl>會減少
+            else if (TalentSpace == 4) { }      //每升一級，玩家生命+2。<UIControl>會增加
+            else if (TalentSpace == 5) { }      //每升一級，怪物死亡金錢+2。<EnemControl>會增加
+            */
         }
         else if (EnergyNow <= 0)
         {
@@ -816,11 +829,12 @@ public class StandByScene : MonoBehaviour
             EnergyNow -= 1; //能量-1
             TechPoint[TechPosPlus] += 1;//等級+1
 
-            /*  
+            /*
             升級提升能力。其實有些可以不用寫，但這樣比較好修正，所以還是寫出來。
-            TechPosPlus=0、3、6、9、12、15，<BulletControl>增加角色攻擊力，每升一級，角色1攻擊力+5 。 TechPosPlus=0=>TechPoint[0]+1
-            */
-            //增加各角色等級上限，原始等級上限2級(Lv0)，最高可提高到3級(Lv1)TXT
+            1.TechPosPlus = 0、3、6、9、12、15，< BulletControl > 增加角色攻擊力，每升一級，角色1攻擊力 + 5 。 TechPosPlus = 0=>TechPoint[0] + 1
+
+            2.增加各角色等級上限，原始等級上限2級(Lv0)，最高可提高到3級(Lv1)TXT
+            [改成直接在各腳本+數值]
             if (TechPosPlus == 1) SpaceControl.LvMax[0] += 1;
             else if (TechPosPlus == 4) SpaceControl.LvMax[1] += 1;
             else if (TechPosPlus == 7) SpaceControl.LvMax[2] += 1;
@@ -828,16 +842,16 @@ public class StandByScene : MonoBehaviour
             else if (TechPosPlus == 13) SpaceControl.LvMax[4] += 1;
             else if (TechPosPlus == 16) SpaceControl.LvMax[5] += 1;
             else if (TechPosPlus == 5) for (int i = 3; i <= 5; i++) UIControl.Player_Price[i] -= 3;//角色2額外能力，減少成本
-            /*
-              TechPosPlus=2、5、8、11、14、17，增加角色額外能力   
-              2  => <EnemyControl>增加詛咒扣血量，5  => <UIControl>減少建造成本
-              8  => <Weaponcontrol>增加攻擊射程 ，11 => <EnemyControl>增加緩速能力
-              14 => <BulletControl>增加暈擊機率  ，17 => <<BulletControl>>增加爆擊機率
-             */
+
+            3.TechPosPlus = 2、5、8、11、14、17，增加角色額外能力
+              2  => < EnemyControl > 增加詛咒扣血量，5  => < UIControl > 減少建造成本
+              8  => < Weaponcontrol > 增加攻擊射程 ，11 => < EnemyControl > 增加緩速能力
+              14 => < BulletControl > 增加暈擊機率  ，17 => << BulletControl >> 增加爆擊機率
+            */
         }
         else if (EnergyNow <= 0)
         {
-            //因為有動畫，所以先開啟再關閉
+            //因為文字提示有動畫，所以先開啟再關閉
             EnergyTXT.transform.gameObject.SetActive(false);
             EnergyTXT.transform.gameObject.SetActive(true);
             EnergyTXT.transform.position = TechnologyButton.transform.GetChild(TechPos).transform.position;

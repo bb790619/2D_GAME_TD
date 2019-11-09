@@ -10,9 +10,9 @@ public class SpaceControl : MonoBehaviour
 {
     ////參數設定////
     public static int PlayerNum = 6;   //角色數量，讓其他腳本使用
-    public static int[] LvMax = { 2, 2, 2, 2, 2, 2 };       //目前角色最大等級
+    public static int[] LvMax=new int[PlayerNum] ;       //目前角色最大等級(初值為2，再START輸入)
     int LvMaxAll = 3;                  //可以提升的角色最大等級
-    public static float CoolTime = 3.01f; //建造砲塔的冷卻時間
+    public static float CoolTime ; //建造砲塔的冷卻時間
     ////////////////
     int PictureState = 0;             //畫面狀態
     public static GameObject[] SpacePoints;         //所有空格的陣列名稱
@@ -51,6 +51,8 @@ public class SpaceControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        CoolTime =3.01f- StandByScene.TalentPoint[3];  //<StandByScene>的技能每升一級，冷卻時間-1
+        for(int i=0; i< PlayerNum; i++) LvMax[i] =2+ StandByScene.TechPoint[i * LvMaxAll + 1];//<StandByScene>的技能每升一級，升級限制+1
         //開場時，先設定空格位置
         SpacePoints = new GameObject[transform.childCount];  //空格位子為此物體的子物件
         SpaceState = new int[SpacePoints.Length];            //空格狀態的數量=空格數量

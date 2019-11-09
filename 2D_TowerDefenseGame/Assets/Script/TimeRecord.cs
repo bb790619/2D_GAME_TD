@@ -105,7 +105,6 @@ public class TimeRecord : MonoBehaviour
             {
                 StandByScene.BodyStrngthNow += (int)TimeNow / TimeReset;
                 TimeNow = TimeNow % TimeReset;
-                print("體力"+ StandByScene.BodyStrngthNow +"剩餘秒數"+TimeNow);
                 if (StandByScene.BodyStrngthNow >= StandByScene.BodyStrngthMAX) StandByScene.BodyStrngthNow = StandByScene.BodyStrngthMAX;
             }
             TimeNow += Time.deltaTime;
