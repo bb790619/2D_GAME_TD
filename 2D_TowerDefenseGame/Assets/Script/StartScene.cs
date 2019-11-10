@@ -10,6 +10,14 @@ public class StartScene : MonoBehaviour
     public Image Setting;   //放置"問號視窗"
     public static bool Right = true; //true代表按鍵在右邊(YES)
     public Animator Ani;
+
+    /// <summary>
+    /// 固定螢幕大小
+    /// </summary>
+    private void Awake()
+    {
+        Screen.SetResolution(1280, 720, false);
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -61,30 +69,47 @@ public class StartScene : MonoBehaviour
         }
     }
 
-    ////開始場景的按鍵功能
-    public void NextScene() //開始場景的"開始"，會延遲1秒執行
+
+    /// <summary>
+    /// 開始場景的"開始"，會延遲1秒執行
+    /// </summary>
+    public void NextScene() 
     {
         Invoke("RealNextScene", 1f);
     }
+    /// <summary>
+    /// 按下開始場景的"開始"，延遲1秒執行切換場景
+    /// </summary>
     public void RealNextScene()
     {
         if (Right == true) SceneManager.LoadScene("說明場景"); //代表YES，要觀看說明
         else SceneManager.LoadScene("準備場景");               //代表NO，直接開始遊戲
     }
-    public void Quit()//開始場景的"離開"
+    /// <summary>
+    /// 開始場景的"離開"
+    /// </summary>
+    public void Quit()
     {
         Application.Quit();
     }
-    public void Settings() //開始場景的"問號"
+    /// <summary>
+    /// 開始場景的"問號"
+    /// </summary>
+    public void Settings() 
     {
         Setting.transform.position = GameObject.Find("出現").transform.position; //點選問號時，讓視窗移至"出現"(正中間)
     }
-    public void Return() //開始場景的問號的"返回"
+    /// <summary>
+    /// 開始場景的問號的"返回"
+    /// </summary>
+    public void Return() 
     {
         Setting.transform.position = GameObject.Find("隱藏").transform.position; //點選返回時，讓視窗移置"穩藏"
     }
-
-    public void SettingsYesNo() //"問號視窗"，選擇是否要跳過說明
+    /// <summary>
+    /// "問號視窗"，選擇是否要跳過說明
+    /// </summary>
+    public void SettingsYesNo() 
     {
         /* YES文字在左邊，NO文字在右邊
            Right=true代表按鍵在右邊，會顯示YES，也就是觀看說明。

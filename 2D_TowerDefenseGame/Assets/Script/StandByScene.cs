@@ -183,7 +183,7 @@ public class StandByScene : MonoBehaviour
             {
                 for (int k = 1; k <= 3; k++)
                 {
-                    if (Temp == i + "-" + j + "-" + k + "模式" + false )
+                    if (Temp == i + "-" + j + "-" + k + "模式" + false)
                     {
                         PassStarChap[0] = i; //過關的章節
                         PassStarChap[1] = j; //過關的關卡
@@ -283,6 +283,8 @@ public class StandByScene : MonoBehaviour
         AbilityValue();  //UI上的數值
         LockChapterLevel();// 未通過的關卡會被鎖按鍵
 
+        #region 測試用
+        /*
         //過關，測試用。按"上"就是過關，星星數隨機產生
         if (Input.GetKeyDown("up"))
         {
@@ -315,14 +317,29 @@ public class StandByScene : MonoBehaviour
         {
             print("清除");
             PlayerPrefs.DeleteAll();//全部清除
-            /*
-            PlayerPrefs.DeleteKey("JsonData");    PlayerPrefs.DeleteKey("TimeData");  PlayerPrefs.DeleteKey("Repeat");
-            PlayerPrefs.DeleteKey("RepeatTime");  PlayerPrefs.DeleteKey("Start");     PlayerPrefs.DeleteKey("PassStar");
-             PlayerPrefs.DeleteKey("Win");
-            */
-        }
+            //PlayerPrefs.DeleteKey("JsonData");    PlayerPrefs.DeleteKey("TimeData");  PlayerPrefs.DeleteKey("Repeat");
+            // PlayerPrefs.DeleteKey("RepeatTime");  PlayerPrefs.DeleteKey("Start");     PlayerPrefs.DeleteKey("PassStar");
+            // PlayerPrefs.DeleteKey("Win");
+        }*/
+        #endregion 
     }
 
+    /// <summary>
+    /// 如果背景執行時，讓遊戲關閉，避免體力不會恢復
+    /// </summary>
+    /// <param name="paused"></param>
+    public void OnApplicationPause(bool paused)
+    {
+        if (paused)
+        {
+            Application.Quit();
+            // Game is paused, start service to get notifications
+        }
+        else
+        {
+            // Game is unpaused, stop service notifications. 
+        }
+    }
 
     ////////戰役視窗的按鍵功能////////
     #region
@@ -337,7 +354,7 @@ public class StandByScene : MonoBehaviour
     {
         AdvtureWindow.SetActive(true);//先開啟視窗，紀錄星星數再關閉
         EnergyNow += EnergyTemp;
-        int Win= PlayerPrefs.GetInt("Win"); //讀取檔案，如果為1，就增加經驗。如果為0，就不增加經驗
+        int Win = PlayerPrefs.GetInt("Win"); //讀取檔案，如果為1，就增加經驗。如果為0，就不增加經驗
         if (Mode == false)//普通模式
         #region
         {
@@ -379,15 +396,7 @@ public class StandByScene : MonoBehaviour
             }
 
             //過關之後，獲得經驗。若經驗值超過最大值則升等，並且提升經驗值的最大值
-            //升1等+1能量
-            if(Win==1) LevelEXPNow += BodyNormal + TalentPoint[1];
-            if (LevelEXPNow >= LevelEXPMAX)
-            {
-                LevelNow += 1;
-                LevelEXPNow = LevelEXPNow - LevelEXPMAX;
-                LevelEXPMAX *= 1.5f;
-                EnergyNow += 1;
-            }
+            if (Win == 1) LevelEXPNow += BodyNormal + TalentPoint[1];
         }
         #endregion
         else if (Mode == true)//困難模式(基本上只是複製普通模式)
@@ -432,20 +441,21 @@ public class StandByScene : MonoBehaviour
 
             //過關之後，獲得經驗。若經驗值超過最大值則升等，並且提升經驗值的最大值
             //升1等+1能量
-            if (Win == 1) LevelEXPNow += BodyHard + TalentPoint[1];    
-            if (LevelEXPNow >= LevelEXPMAX)
-            {
-                LevelNow += 1;
-                LevelEXPNow = LevelEXPNow - LevelEXPMAX;
-                LevelEXPMAX *= 1.5f;
-                EnergyNow += 1;
-            }
+            if (Win == 1) LevelEXPNow += BodyHard + TalentPoint[1];
         }
-
+        #endregion
+        //升1等+1能量，體力+5
+        if (LevelEXPNow >= LevelEXPMAX)
+        {
+            LevelNow += 1; //等級+1
+            LevelEXPNow = LevelEXPNow - LevelEXPMAX;
+            LevelEXPMAX *= 1.5f; //下級升級需求增加
+            EnergyNow += 1; //能量+1
+            BodyStrngthNow += 5; //體力+5
+        }
         Win = 0;//歸0，避免重複增加經驗
         PlayerPrefs.SetInt("Win", Win);//存檔
-        #endregion
-        AdvtureWindow.SetActive(false);
+        AdvtureWindow.SetActive(false);//關閉視窗
     }
     /// <summary>
     /// 戰役視窗的按鍵功能，紀錄選到的章節及改變顏色[在面板上輸入的章節關卡，目前模式]
@@ -976,7 +986,7 @@ public class StandByScene : MonoBehaviour
     /// </summary>
     public void Window_NO()
     {
-        Application.Quit(); ;
+        Application.Quit();
     }
     #endregion
 

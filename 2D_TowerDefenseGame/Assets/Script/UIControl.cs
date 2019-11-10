@@ -31,6 +31,7 @@ public class UIControl : MonoBehaviour
     float TimeCount = 3;            //延遲時間開啟勝利視窗
     bool Vic = false;               //讓計算勝利結果只會執行一次(和TimeCount一起使用)
 
+    int Grade = 0; //這關獲得的星星數
     public static int Chap, Level;  //這場遊戲的章節和關卡
     int Win = 0; //初始值為0，獲勝就為1
 
@@ -164,14 +165,14 @@ public class UIControl : MonoBehaviour
     {
         GameObject.Find("Main Camera").GetComponent<AudioSource>().enabled = false;//關閉背景音樂
         VictoryWindow.transform.gameObject.SetActive(true);                        //開啟勝利視窗
-        int Grade = 0; 
+
         if (PlayerHp >= PlayerHpMax * 9 / 10) Grade = 3; //剩餘血量有9成得3顆星
         else if (PlayerHp >= PlayerHpMax * 7 / 10 && PlayerHp < PlayerHpMax * 9 / 10) Grade = 2;//剩餘血量有7成得2顆星
         else Grade = 1;                                  //剩餘血量有7成以下得1顆星
         Chap = StandByScene.ChapterNow; Level = StandByScene.ChapterLevelNow; //如果過關了，就記錄這關的章節和關卡
 
-        for (int i = 0; i < Grade; i++) //勝利視窗的星星數
-            VictoryWindow.transform.GetChild(0).GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //過關幾顆星，就變亮幾顆星星
+        StartCoroutine(StarAppear()); //顯示過關的星星數，會延遲出現
+
         GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
 
         //儲存過關的關卡+星星數+難度
@@ -179,8 +180,21 @@ public class UIControl : MonoBehaviour
         PlayerPrefs.SetString("PassStar", Temp);//存檔，為了加星星和能量
         Win = 1; //獲勝就為1
         PlayerPrefs.SetInt("Win", Win);         //存檔，為了加經驗
-        print(Win);
     }
+    /// <summary>
+    /// 勝利視窗的星星數，會延遲出現
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator StarAppear()
+    {
+        for (int i = 0; i < Grade; i++) 
+        {
+            VictoryWindow.transform.GetChild(0).GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //過關幾顆星，就變亮幾顆星星
+            yield return new WaitForSeconds(1);
+        }
+
+    }
+
     /// <summary>
     /// 失敗視窗
     /// </summary>
