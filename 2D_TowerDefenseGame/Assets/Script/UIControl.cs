@@ -30,6 +30,7 @@ public class UIControl : MonoBehaviour
     Animator EndAni;                //守門人的動畫
     float TimeCount = 3;            //延遲時間開啟勝利視窗
     bool Vic = false;               //讓計算勝利結果只會執行一次(和TimeCount一起使用)
+    bool GG = false;                //失敗視窗使用
 
     int Grade = 0; //這關獲得的星星數
     public static int Chap, Level;  //這場遊戲的章節和關卡
@@ -42,8 +43,8 @@ public class UIControl : MonoBehaviour
         PlayerHp = PlayerHpMax;
         PlayerMoney = 100 + StandByScene.TalentPoint[2] * 50; ;//<StandByScene>的技能每升一級，玩家金錢+50
 
-        Player_Price[3] =35; Player_Price[4] = 65; Player_Price[5] = 120; //固定初值，這樣就不會一直累加(目前想不到更好的，只好手動打一樣的數值)
-        for (int i = 3; i <= 5; i++)  Player_Price[i] -= StandByScene.TechPoint[5] * 3;//<StandByScene>的技能，角色2額外能力，減少成本
+        Player_Price[3] = 35; Player_Price[4] = 65; Player_Price[5] = 120; //固定初值，這樣就不會一直累加(目前想不到更好的，只好手動打一樣的數值)
+        for (int i = 3; i <= 5; i++) Player_Price[i] -= StandByScene.TechPoint[5] * 3;//<StandByScene>的技能，角色2額外能力，減少成本
 
 
         //transform.Find 可以找到隱藏的物件
@@ -69,7 +70,7 @@ public class UIControl : MonoBehaviour
     {
         GameObject.Find("金錢TXT").GetComponent<Text>().text = PlayerMoney.ToString();  //顯示金錢
         GameObject.Find("生命TXT").GetComponent<Text>().text = PlayerHp.ToString();     //顯示玩家生命
-                                                                                       //開場提示消失才能執行
+                                                                                      //開場提示消失才能執行
         if (GameObject.FindWithTag("Window") == null)
         {
             NowTime = EnemyCreater.TimeDelay; //下波倒數時間
@@ -83,15 +84,18 @@ public class UIControl : MonoBehaviour
         //失敗條件
         if (PlayerHp <= 0)
         {
-            Invoke("GoodGame", 3f);       //如果輸了，延遲1秒出現失敗視窗
-            EndAni.SetBool("結束", true);  //執行玩家輸了的動畫
-            GameObject.Find("Main Camera").GetComponent<AudioSource>().enabled = false;//關閉背景音樂
+            if (GGWindow.transform.gameObject.activeSelf == false)
+            {
+                Invoke("GoodGame", 3f);       //如果輸了，延遲1秒出現失敗視窗
+                EndAni.SetBool("結束", true);  //執行玩家輸了的動畫
+                GameObject.Find("Main Camera").GetComponent<AudioSource>().enabled = false;//關閉背景音樂
+            }
         }
         //勝利條件，撐過所有波數，血量大於0，而且怪全都消失了會出現勝利視窗
         if (Wave > EnemyCreater.EnemyEnd && PlayerHp > 0 && GameObject.FindWithTag("Enemy") == null)
         {
             TimeCount -= Time.deltaTime;
-            if (TimeCount <= 0 && Vic==false)
+            if (TimeCount <= 0 && Vic == false)
             {
                 Victory(); //出現勝利視窗(等於延遲3秒)，執行
                 Vic = true;
@@ -140,7 +144,7 @@ public class UIControl : MonoBehaviour
     public void StartGame()
     {
         GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 0);//畫面恢復
-        if (GameObject.Find("加速按鍵").transform.GetChild(0).GetComponent<Text>().text == "x2")  Time.timeScale = 2;
+        if (GameObject.Find("加速按鍵").transform.GetChild(0).GetComponent<Text>().text == "x2") Time.timeScale = 2;
         else if (GameObject.Find("加速按鍵").transform.GetChild(0).GetComponent<Text>().text == "x1") Time.timeScale = 1;
         OptionWindow.transform.gameObject.SetActive(false);
     }
@@ -176,7 +180,7 @@ public class UIControl : MonoBehaviour
         GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
 
         //儲存過關的關卡+星星數+難度
-        string Temp = Chap + "-" + Level + "-" + Grade+"模式"+ StandByScene.HardMode;
+        string Temp = Chap + "-" + Level + "-" + Grade + "模式" + StandByScene.HardMode;
         PlayerPrefs.SetString("PassStar", Temp);//存檔，為了加星星和能量
         Win = 1; //獲勝就為1
         PlayerPrefs.SetInt("Win", Win);         //存檔，為了加經驗
@@ -187,7 +191,7 @@ public class UIControl : MonoBehaviour
     /// <returns></returns>
     private IEnumerator StarAppear()
     {
-        for (int i = 0; i < Grade; i++) 
+        for (int i = 0; i < Grade; i++)
         {
             VictoryWindow.transform.GetChild(0).GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //過關幾顆星，就變亮幾顆星星
             GetComponent<AudioSource>().Play(); //撥放星星音效
@@ -204,6 +208,7 @@ public class UIControl : MonoBehaviour
         GameObject.Find("變暗背景").GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);//畫面變模糊
         VictoryWindow.transform.gameObject.SetActive(false);
         GGWindow.transform.gameObject.SetActive(true);
+        if (GG == false) Time.timeScale = 0;
     }
 
     ////勝利或失敗的按鍵////
@@ -213,6 +218,7 @@ public class UIControl : MonoBehaviour
     /// </summary>
     public void Window_Yes()
     {
+        GG = true;
         Time.timeScale = 1;
         Invoke("Window_YesNow", 1f);
     }
