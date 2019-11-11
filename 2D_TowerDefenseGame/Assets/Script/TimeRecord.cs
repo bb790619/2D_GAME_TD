@@ -11,7 +11,7 @@ public class TimeRecord : MonoBehaviour
     #region
     float TimeNow;   //現在的秒數
     float TimeEnd;   //關機至開機經過的秒數(切換場景也會計算)
-    int TimeReset = 300;    //恢復體力的秒數(暫定5分鐘=300秒恢復一次)
+    int TimeReset = 60;    //恢復體力的秒數(暫定1分鐘=60秒恢復一次)
     //要存檔的時間
     public float Time_Year;
     public float Time_Month;
@@ -20,7 +20,7 @@ public class TimeRecord : MonoBehaviour
     public float Time_Min;
     public float Time_Second;
 
-    public static int Repeat =0;
+    public static int Repeat = 0;
     public static bool SaveNow = true;
     #endregion
     //存檔和讀檔
@@ -74,7 +74,7 @@ public class TimeRecord : MonoBehaviour
             Save();//沒存檔先讀檔會有問題，所以先存一次
             PlayerPrefs.SetString("TimeData", JsonUtility.ToJson(Data));
         }
-        
+
         Data = JsonUtility.FromJson<TimeData>(PlayerPrefs.GetString("TimeData"));
         Load();
         TimeMath();
@@ -108,8 +108,16 @@ public class TimeRecord : MonoBehaviour
                 if (StandByScene.BodyStrngthNow >= StandByScene.BodyStrngthMAX) StandByScene.BodyStrngthNow = StandByScene.BodyStrngthMAX;
             }
             TimeNow += Time.deltaTime;
+            //顯示恢復倒數時間
+            GameObject.Find("體力恢復倒數").GetComponent<Text>().text = ((int)(TimeReset-TimeNow) / 60).ToString("D2") + ":" + ((int)(TimeReset - TimeNow) % 60).ToString("D2");
         }
-        else TimeNow = 0;
+        else
+        {
+            GameObject.Find("體力恢復倒數").GetComponent<Text>().text = "";
+            TimeNow = 0;
+        }
+
+
     }
     /// <summary>
     /// 紀錄現在的時間(存檔用)
@@ -128,7 +136,7 @@ public class TimeRecord : MonoBehaviour
     /// </summary>
     public void TimeMath()
     {
-        float Year=0, Month=0, Day=0, Hour=0, Min=0, Second=0;
+        float Year = 0, Month = 0, Day = 0, Hour = 0, Min = 0, Second = 0;
 
         Year = DateTime.Now.Year - Time_Year;       // print("紀錄的年" + Year);
         Month = DateTime.Now.Month - Time_Month;    // print("紀錄的月" + Month);

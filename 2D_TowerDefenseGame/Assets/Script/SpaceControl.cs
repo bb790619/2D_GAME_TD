@@ -136,6 +136,7 @@ public class SpaceControl : MonoBehaviour
             else if (hit.collider.tag == "BuildButton") BuildPlayer(hit.collider.name);
             else if (hit.collider.name == "升級按鍵") ChangePlayer();
             else if (hit.collider.name == "販賣按鍵") SellPlayer();
+            else if (hit.collider.name == "顯示射程") AppearRange();
             else if (hit.collider.tag == "Window") State_0();                            //新增，點選開場提示時，執行畫面狀態0
             else if (hit.collider.tag == "Weapon Space") State_2(hit.collider.name);     //執行畫面狀態2  
             else AdvancedWindow(hit.collider.name, hit.collider.tag);                    //進階視窗   
@@ -483,7 +484,13 @@ public class SpaceControl : MonoBehaviour
         UIControl.PlayerMoney += Sum * 8 / 10;
         if (GameObject.Find("CD" + Choose_j) != null) Destroy(GameObject.Find("CD" + Choose_j)); //CD消失前，按了會賣掉，也會消除CD
     }
-
+    /// <summary>
+    /// 執行<WeaponControl>的AppearRange()，顯示射程
+    /// </summary>
+    public void AppearRange()
+    {
+        GameObject.Find("砲塔"+Choose_j).GetComponent<WeaponControl>().AppearRange();
+    }
     /// <summary>
     /// 產生建造和升級的冷卻CD
     /// </summary>

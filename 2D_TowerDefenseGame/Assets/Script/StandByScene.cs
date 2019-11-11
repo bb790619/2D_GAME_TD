@@ -256,11 +256,12 @@ public class StandByScene : MonoBehaviour
         }
         PlayerPrefs.SetInt("Repeat", Repeat);//存檔
         #endregion
-
+        
         //讀取檔案
         data = JsonUtility.FromJson<PlayerData>(PlayerPrefs.GetString("JsonData"));
         Load();//讀取關閉之前的檔案
         LoadStar();//讀取過關的星星數
+       
         //如果過關了
         if (PassStarChap[0] != 0 && PassStarChap[1] != 0)
             PassChapterLevel(PassStarChap[0], PassStarChap[1], StarsNum[PassStarChap[0] - 1, PassStarChap[1] - 1], HardMode);
@@ -768,9 +769,9 @@ public class StandByScene : MonoBehaviour
 
             //升級提升能力
             //其實有些可以不用寫，但這樣比較好修正，所以還是寫出來。
-            if (TalentSpace == 0) //每升一級，體力+5
+            if (TalentSpace == 0) //每升一級，體力+10
             {
-                BodyStrngthNow += 5; BodyStrngthMAX += 5;
+                BodyStrngthNow += 10; BodyStrngthMAX += 10;
             }
             /*
             else if (TalentSpace == 1) { }      //每升一級，過關經驗+1

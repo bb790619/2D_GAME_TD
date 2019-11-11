@@ -25,7 +25,6 @@ public class WeaponControl : MonoBehaviour
         Range[2] += StandByScene.TechPoint[8]*0.2f; //增加角色3的射程
         //做法1，從Resources/Prefab/子彈，自動加入子彈的Prefab(要把要加入的Prefab放入Resources資料夾)
         Bullet = Resources.Load<GameObject>("子彈");
-
         /*
         //做法2，放置任何位子都行，先找出Prefab的路徑，自動加入子彈的Prefab
         //這個做法不知為何不能寫進APK
@@ -126,6 +125,22 @@ public class WeaponControl : MonoBehaviour
         Vector3 rotation = lookRotation.eulerAngles;
         if (right==true) GameObject.Find(Bullet).transform.rotation = Quaternion.Euler(0f, 0f, 180f+rotation.x);    
         else if(right == false) GameObject.Find(Bullet).transform.rotation = Quaternion.Euler(0f, 0f, -rotation.x);
+    }
+
+    /// <summary>
+    /// 顯示角色的攻擊射程
+    /// </summary>
+    public void AppearRange()
+    {
+        //攻擊射程為圖片的2倍，如果是4f，Scale=8
+        GameObject PlayerRange = Resources.Load<GameObject>("射程");
+        if (GameObject.Find("射程" + PlayerName)==null)
+        { 
+        Instantiate(PlayerRange, this.gameObject.transform.position, Quaternion.identity).name="射程"+ PlayerName;
+        GameObject.Find("射程" + PlayerName).transform.localScale = new Vector3(Range[PlayerKind - 1] * 2, Range[PlayerKind - 1] * 2, Range[PlayerKind - 1] * 2);
+        GameObject.Find("射程" + PlayerName).transform.SetParent(GameObject.Find("砲塔" + PlayerName).transform);
+        Destroy(GameObject.Find("射程" + PlayerName), 1f);
+        }
     }
 
     /// <summary>
