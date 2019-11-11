@@ -91,7 +91,7 @@ public class UIControl : MonoBehaviour
         if (Wave > EnemyCreater.EnemyEnd && PlayerHp > 0 && GameObject.FindWithTag("Enemy") == null)
         {
             TimeCount -= Time.deltaTime;
-            if (TimeCount <= 0 & Vic==false)
+            if (TimeCount <= 0 && Vic==false)
             {
                 Victory(); //出現勝利視窗(等於延遲3秒)，執行
                 Vic = true;
@@ -190,6 +190,7 @@ public class UIControl : MonoBehaviour
         for (int i = 0; i < Grade; i++) 
         {
             VictoryWindow.transform.GetChild(0).GetChild(i).GetComponent<Image>().color = new Color32(255, 255, 255, 255); //過關幾顆星，就變亮幾顆星星
+            GetComponent<AudioSource>().Play(); //撥放星星音效
             yield return new WaitForSeconds(1);
         }
 
