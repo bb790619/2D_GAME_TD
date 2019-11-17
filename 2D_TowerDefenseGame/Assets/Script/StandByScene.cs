@@ -214,7 +214,7 @@ public class StandByScene : MonoBehaviour
         /*因為要讀檔前需要先建立存檔資料，可是這樣每次開始時，沒讀檔又被覆蓋
         所以這裡另外儲存資料，只有第一次開啟遊戲才會執行存檔再讀檔，之後開始時都不會存檔就直接讀檔*/
         Repeat = PlayerPrefs.GetInt("Repeat"); //讀取檔案
-        ChapterLimit = 4; //目前開放的章節，假如等於2，代表只會開放到第二章
+        ChapterLimit = 5; //目前開放的章節，假如等於2，代表只會開放到第二章
 
         //戰役視窗，初始化
         #region
@@ -261,10 +261,11 @@ public class StandByScene : MonoBehaviour
         data = JsonUtility.FromJson<PlayerData>(PlayerPrefs.GetString("JsonData"));
         Load();//讀取關閉之前的檔案
         LoadStar();//讀取過關的星星數
-       
+
         //如果過關了
         if (PassStarChap[0] != 0 && PassStarChap[1] != 0)
             PassChapterLevel(PassStarChap[0], PassStarChap[1], StarsNum[PassStarChap[0] - 1, PassStarChap[1] - 1], HardMode);
+        
     }
 
     // Update is called once per frame
@@ -285,7 +286,7 @@ public class StandByScene : MonoBehaviour
         LockChapterLevel();// 未通過的關卡會被鎖按鍵
 
         #region 測試用
-        /*
+        
         //過關，測試用。按"上"就是過關，星星數隨機產生
         if (Input.GetKeyDown("up"))
         {
@@ -321,7 +322,7 @@ public class StandByScene : MonoBehaviour
             //PlayerPrefs.DeleteKey("JsonData");    PlayerPrefs.DeleteKey("TimeData");  PlayerPrefs.DeleteKey("Repeat");
             // PlayerPrefs.DeleteKey("RepeatTime");  PlayerPrefs.DeleteKey("Start");     PlayerPrefs.DeleteKey("PassStar");
             // PlayerPrefs.DeleteKey("Win");
-        }*/
+        }
         #endregion 
     }
 
@@ -379,21 +380,24 @@ public class StandByScene : MonoBehaviour
                 if (Chap == ChapterPass + 1 && ChapLevel == ChapterLevelPass[ChapterPass] + 1)
                 {
                     ChapterLevelPass[ChapterPass] += 1; //關卡就+1
-                    ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
+                    ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] +1));  //顯示目前已通過的關卡
                 }
             }
             //過關之後關卡數+1，如果超過最大關卡數，章節就+1
-            //如果破關到最大限制的章節，後面就顯示尚未推出，而且不能再點選
             if (ChapterLevelPass[ChapterPass] >= ChapterLevelMax[ChapterPass])
             {
                 if (ChapterPass + 1 < ChapterLimit) //小於最大關卡數，章節才能進位
                     ChapterPass += 1;
             }
+           //如果破關到最大限制的章節，過關就一樣選到最後的關卡
             if (ChapterPass + 1 == ChapterLimit && ChapterLevelPass[ChapterPass] == ChapterLevelMax[ChapterPass])
             {
-                LimitTXT.transform.gameObject.SetActive(true);
-                LimitTXT.transform.position = Chapter.transform.GetChild(ChapterLimit).position;
-                LimitTXT.transform.SetParent(Chapter.transform.GetChild(ChapterLimit));
+                ChooseButton((ChapterPass+1 ) + "-" + (ChapterLevelPass[ChapterPass] ));
+                /*
+                //如果破關到最大限制的章節，後面就顯示尚未推出，而且不能再點選
+                 LimitTXT.transform.gameObject.SetActive(true);
+                 LimitTXT.transform.position = Chapter.transform.GetChild(ChapterLimit).position;
+                 LimitTXT.transform.SetParent(Chapter.transform.GetChild(ChapterLimit));*/
             }
 
             //過關之後，獲得經驗。若經驗值超過最大值則升等，並且提升經驗值的最大值
@@ -427,17 +431,20 @@ public class StandByScene : MonoBehaviour
                 }
             }
             //過關之後關卡數+1，如果超過最大關卡數，章節就+1
-            //如果破關到最大限制的章節，後面就顯示尚未推出，而且不能再點選
             if (ChapterLevelPassHard[ChapterPassHard] >= ChapterLevelMax[ChapterPassHard])
             {
                 if (ChapterPassHard + 1 < ChapterLimit) //小於最大關卡數，章節才能進位
                     ChapterPassHard += 1;
             }
+            //如果破關到最大限制的章節，過關就一樣選到最後的關卡
             if (ChapterPassHard + 1 == ChapterLimit && ChapterLevelPassHard[ChapterPassHard] == ChapterLevelMax[ChapterPassHard])
             {
+                ChooseButton("困難" + (ChapterPassHard + 1) + "-" + (ChapterLevelPassHard[ChapterPassHard] ));
+                /*
+                //如果破關到最大限制的章節，後面就顯示尚未推出，而且不能再點選
                 LimitTXTHard.transform.gameObject.SetActive(true);
                 LimitTXTHard.transform.position = ChapterHard.transform.GetChild(ChapterLimit).position;
-                LimitTXTHard.transform.SetParent(ChapterHard.transform.GetChild(ChapterLimit));
+                LimitTXTHard.transform.SetParent(ChapterHard.transform.GetChild(ChapterLimit));*/
             }
 
             //過關之後，獲得經驗。若經驗值超過最大值則升等，並且提升經驗值的最大值
@@ -944,7 +951,12 @@ public class StandByScene : MonoBehaviour
             ChapterBGHard.SetActive(false);
             ChapterLevelBGHard.SetActive(false);
             AppearStars();
-            ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  //顯示目前已通過的關卡
+
+            //顯示目前已通過的關卡
+            if (ChapterPass + 1 == ChapterLimit && ChapterLevelPass[ChapterPass] == ChapterLevelMax[ChapterPass]) 
+               ChooseButton((ChapterPass+1) + "-" + (ChapterLevelPass[ChapterPass] ));
+            else
+                ChooseButton((ChapterPass + 1) + "-" + (ChapterLevelPass[ChapterPass] + 1));  
         }
         else if (HardMode == true)//困難模式
         {
@@ -956,7 +968,12 @@ public class StandByScene : MonoBehaviour
             ChapterBGHard.SetActive(true);
             ChapterLevelBGHard.SetActive(true);
             AppearStars();
-            ChooseButton("困難" + (ChapterPassHard + 1) + "-" + (ChapterLevelPassHard[ChapterPassHard] + 1));  //顯示目前已通過的關卡
+
+            //顯示目前已通過的關卡
+            if (ChapterPassHard + 1 == ChapterLimit && ChapterLevelPassHard[ChapterPassHard] == ChapterLevelMax[ChapterPassHard])
+                ChooseButton("困難" + (ChapterPassHard + 1) + "-" + (ChapterLevelPassHard[ChapterPassHard]));
+            else
+                ChooseButton("困難" + (ChapterPassHard + 1) + "-" + (ChapterLevelPassHard[ChapterPassHard] + 1));  
         }
 
 
