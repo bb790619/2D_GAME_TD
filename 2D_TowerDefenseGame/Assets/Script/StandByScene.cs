@@ -86,6 +86,8 @@ public class StandByScene : MonoBehaviour
     [Header("點數不足的文字")] public Text EnergyTXT;
     public static bool SaveNow = true; //為了清除數據，false就先不存檔
     public static bool LoadNow = true; //開始遊戲時就執行一次，這樣切換場景就不會執行
+
+    [Header("點擊觀看廣告")] public GameObject Ads;
     #endregion
 
     //存檔和讀檔
@@ -261,11 +263,11 @@ public class StandByScene : MonoBehaviour
         data = JsonUtility.FromJson<PlayerData>(PlayerPrefs.GetString("JsonData"));
         Load();//讀取關閉之前的檔案
         LoadStar();//讀取過關的星星數
-
+        Ads.SetActive(false);//先關閉廣告提示，若過關才會開啟
         //如果過關了
         if (PassStarChap[0] != 0 && PassStarChap[1] != 0)
             PassChapterLevel(PassStarChap[0], PassStarChap[1], StarsNum[PassStarChap[0] - 1, PassStarChap[1] - 1], HardMode);
-        
+
     }
 
     // Update is called once per frame
@@ -323,25 +325,30 @@ public class StandByScene : MonoBehaviour
             // PlayerPrefs.DeleteKey("RepeatTime");  PlayerPrefs.DeleteKey("Start");     PlayerPrefs.DeleteKey("PassStar");
             // PlayerPrefs.DeleteKey("Win");
         }
+        
         #endregion 
     }
 
+    ////播放廣告並拿獎勵////
+    #region
     /// <summary>
-    /// 如果背景執行時，讓遊戲關閉，避免體力不會恢復
+    /// 點擊播放廣告
     /// </summary>
-    /// <param name="paused"></param>
-    public void OnApplicationPause(bool paused)
-    {
-        if (paused)
-        {
-            Application.Quit();
-            // Game is paused, start service to get notifications
-        }
-        else
-        {
-            // Game is unpaused, stop service notifications. 
-        }
+    [Obsolete]
+    public void ClickAds()
+    {     
+        ADsTest.Inst.CheckRewardIsReady(); //先加載廣告
+        if (ADsTest.Inst.IsAdReady) ADsTest.Inst.ShowRewardAD(GiveResult);
+        else Debug.Log("廣告讀取失敗");
+        Ads.SetActive(false);//先關閉廣告提示，若過關才會開啟
     }
+    public void GiveResult()
+    {
+        Debug.Log("觀看完畢-發獎勵");
+        EnergyNow += 1; //獎勵-能量+1
+    }
+    #endregion
+
 
     ////////戰役視窗的按鍵功能////////
     #region
@@ -357,6 +364,8 @@ public class StandByScene : MonoBehaviour
         AdvtureWindow.SetActive(true);//先開啟視窗，紀錄星星數再關閉
         EnergyNow += EnergyTemp;
         int Win = PlayerPrefs.GetInt("Win"); //讀取檔案，如果為1，就增加經驗。如果為0，就不增加經驗
+        if (Win == 1) Ads.SetActive(true);   //遊戲過關，返回準備場景才會出現廣告
+
         if (Mode == false)//普通模式
         #region
         {
@@ -769,9 +778,9 @@ public class StandByScene : MonoBehaviour
     {
         //0是玩家體力，1是經驗，2是初始金錢，3是戰鬥CD，4是玩家生命，5是戰鬥金錢
         //如果未達最高等級且能量足夠時，按升級就+1等。若升到最高等級則鎖住按鍵
-        if (TalentPoint[TalentSpace] < TalentPointMax[TalentSpace] && EnergyNow >= 1)
+        if (TalentPoint[TalentSpace] < TalentPointMax[TalentSpace] && EnergyNow >= 3)
         {
-            EnergyNow -= 1; //能量-1
+            EnergyNow -= 3; //能量-3
             TalentPoint[TalentSpace] += 1;//等級+1
 
             //升級提升能力
@@ -788,7 +797,7 @@ public class StandByScene : MonoBehaviour
             else if (TalentSpace == 5) { }      //每升一級，怪物死亡金錢+2。<EnemControl>會增加
             */
         }
-        else if (EnergyNow <= 0)
+        else if (EnergyNow <= 2)
         {
             //因為有動畫，所以先開啟再關閉
             EnergyTXT.transform.gameObject.SetActive(false);
@@ -842,9 +851,9 @@ public class StandByScene : MonoBehaviour
     public void OpenTechnologyLevelUp()
     {
         //如果未達最高等級且能量足夠時，按升級就+1等。若升到最高等級則鎖住按鍵
-        if (TechPoint[TechPosPlus] < TechPointMax[TechPosPlus] && EnergyNow >= 1)
+        if (TechPoint[TechPosPlus] < TechPointMax[TechPosPlus] && EnergyNow >= 3)
         {
-            EnergyNow -= 1; //能量-1
+            EnergyNow -= 3; //能量-1
             TechPoint[TechPosPlus] += 1;//等級+1
 
             /*
@@ -867,7 +876,7 @@ public class StandByScene : MonoBehaviour
               14 => < BulletControl > 增加暈擊機率  ，17 => << BulletControl >> 增加爆擊機率
             */
         }
-        else if (EnergyNow <= 0)
+        else if (EnergyNow <= 2)
         {
             //因為文字提示有動畫，所以先開啟再關閉
             EnergyTXT.transform.gameObject.SetActive(false);

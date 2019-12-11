@@ -693,6 +693,10 @@ PlayerSettings:
       daydreamIconForeground: {fileID: 0}
       daydreamIconBackground: {fileID: 0}
   cloudServicesEnabled:
+    Build: 0
+    Collab: 0
+    ErrorHub: 0
+    Hub: 0
     UNet: 1
   luminIcon:
     m_Name: 
@@ -713,10 +717,10 @@ PlayerSettings:
   facebookXfbml: 0
   facebookFrictionlessRequests: 1
   apiCompatibilityLevel: 6
-  cloudProjectId: 
+  cloudProjectId: 847b3e4b-f6b3-442d-b317-99f663370c61
   framebufferDepthMemorylessMode: 0
-  projectName: 
-  organizationId: 
+  projectName: "\u661F\u71E6\u4E4B\u68EE"
+  organizationId: bb790619
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0
   disableOldInputManagerSupport: 0

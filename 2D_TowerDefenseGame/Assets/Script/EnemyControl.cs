@@ -41,6 +41,7 @@ public class EnemyControl : MonoBehaviour
             EffectConti[i] = 2;               //持續2秒
             TimeCount[i] = EffectConti[i] + 1;  //因為要持續2秒，就隨便設定2以上的數字
         }
+
     }
 
     // Update is called once per frame

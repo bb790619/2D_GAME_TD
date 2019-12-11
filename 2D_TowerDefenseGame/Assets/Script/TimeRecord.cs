@@ -81,6 +81,29 @@ public class TimeRecord : MonoBehaviour
         PlayerPrefs.SetInt("RepeatTime", Repeat);//存檔
     }
 
+    /// <summary>
+    /// 如果Android背景執行時，會記錄時間
+    /// </summary>
+    /// <param name="paused"></param>
+    public void OnApplicationPause(bool paused)
+    {
+        if (paused) //如果背景執行，遊戲暫停，記錄時間
+        {
+            RecordNomTime();
+            Save();
+            PlayerPrefs.SetString("TimeData", JsonUtility.ToJson(Data));
+            // Game is paused, start service to get notifications
+        }
+        else //遊戲未暫停，讀取時間
+        {
+            Data = JsonUtility.FromJson<TimeData>(PlayerPrefs.GetString("TimeData"));
+            Load();
+            TimeMath();
+            // Game is unpaused, stop service notifications. 
+        }
+    }
+
+
     // Update is called once per frame
     void Update()
     {

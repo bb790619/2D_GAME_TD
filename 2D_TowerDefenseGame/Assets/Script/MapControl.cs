@@ -31,12 +31,11 @@ public class MapControl : MonoBehaviour
 
             /*怪物血量
               預設血量: 1-1~8:55 60 65 70 75 80 85 90
-                        2-1~8:80 85 90 95 100 105 110 115
-                        3-1~8 105 110 115 120 125 130 135 140
-                       血量=(章節+1)*25+(關卡)
-                       因為測試時覺得血量太少，所以直接*2
+                        2-1~8:205 210 215 220 225 230 235 240
+                        3-1~8 455 460 465 470 475 480 485 490
+                       血量=(章節*章節)*50+(關卡*5)
              */
-            Hp =(   ( (Chap+1) *25 ) + ( Level *5 )   ) ;
+            Hp =(   ( Chap * Chap *50 ) + ( Level *5 )   ) ;
         }
         else if (StandByScene.HardMode == true)
         {
@@ -45,7 +44,7 @@ public class MapControl : MonoBehaviour
             else if (Level % 3 == 0) BGHard3.SetActive(true);
 
             //怪物血量
-            Hp =( ( (Chap + 1) * 25) + (Level  * 5) )* 4;
+            Hp =(  (Chap * Chap * 50) + (Level * 5)   ) * 4;
         }
 
     }
