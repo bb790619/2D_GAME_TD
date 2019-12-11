@@ -63,7 +63,7 @@ public class TimeRecord : MonoBehaviour
     }
     #endregion
     // Start is called before the first frame update
-    void Start()
+    void Awake() 
     {
         Repeat = PlayerPrefs.GetInt("RepeatTime"); //讀取檔案
         //共用同一個存檔，只有第一次執行會存檔，避免數值一直被更新歸0
